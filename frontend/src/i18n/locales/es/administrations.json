@@ -1,0 +1,287 @@
+{
+  "dossier": {
+    "sectionLabel": "Resumen de Administración",
+    "politicalContext": "Contexto Político",
+    "procurementFingerprint": "Huella de Contratación",
+    "knownScandals": "Casos de Corrupción Documentados",
+    "topSectors": "Sectores con Mayor Gasto",
+    "noScandals": "Sin casos para este período en la base de casos etiquetados de RUBLI.",
+    "linkToCases": "Ver en Casos",
+    "fingerprint": {
+      "totalSpend": "Gasto Total",
+      "directAward": "Adj. Directa",
+      "singleBid": "Lic. Única",
+      "avgRisk": "Riesgo Prom.",
+      "highRisk": "Tasa Alto Riesgo",
+      "valueAtRisk": "Valor en Riesgo",
+      "vendors": "Proveedores"
+    },
+    "severityLabels": {
+      "critical": "CRIT",
+      "high": "ALTO",
+      "medium": "MED"
+    },
+    "keyFigures": "Cifras Clave",
+    "keyFiguresLabels": {
+      "highestRiskSector": "Sec. Riesgo",
+      "singleBidRate": "Lic. Única",
+      "directAwardRate": "Adj. Directa",
+      "aboveAvg": "Sobre el promedio",
+      "typical": "Rango tipico",
+      "critical": "Nivel critico",
+      "elevated": "Elevado",
+      "moderate": "Moderado"
+    },
+    "scandals": {
+      "casa_blanca": "Casa Blanca — Conflicto de interés: familiares del presidente vinculados al contratista Grupo Higa (EPN, 2014)",
+      "estafa_maestra": "La Estafa Maestra — 7,600 MDP desviados mediante empresas fantasma a través de universidades públicas (EPN, 2017)",
+      "imss_ghost": "Red de Empresas Fantasma del IMSS — proveedores ficticios recibieron miles de millones en contratos de salud (exposición era EPN, 2015)",
+      "odebrecht": "Odebrecht-PEMEX — empresa brasileña pagó sobornos por contratos de infraestructura (Calderón/EPN, 2010–2016)",
+      "pemexgate": "PEMEXGATE — desvío de fondos sindicales mediante contratos de mantenimiento en Pemex (Fox, 2004)",
+      "segalmex": "Segalmex — fraude de 9,400 MDP en contratos de distribución de alimentos subsidiados (AMLO, 2021)",
+      "covid_procurement": "Compras de Emergencia COVID-19 — ventiladores y medicamentos adjudicados sin licitación; irregularidades con Bruluart y DIMM (AMLO, 2020)",
+      "tren_maya": "Tren Maya — FONATUR adjudicó directamente 180 MDP al Ejército sin licitación civil (AMLO, 2023)",
+      "efos_sat": "SAT EFOS Definitivo — 38 proveedores de COMPRANET confirmados como empresas fantasma por el SAT (AMLO, 2022)",
+      "grupo_higa": "Grupo Higa / Casa Blanca — contratista de infraestructura con conflicto de interés directo con la familia presidencial (EPN, 2014)"
+    },
+    "contexts": {
+      "fox": "La victoria de Vicente Fox en 2000 rompió 71 años de hegemonía priista. Como primer presidente panista, su administración priorizó la transparencia económica y lanzó COMPRANET como plataforma digital de compras públicas, aunque heredó redes de clientelismo profundamente arraigadas.",
+      "calderon": "Felipe Calderón ganó la controvertida elección de 2006 por un margen del 0.56%. Su administración lanzó una guerra militarizada contra el narcotráfico que reconfiguró el gasto federal, generando grandes contratos de emergencia exentos de licitación en los sectores de defensa y seguridad.",
+      "pena_nieto": "Enrique Peña Nieto regresó al poder en 2012 prometiendo modernización. Sus seis años registraron algunas de las investigaciones de corrupción más destacadas de México — Casa Blanca, La Estafa Maestra y Odebrecht-PEMEX — que expusieron importantes brechas en la supervisión de la contratación pública.",
+      "amlo": "Andrés Manuel López Obrador ganó la elección de 2018 con el mayor margen de la historia moderna de México (53%). Su autollamada 'Cuarta Transformación' centralizó el poder de contratación, alcanzando una tasa récord de adjudicaciones directas del 78.9% al tiempo que eludía la licitación competitiva, citando metas de austeridad y anticorrupción.",
+      "sheinbaum": "Claudia Sheinbaum, elegida en junio de 2024 con el 59% de los votos, es la primera presidenta de México. Científica del clima de formación, asumió el cargo el 1 de octubre de 2024, heredando las estructuras institucionales de AMLO. Sus primeros meses muestran una reducción direccional en las adjudicaciones directas, aunque los riesgos de continuidad siguen siendo elevados."
+    }
+  },
+  "comparisonTable": "Comparación de Administraciones",
+  "narrative": "Contexto",
+  "groundTruthNote": "Los casos de este período de la base etiquetada de RUBLI (reportajes, registros oficiales y documentación de analistas; la mayoría no son resoluciones) se registran en la sección de Casos, con coincidencias de proveedores y conteos de contratos.",
+  "yearlyTrends": "Tendencias Anuales — {{admin}} ({{start}}–{{end}})",
+  "sectorProfile": "Perfil de Riesgo Sectorial — {{admin}}",
+  "transitionImpact": "Impacto de Transición",
+  "keyEvents": "Eventos Clave — {{admin}} ({{start}}–{{end}})",
+  "documentedCases": "Casos de Corrupción Documentados",
+  "documentedCasesNote": "Casos de la base etiquetada de RUBLI — reportajes de prensa, registros oficiales y documentación de analistas. La mayoría no son resoluciones.",
+  "noData": "Sin datos anuales disponibles para esta administración",
+  "insufficientData": "Datos insuficientes para el análisis de transición",
+  "table": {
+    "metric": "Métrica"
+  },
+  "statCards": {
+    "contracts": "Contratos",
+    "totalValue": "Valor Total",
+    "directAward": "Adj. Directa %",
+    "singleBid": "Lic. Unica %",
+    "highRisk": "Alto Riesgo %",
+    "activeVendors": "Proveedores Activos",
+    "vsAvg": "vs promedio"
+  },
+  "tabs": {
+    "profile": "Perfil de Administración",
+    "patterns": "Patrones Sistémicos",
+    "compare": "Comparación de Períodos"
+  },
+  "contracts": "contratos",
+  "incompleteDataset": "Conjunto de Datos Incompleto",
+  "incompleteDatasetDescription": "Sheinbaum asumió el 1 de octubre de 2024; este expediente cuenta su sexenio desde 2025, el primer año calendario completo, con datos al 28 de septiembre de 2025 (~9 meses) frente a sexenios de seis años para los demás presidentes. Las comparaciones directas pueden ser engañosas.",
+  "aiDetectedAnomalies": "Anomalías Detectadas por IA",
+  "anomaliesNote": "años que se desvían >1.8σ de la línea base 2002–2025",
+  "sectorCorrelations": "Correlaciones de Riesgo Sectorial",
+  "sectorCorrelationsNote": "Pares de sectores con trayectorias de riesgo correlacionadas (|r| ≥ 0.70) durante esta administración",
+  "heatmapSubtitle": "Métricas de riesgo por sector durante la administración seleccionada — ordenadas por porcentaje de contratos de alto riesgo.",
+  "transitionSubtitle": "Cambios en indicadores clave entre administraciones consecutivas. Los valores marcados con ! o !! son estadísticamente inusuales (≥1.8σ del promedio histórico).",
+  "keyEventsSubtitle": "Reformas legislativas, escándalos documentados y crisis que afectaron los patrones de contratación pública durante esta administración.",
+  "heatmap": {
+    "sector": "Sector",
+    "directAward": "Adj. Directa",
+    "singleBid": "Lic. Unica",
+    "highRisk": "Alto Riesgo",
+    "avgRisk": "Riesgo Prom."
+  },
+  "comparisonTableDesc": "Comparación de métricas promedio entre los cinco gobiernos — basado en datos reales de COMPRANET. La administración seleccionada aparece en azul.",
+  "matrixTitle": "Matriz de Riesgo por Administración y Sector",
+  "matrixSubtitle": "Promedios ponderados por volumen — cambia la métrica a la derecha; ordena por cualquier columna",
+  "matrixSubtitleLoading": "Estimaciones ilustrativas (cargando datos…)",
+  "matrixOverall": "General",
+  "matrixOverallHint": "Ordenar por posición general",
+  "matrixChrono": "Crono",
+  "matrixChronoHint": "Alternar orden cronológico / por ranking",
+  "matrixLess": "menor",
+  "matrixMore": "mayor",
+  "fingerprints": {
+    "title": "Huellas de Contratación Presidencial",
+    "subtitle": "Cómo se comparan los patrones de contratación de cada administración en dimensiones de riesgo",
+    "insight_lowest_risk": "Era de Menor Riesgo",
+    "insight_highest_da": "Mayor Adjudicación Directa",
+    "insight_biggest_spender": "Mayor Gasto"
+  },
+  "editorial": {
+    "sectionTitle": "Perfil Investigativo",
+    "sectionSubtitle": "Patrones de riesgo identificados en 23 años de datos de contratación pública",
+    "fox": {
+      "headline": "Era Fox: Se establece la línea base — adjudicaciones directas al 65%",
+      "findings": "La administración de Fox (2002–2005) marca el inicio del registro sistemático de adquisiciones en COMPRANET. Con aproximadamente 550,000 contratos por un valor de 2.3 billones de pesos, la tasa de adjudicaciones directas promedió el 65%, estableciendo el parámetro del que se alejarían las administraciones posteriores. La calidad de los datos de este período es muy limitada (0.1% de cobertura RFC), lo que impide rastrear con precisión la identidad de proveedores y las redes de relacionamiento.",
+      "keyRisk": "Opacidad estructural: la casi total ausencia de RFC impide que el análisis de colusión y concentración sea confiable para la mayoría de los contratos de este período.",
+      "legacy": "La puntuación de riesgo promedio más baja de cualquier administración (0.25), aunque refleja tanto las limitaciones de los datos como el cumplimiento real — la línea base 2002–2010 debe leerse como estimación mínima, no como historial limpio."
+    },
+    "calderon": {
+      "headline": "Calderón: Contratación de seguridad se dispara en plena guerra contra el narco",
+      "findings": "La administración de Calderón (2006–2011) generó aproximadamente 620,000 contratos por un total de 3.1 billones de pesos, un incremento del 35% en gasto respecto a la era Fox. La contratación en seguridad y defensa se expandió considerablemente conforme el gobierno escaló los operativos militares contra los cárteles, concentrando contratos de gran escala en los sectores de Defensa y Gobernación, donde la competencia está estructuralmente limitada por requisitos de habilitación de seguridad. El riesgo promedio subió a 0.27.",
+      "keyRisk": "La contratación impulsada por razones de seguridad generó cobertura legítima para reducir la competencia: las tasas de adjudicación directa en el sector Defensa superaron el 80%, haciendo prácticamente imposible distinguir la confidencialidad necesaria de la irregularidad en la contratación.",
+      "legacy": "El gasto de 3.1 billones de pesos estableció un récord para la década de 2000, y el impulso presupuestal de la guerra contra el narco consolidó patrones institucionales —proveedores concentrados, altas tasas de adjudicación directa en defensa— que resultaron duraderos en administraciones posteriores."
+    },
+    "penaNieto": {
+      "headline": "Peña Nieto: La Estafa Maestra y la era de las empresas fantasma",
+      "findings": "La administración de Peña Nieto (2012–2017) supervisó aproximadamente 680,000 contratos por 2.8 billones de pesos, con un riesgo promedio de 0.30, el más alto de cualquier administración previa a AMLO. Este período vio emerger \"La Estafa Maestra\": una red de empresas fantasma que canalizó recursos públicos a través de universidades y dependencias estatales, desviando un estimado de 7,700 millones de pesos. El escándalo de la Casa Blanca vinculó directamente a familiares del presidente con contratistas gubernamentales como Grupo Higa y Constructora Teya.",
+      "keyRisk": "Infraestructura de empresas fantasma: la contratación se enrutó sistemáticamente a través de entidades sin operaciones reales, explotando vacíos regulatorios en la supervisión de subcontratación que los datos de COMPRANET por sí solos no alcanzan a exponer.",
+      "legacy": "La era Peña Nieto estableció el arquetipo moderno del fraude institucional en la contratación pública mexicana: no mediante robo burdo, sino a través de esquemas de subcontratación en capas que tomaron años de auditorías de la ASF y periodismo de investigación para desmantelar parcialmente."
+    },
+    "amlo": {
+      "headline": "AMLO: 78.9% de adjudicaciones directas — el máximo histórico en el registro moderno",
+      "findings": "La administración de AMLO (2018–2024) generó el mayor volumen de contratación de cualquier presidencia: aproximadamente 1.24 millones de contratos por 3.2 billones de pesos. La tasa de adjudicaciones directas alcanzó el 78.9%, la más alta registrada en todas las administraciones y ocho veces la línea de adjudicación directa del 10% que el Tablero del Mercado Único de la UE considera insatisfactoria. La contratación de emergencia por COVID-19 en 2020–2021 presentó irregularidades significativas en contratos del sector salud, con proveedores como Bruluart y DIMM recibiendo adjudicaciones de miles de millones de pesos mediante procesos expeditos con mínimo escrutinio competitivo. El riesgo promedio llegó a 0.31.",
+      "keyRisk": "La elusión sistemática de la licitación competitiva —justificada alternativamente como poderes de emergencia, austeridad o anticorrupción— creó paradójicamente las condiciones que los marcos de la OCDE identifican como patrones de contratación de mayor riesgo.",
+      "legacy": "Con 1.24 millones de contratos, el sexenio de AMLO representa aproximadamente el 40% de todos los registros de contratación en la base de datos RUBLI; la tasa excepcionalmente alta de adjudicaciones directas implica que una proporción desproporcionada de esos contratos carece de documentación competitiva suficiente para reconstruir la lógica de precios o detectar sobreprecio con posterioridad."
+    },
+    "sheinbaum": {
+      "headline": "Sheinbaum: Datos tempranos muestran un descenso en adjudicaciones directas",
+      "findings": "La administración de Sheinbaum (octubre de 2024 a la fecha) ha generado aproximadamente 92,000 contratos por 718,000 millones de pesos en su primer año parcial — un dato todavía prematuro para análisis de tendencias, pero notable por una tasa de adjudicaciones directas del 68.3%, considerablemente por debajo del pico de la era AMLO. La administración heredó las estructuras institucionales de contratación, las relaciones con proveedores y los perfiles de riesgo precomputados construidos bajo el gobierno anterior; cómo evolucionen a lo largo de un sexenio completo determinará si la reducción refleja una reforma estructural o un artefacto estadístico de los primeros meses del período.",
+      "keyRisk": "Riesgo de continuidad: el gabinete de Sheinbaum mantiene un traslape institucional significativo con la administración de AMLO, y los proveedores, dependencias y normas procedimentales consolidados durante seis años no se reinician con la toma de protesta.",
+      "legacy": "Aún pronto para evaluar de forma definitiva — pero con 68.3% de adjudicaciones directas frente al 78.9% de AMLO, los primeros meses representan la tasa más baja desde la era Calderón y el primer descenso estadísticamente significativo en una década."
+    }
+  },
+  "vendorSection": {
+    "title": "Principales Proveedores por Administración",
+    "subtitle": "Mayores receptores de contratos federales, por sexenio",
+    "noData": "Datos insuficientes para este período",
+    "contracts": "contratos",
+    "riskScore": "riesgo prom."
+  },
+  "classifiedHeader": {
+    "eyebrow": "Análisis Comparativo · RUBLI · Sistema Nacional de Transparencia",
+    "title": "Administraciones en Perfil Comparativo",
+    "subtitle": "Análisis comparativo de riesgo en contratación pública federal · 2001–2025 · {{contracts}} contratos · ${{value}} MXN auditados",
+    "highestRiskNote": "AMLO registró la tasa más alta de riesgo:",
+    "lowestRiskNote": "EPN registró la más baja:"
+  },
+  "evidenceSection": {
+    "label": "Evidencia",
+    "registryTitle": "El Registro — Tasa de Alto Riesgo por Sexenio",
+    "registryNote": "Nota: la mayor cobertura de RFC en datos 2018+ puede contribuir a tasas de detección de riesgo más altas en administraciones recientes.",
+    "inflationNote": "Montos en pesos mexicanos nominales. La inflación acumulada 2002–2025 supera el 150%. Las comparaciones de gasto entre administraciones deben considerar los cambios en el poder adquisitivo.",
+    "amloMultiplier": "+1.7 pts vs EPN"
+  },
+  "matrixLegend": {
+    "low": "Bajo",
+    "high": "Alto",
+    "administration": "Administración",
+    "sourceNote": "Fuente: contratos COMPRANET ponderados por volumen"
+  },
+  "patternsView": {
+    "directAwardCard": "Tasa de Adj. Directa",
+    "directAwardDesc": "Promedio de 23 años. Tablero UE: ≥10% de adjudicación directa = insatisfactorio.",
+    "directAwardAboveBenchmark": "+{{val}}pp por encima del referente.",
+    "directAwardPeak": "Pico: {{val}}% ({{year}})",
+    "singleBidCard": "Tasa de Licitación Única",
+    "singleBidDesc": "Licitaciones competitivas con un solo postor — indicador principal de colusión.",
+    "singleBidPeak": "Pico: {{maxSB}}% · Máximo histórico de alto riesgo: {{maxHR}}%",
+    "highRiskCard": "Tasa de Alto Riesgo",
+    "highRiskDesc": "Contratos clasificados como riesgo crítico o alto por el modelo v0.8.5. Los umbrales se fijaron para que la tasa de alto riesgo caiga dentro de la meta de calibración propia de RUBLI (2–15%).",
+    "highRiskAvg": "Riesgo promedio: {{val}}% en 3.05M de contratos",
+    "chartTitle": "Patrones Sistémicos — Cronología de 23 Años (2002–2025)",
+    "nationalAvgLabel": "Prom. nacional 78%",
+    "regimeShiftNote": "Líneas ámbar = cambios de régimen detectados estadísticamente (algoritmo PELT)",
+    "chartFootnote": "Las líneas verticales punteadas indican transiciones entre administraciones presidenciales. Tres patrones sistémicos — adjudicaciones directas que eluden la competencia, licitaciones con un solo postor y contratos de alto riesgo detectados por IA — persisten en todas las administraciones independientemente del partido político.",
+    "politicalCycleTitle": "Ciclo Presupuestal Político — Riesgo por Año del Sexenio",
+    "politicalCycleDesc": "El ciclo presidencial de 6 años en México crea ritmos presupuestales predecibles. Año 1 = nueva administración (año electoral). Año 3 = elecciones intermedias. Año 6 = gasto en período lame-duck.",
+    "electionYearAvgNote": "Riesgo promedio año electoral: {{election}}% vs {{nonElection}}% año no electoral",
+    "noData": "Sin datos disponibles",
+    "loadingData": "Cargando datos sectoriales…"
+  },
+  "politicalView": {
+    "insufficientData": "Datos insuficientes",
+    "higherInElection": "Mayor riesgo en años electorales",
+    "lowerInElection": "Menor riesgo en años electorales",
+    "noSignificantDiff": "Sin diferencia significativa"
+  },
+  "trajectoryChart": {
+    "title": "Trayectoria de Riesgo por Año del Sexenio — Todas las Administraciones",
+    "subtitle": "Cada línea traza la métrica de una administración a través de los años 1–6 del sexenio. Discontinua = datos parciales.",
+    "metricRisk": "Riesgo",
+    "metricDA": "Adj. Directa",
+    "metricHR": "Alto Riesgo"
+  },
+  "sunburstCard": {
+    "title": "Huella de Gasto por Administración",
+    "subtitle": "Anillo interior = administración · Anillo exterior = gasto sectorial · Clic para expandir"
+  },
+  "intensityHeatmap": {
+    "title": "Mapa de Calor de Intensidad de Contratación",
+    "subtitle": "% del gasto total de cada administración asignado por sector. Celdas más oscuras = mayor concentración del gasto en ese sector."
+  },
+  "expedientes": "Perfiles de Administración",
+  "cardLabels": {
+    "expediente": "Expediente",
+    "contratos": "Contratos",
+    "gastoTotal": "Gasto Total",
+    "altoRiesgo": "Tasa Alto Riesgo"
+  },
+  "keyRisk": "Riesgo Clave",
+  "legacy": "Legado",
+  "transitionMetrics": {
+    "directAward": "Adj. Directa",
+    "singleBid": "Lic. Única",
+    "highRisk": "Alto Riesgo",
+    "contracts": "Contratos",
+    "vendors": "Proveedores"
+  },
+  "evidenceLabel": "Evidencia · Perfil Sectorial",
+  "cronologiaLabel": "Cronología · Hechos Documentados",
+  "eventsNoData": "Sin eventos registrados para este período.",
+  "eventTypes": {
+    "reform": "Reforma",
+    "scandal": "Escándalo",
+    "audit": "Auditoría",
+    "crisis": "Crisis"
+  },
+  "compareView": {
+    "signalWorse": "Peor",
+    "signalBetter": "Mejor"
+  },
+  "grade": {
+    "title": "CALIFICACIÓN DE COMPRAS",
+    "procurement": "Tasas de adjudicación directa y licitante único frente a las líneas del Tablero UE; tasa de alto riesgo frente a la meta de calibración de RUBLI."
+  },
+  "radar": {
+    "title": "Todas las Administraciones: Huella de Compras",
+    "subtitle": "Radar comparativo de 5 métricas clave de contratación en todas las presidencias (más alto = mejor desempeño)",
+    "axisRiskScore": "Riesgo",
+    "axisHighRisk": "HR%",
+    "axisDirectAward": "DA%",
+    "axisTotalValue": "Gasto",
+    "axisVolume": "Volumen",
+    "miniHighRisk": "Alto Riesgo",
+    "miniDirectAward": "Adj. Directa",
+    "insightLowestNote": "Menor tasa de contratos de alto riesgo entre todas las administraciones",
+    "insightHighestDaNote": "Mayor proporción de contratos adjudicados sin competencia",
+    "insightBiggestNote": "Mayor valor total de contratación pública en una sola administración"
+  },
+  "actCard": {
+    "contracts": "Contratos",
+    "totalValue": "Valor total",
+    "directAward": "Adj. directa",
+    "avgRisk": "Riesgo prom.",
+    "daVsOecd": "Adj. Directa vs línea UE ({{pct}}%)",
+    "oecdBenchmark": "UE {{pct}}%",
+    "notableCase": "Caso notable:"
+  },
+  "share": "Compartir",
+  "lede": {
+    "rose": "subió",
+    "fell": "cayó",
+    "contracts": "contratos",
+    "kicker": "Hallazgo sexenal · Adjudicación directa {{direction}} {{absDelta}} pp",
+    "deck": "El traspaso de {{prevName}} a {{currName}} trajo el mayor giro en contratación sin concurso del periodo analizado: la adjudicación directa {{direction}} de {{prevPct}}% a {{currPct}}% — una señal de cómo cambia la competencia cuando cambia el régimen.",
+    "viewDossier": "Ver expediente de {{name}}"
+  },
+  "loadError": "Datos no disponibles",
+  "loadErrorDetail": "El servidor puede estar temporalmente no disponible. Los datos de las administraciones aparecerán una vez que se restablezca la conexión."
+}

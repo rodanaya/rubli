@@ -1,0 +1,1411 @@
+/**
+ * RedesKnownDossier — /network — "LA TRAMA" (The Mesh)
+ *
+ * Phase A of the La Trama rebuild (design council wf_7f8821ad, 2026-06-07).
+ * The page is the platform's only RELATIONAL instrument: it renders the
+ * real co-bidding graph (co_bidding_stats edges + Louvain communities
+ * from vendor_graph_features) that no other surface shows. The Atlas
+ * draws a constellation metaphor; this page draws the forensic mesh.
+ *
+ *   RUNG 0  cluster index — ranked real communities (left rail)
+ *   RUNG 1  CommunityForceGraph — members + real edges (the plate)
+ *   RUNG 2  actor view — VendorNetworkView via ?vendor= (Phase B ladder)
+ *
+ * Named precedent: ICIJ Aleph entity-flow / OCCRP shell-company
+ * diagrams (plate); NYT Upshot annotated ranking (index).
+ *
+ * URL contract (Graft C): /network?comm=<id>&vendor=<id>
+ * Lazy useState initializers read the URL synchronously on mount
+ * (Atlas fix c240e4b3 — deep links must not reset).
+ */
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useQuery } from '@tanstack/react-query'
+import { Network, ShieldAlert, Search, Pin, Building2 } from 'lucide-react'
+import { networkApi, type CommunityIndexItem, type InstitutionCaptureItem } from '@/api/client'
+import { cn, formatCompactMXN, formatNumber } from '@/lib/utils'
+import {
+  RISK_COLORS,
+  RISK_TEXT_COLORS,
+  PATTERN_COLORS,
+  getRiskLevelFromScore,
+  EU_DIRECT_AWARD_LIMIT,
+  EU_SINGLE_BID_LIMIT,
+  HHI_CONCENTRATED,
+} from '@/lib/constants'
+import { formatEntityName } from '@/lib/entity/format'
+import { EntityIdentityChip } from '@/components/ui/EntityIdentityChip'
+import { DossierOriginProvider } from '@/lib/nav/wayfinding'
+import { PlateFrame } from '@/components/atlas/PlateFrame'
+import { CommunityForceGraph } from '@/components/network/CommunityForceGraph'
+import { InstitutionStarGraph } from '@/components/network/InstitutionStarGraph'
+import { VendorNetworkView } from '@/components/network/VendorNetworkView'
+import { MeshPlano, signalDensity } from '@/components/network/MeshPlano'
+import { ClusterActa } from '@/components/network/ClusterActa'
+import { EvidenceIndex } from '@/components/network/EvidenceIndex'
+import { buildEvidenceMarks } from '@/lib/network/evidence'
+import { getClusterVerdict } from '@/lib/network/cluster-verdict'
+
+const PINS_KEY = 'rubli_trama_pins_v1'
+
+type SortKey = 'senal' | 'value' | 'risk' | 'size' | 'sb' | 'gt'
+type LensKey = 'clusters' | 'institutions'
+type InstSortKey = 'value' | 'top1_share' | 'hhi' | 'risk'
+
+function readPins(): number[] {
+  try {
+    const raw = localStorage.getItem(PINS_KEY)
+    const arr = raw ? JSON.parse(raw) : []
+    return Array.isArray(arr) ? arr.filter((n) => typeof n === 'number') : []
+  } catch {
+    return []
+  }
+}
+
+/** Hybrid cluster label (locked decision): "C-333 · órbita de GRUPO X". */
+function clusterLabel(c: CommunityIndexItem, isEs: boolean): { code: string; orbit: string } {
+  return {
+    code: `C-${c.community_id}`,
+    // 'full' (no char cut) — the 2-line clamp on the row governs overflow, so
+    // long hub names read as far as the row allows instead of a double "…".
+    orbit: `${isEs ? 'órbita de' : 'orbit of'} ${formatEntityName('vendor', c.hub_vendor_name, 'full')}`,
+  }
+}
+
+/** Compact FT "deviation from benchmark" row — same grammar as the shared
+ *  BenchmarkRow but responsive width and light-folio tokens (the shared
+ *  primitive is fixed at ~540px / dark-theme hexes and overflows this card). */
+function DeviationRow({
+  label,
+  value,
+  benchmark,
+  benchmarkLabel,
+  maxDelta,
+}: {
+  label: string
+  value: number
+  benchmark: number
+  benchmarkLabel: string
+  maxDelta: number
+}) {
+  const delta = value - benchmark
+  const isAbove = delta > 0
+  const halfPct = Math.min(Math.abs(delta) / maxDelta, 1) * 50
+  const fill = isAbove ? RISK_COLORS.critical : 'var(--color-text-muted)'
+  // AA-safe variant for small text (RISK_COLORS fail WCAG as numerals)
+  const textFill = isAbove ? RISK_TEXT_COLORS.critical : 'var(--color-text-muted)'
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-2 mb-1">
+        <span className="text-[12px] font-mono text-text-secondary">{label}</span>
+        <span className="text-[13px] font-mono text-text-muted">
+          <span style={{ color: textFill, fontWeight: 700 }}>{Math.round(value * 100)}%</span>
+          {' · '}
+          {benchmarkLabel} {Math.round(benchmark * 100)}%{' '}
+          <span style={{ color: textFill }}>
+            {isAbove ? '↑' : '↓'}{Math.abs(Math.round(delta * 100))}pp
+          </span>
+        </span>
+      </div>
+      <div className="relative h-[5px] w-full rounded-full bg-border/40" aria-hidden="true">
+        {/* benchmark tick at center */}
+        <span className="absolute left-1/2 top-[-2px] h-[9px] w-px bg-text-muted/60" />
+        <span
+          className="absolute top-[1px] h-[3px] rounded-full"
+          style={{
+            background: fill,
+            opacity: 0.9,
+            left: isAbove ? '50%' : `${50 - halfPct}%`,
+            width: `${halfPct}%`,
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
+/** Well-disc — the institution rail glyph ("El Sitio" graft). Three
+ *  channels, cover-the-captions clean: radius = total value, fill = risk
+ *  band, arc sweep = top-1 vendor share of the buyer's spend. */
+function WellDisc({ inst, maxValue }: { inst: InstitutionCaptureItem; maxValue: number }) {
+  const r = 5 + 7 * Math.sqrt(inst.total_value_mxn / Math.max(maxValue, 1))
+  const fill = inst.avg_risk_score != null ? RISK_COLORS[getRiskLevelFromScore(inst.avg_risk_score)] : 'var(--color-text-muted)'
+  const share = Math.min((inst.top1_share_pct ?? 0) / 100, 1)
+  const arcR = r + 2.5
+  const circumference = 2 * Math.PI * arcR
+  return (
+    <svg width={30} height={30} viewBox="0 0 30 30" className="shrink-0" aria-hidden="true">
+      <circle cx={15} cy={15} r={r} fill={fill} fillOpacity={0.78} />
+      {share > 0 && (
+        <circle
+          cx={15}
+          cy={15}
+          r={arcR}
+          fill="none"
+          stroke="var(--color-accent)"
+          strokeWidth={1.8}
+          strokeDasharray={`${circumference * share} ${circumference}`}
+          transform="rotate(-90 15 15)"
+        />
+      )}
+    </svg>
+  )
+}
+
+/** Pattern-mix micro-bar — the council's best new primitive. Suppressed
+ *  below 30% labeled coverage (locked decision). */
+function PatternMixBar({ c, isEs }: { c: CommunityIndexItem; isEs: boolean }) {
+  const coverage = c.size > 0 ? c.labeled_count / c.size : 0
+  if (coverage < 0.3 || c.pattern_mix.length === 0) return null
+  const total = c.pattern_mix.reduce((s, m) => s + m.count, 0)
+  if (total === 0) return null
+  return (
+    <span className="block min-w-0">
+      {/* D4 § 3: the bar owns a full-width line, the key reads on the next
+          one — a 96px strip beside 8.5px truncated text cut both. */}
+      <span className="flex h-[4px] w-full overflow-hidden rounded-full bg-border/40" aria-hidden="true">
+        {c.pattern_mix.map((m) => (
+          <span
+            key={m.pattern}
+            style={{
+              width: `${(m.count / total) * 100}%`,
+              background: PATTERN_COLORS[m.pattern] ?? 'var(--color-text-muted)',
+            }}
+          />
+        ))}
+      </span>
+      <span className="mt-1 block text-[10px] font-mono text-text-muted">
+        {c.pattern_mix.map((m) => `${m.pattern} ${Math.round((m.count / total) * 100)}%`).join(' · ')}
+        {' — '}
+        {isEs ? `sobre ${c.labeled_count} clasificados` : `over ${c.labeled_count} labeled`}
+      </span>
+    </span>
+  )
+}
+
+export default function RedesKnownDossier() {
+  const { i18n } = useTranslation('redes')
+  const isEs = i18n.language.startsWith('es')
+  const lang: 'en' | 'es' = isEs ? 'es' : 'en'
+
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  // RUNG 2 — actor view: /network?vendor=12345 (promoted ladder in Phase B)
+  const vendorParam = searchParams.get('vendor')
+  const vendorId = vendorParam ? parseInt(vendorParam, 10) : null
+
+  // Lens + selections — lazy-init from URL so deep links survive mount.
+  const [lens, setLens] = useState<LensKey>(() =>
+    searchParams.get('lens') === 'institutions' ? 'institutions' : 'clusters',
+  )
+  const [commId, setCommId] = useState<number | null>(() => {
+    const raw = searchParams.get('comm')
+    const n = raw ? parseInt(raw, 10) : NaN
+    return Number.isFinite(n) && n >= 0 ? n : null
+  })
+  const [instId, setInstId] = useState<number | null>(() => {
+    const raw = searchParams.get('inst')
+    const n = raw ? parseInt(raw, 10) : NaN
+    return Number.isFinite(n) && n > 0 ? n : null
+  })
+  const [instSort, setInstSort] = useState<InstSortKey>('value')
+  const [selectedVendor, setSelectedVendor] = useState<number | null>(null)
+  const [sortBy, setSortBy] = useState<SortKey>('senal')
+  const [patternFilter, setPatternFilter] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
+  const [showAll, setShowAll] = useState(false)
+  const [pins, setPins] = useState<number[]>(readPins)
+  const [linkCopied, setLinkCopied] = useState(false)
+  const plateRef = useRef<HTMLDivElement | null>(null)
+
+  // PARALLAX D4 § Change 8 — typing must not redraw the mesh: the filter memos
+  // read the deferred query, so a keystroke re-renders the rail rows only.
+  const deferredQuery = useDeferredValue(query)
+
+  const togglePin = (id: number) => {
+    setPins((prev) => {
+      const next = prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id].slice(-12)
+      try {
+        localStorage.setItem(PINS_KEY, JSON.stringify(next))
+      } catch {
+        /* storage unavailable — pin survives the session only */
+      }
+      return next
+    })
+  }
+
+  const copyTrailLink = () => {
+    try {
+      void navigator.clipboard.writeText(window.location.href)
+      setLinkCopied(true)
+      window.setTimeout(() => setLinkCopied(false), 1800)
+    } catch {
+      /* clipboard unavailable — no-op */
+    }
+  }
+
+  // Write lens/comm/inst back to the URL (replace — no history spam).
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams)
+    if (lens === 'institutions') next.set('lens', 'institutions')
+    else next.delete('lens')
+    if (commId != null) next.set('comm', String(commId))
+    else next.delete('comm')
+    if (instId != null) next.set('inst', String(instId))
+    else next.delete('inst')
+    if (next.toString() !== searchParams.toString()) {
+      setSearchParams(next, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lens, commId, instId])
+
+  const { data: index, isLoading: indexLoading, isError: indexError } = useQuery({
+    queryKey: ['trama-index'],
+    queryFn: () => networkApi.getCommunitiesIndex(),
+    staleTime: 60 * 60 * 1000,
+    retry: 2,
+    enabled: vendorId == null,
+  })
+
+  // Default to the highest-value community: the real mesh must be
+  // visceral on first paint, not hidden behind a click.
+  // Default the plate to the highest-SIGNAL knot (not the top-value giant):
+  // the page argues the signal lives in the small dense knots, so lead with one.
+  const topSignalComm =
+    index && index.communities.length
+      ? index.communities.reduce((b, c) => (signalDensity(c) > signalDensity(b) ? c : b)).community_id
+      : null
+  const effectiveComm = commId ?? topSignalComm ?? null
+  const effectiveCommItem =
+    index?.communities.find((c) => c.community_id === effectiveComm) ?? null
+
+  const { data: graph, isLoading: graphLoading, isError: graphError } = useQuery({
+    queryKey: ['trama-graph', effectiveComm],
+    queryFn: () => networkApi.getCommunityGraph(effectiveComm as number),
+    staleTime: 60 * 60 * 1000,
+    retry: 2,
+    enabled: vendorId == null && lens === 'clusters' && effectiveComm != null,
+  })
+
+  // Institution lens ("El Sitio" graft) — fetched once, sorted client-side.
+  const { data: capture, isLoading: captureLoading, isError: captureError } = useQuery({
+    queryKey: ['trama-capture'],
+    queryFn: () => networkApi.getInstitutionCapture(120, 'value'),
+    staleTime: 60 * 60 * 1000,
+    retry: 2,
+    // Fetched in BOTH lenses (cached 1h): the clusters lens needs it to invert
+    // feeding_communities → «compradores asediados» for the selected knot.
+    enabled: vendorId == null,
+  })
+
+  const sortedInstitutions = useMemo(() => {
+    if (!capture) return []
+    let list = capture.institutions
+    if (deferredQuery.trim() && lens === 'institutions') {
+      const q = deferredQuery.trim().toLowerCase()
+      list = list.filter((i) => i.name.toLowerCase().includes(q))
+    }
+    const sorted = [...list]
+    switch (instSort) {
+      case 'top1_share':
+        sorted.sort((a, b) => (b.top1_share_pct ?? 0) - (a.top1_share_pct ?? 0))
+        break
+      case 'hhi':
+        sorted.sort((a, b) => (b.latest_hhi ?? 0) - (a.latest_hhi ?? 0))
+        break
+      case 'risk':
+        sorted.sort((a, b) => (b.avg_risk_score ?? 0) - (a.avg_risk_score ?? 0))
+        break
+      default:
+        sorted.sort((a, b) => b.total_value_mxn - a.total_value_mxn)
+    }
+    return sorted
+  }, [capture, instSort, deferredQuery, lens])
+
+  const maxInstValue = useMemo(
+    () => Math.max(...(capture?.institutions.map((i) => i.total_value_mxn) ?? [1]), 1),
+    [capture],
+  )
+
+  const effectiveInst = instId ?? capture?.institutions[0]?.institution_id ?? null
+
+  const { data: star, isLoading: starLoading, isError: starError } = useQuery({
+    queryKey: ['trama-star', effectiveInst],
+    queryFn: () => networkApi.getInstitutionStar(effectiveInst as number),
+    staleTime: 60 * 60 * 1000,
+    retry: 2,
+    enabled: vendorId == null && lens === 'institutions' && effectiveInst != null,
+  })
+
+  const selectedCaptureItem = useMemo(
+    () => capture?.institutions.find((i) => i.institution_id === effectiveInst) ?? null,
+    [capture, effectiveInst],
+  )
+
+  const filtered = useMemo(() => {
+    if (!index) return []
+    let list = index.communities
+    if (patternFilter) {
+      list = list.filter((c) => c.pattern_mix[0]?.pattern === patternFilter)
+    }
+    if (deferredQuery.trim()) {
+      const q = deferredQuery.trim().toLowerCase()
+      list = list.filter(
+        (c) => c.hub_vendor_name.toLowerCase().includes(q) || `c-${c.community_id}`.includes(q),
+      )
+    }
+    const sorted = [...list]
+    switch (sortBy) {
+      case 'senal':
+        // Signal density = risk × value ÷ actors (the inversion default).
+        sorted.sort((a, b) => signalDensity(b) - signalDensity(a))
+        break
+      case 'risk':
+        sorted.sort((a, b) => b.avg_risk - a.avg_risk)
+        break
+      case 'size':
+        sorted.sort((a, b) => b.size - a.size)
+        break
+      case 'sb':
+        sorted.sort((a, b) => (b.sb_rate ?? 0) - (a.sb_rate ?? 0))
+        break
+      case 'gt':
+        sorted.sort((a, b) => b.gt_vendor_count - a.gt_vendor_count)
+        break
+      default:
+        sorted.sort((a, b) => b.total_value_mxn - a.total_value_mxn)
+    }
+    // Pinned clusters surface first (stable within their own sort order).
+    if (pins.length > 0) {
+      const pinSet = new Set(pins)
+      return [
+        ...sorted.filter((c) => pinSet.has(c.community_id)),
+        ...sorted.filter((c) => !pinSet.has(c.community_id)),
+      ]
+    }
+    return sorted
+  }, [index, patternFilter, deferredQuery, sortBy, pins])
+
+  const visible = showAll ? filtered : filtered.slice(0, 60)
+
+  // Mesh-median risk anchors the cluster verdict (the "{x}× the mesh median"
+  // clause) and the rail verdict ticks. Computed over the live index.
+  const meshMedianRisk = useMemo(() => {
+    if (!index || index.communities.length === 0) return 0.15
+    const s = index.communities.map((c) => c.avg_risk).sort((a, b) => a - b)
+    const mid = Math.floor(s.length / 2)
+    return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2
+  }, [index])
+
+  // «Compradores asediados» — invert feeding_communities: the top-120 federal
+  // buyers whose top-vendor clans include the selected knot. Frontend-only join.
+  const besiegedBuyers = useMemo(() => {
+    if (!capture || effectiveComm == null) return []
+    return capture.institutions
+      .map((i) => {
+        const ref = i.feeding_communities.find((f) => f.community_id === effectiveComm)
+        return ref ? { institutionId: i.institution_id, name: i.name, vendorCount: ref.vendor_count } : null
+      })
+      .filter((x): x is { institutionId: number; name: string; vendorCount: number } => x != null)
+      .sort((a, b) => b.vendorCount - a.vendorCount)
+      .slice(0, 4)
+  }, [capture, effectiveComm])
+
+  // Selection handlers — stable identities (PARALLAX D4 § Change 8): the
+  // memoized plates only re-render when their DATA changes, which a new
+  // callback on every keystroke would silently defeat.
+  const selectCommunity = useCallback((id: number) => {
+    setCommId(id)
+    setSelectedVendor(null)
+    plateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [])
+
+  const selectInstitution = useCallback((id: number) => {
+    setInstId(id)
+    setSelectedVendor(null)
+    plateRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [])
+
+  /** Cross-lens jump: a "feeding clan" chip opens that community's mesh. */
+  const jumpToClan = useCallback((cid: number) => {
+    setLens('clusters')
+    setCommId(cid)
+    setSelectedVendor(null)
+    setQuery('')
+  }, [])
+
+  const viewVendorRing = useCallback(
+    (vid: number) => {
+      const next = new URLSearchParams(searchParams)
+      next.set('vendor', String(vid))
+      if (effectiveComm != null) next.set('comm', String(effectiveComm))
+      setSearchParams(next)
+    },
+    [searchParams, setSearchParams, effectiveComm],
+  )
+
+  const openBuyerSiege = useCallback((id: number) => {
+    setLens('institutions')
+    setInstId(id)
+    setSelectedVendor(null)
+    setQuery('')
+  }, [])
+
+  // Forensic evidence marks for the active knot (El Croquis §3.4/§3.5).
+  // Cheap (≤100 nodes); pins onto the graph + decoded by EvidenceIndex.
+  // Memoized: a fresh array every render would defeat the graph's memo().
+  const evidenceEntries = useMemo(() => (graph ? buildEvidenceMarks(graph) : []), [graph])
+
+  // RUNG 2 early return AFTER all hooks (rules of hooks).
+  if (vendorId !== null && Number.isFinite(vendorId) && vendorId > 0) {
+    return <VendorNetworkView vendorId={vendorId} />
+  }
+
+  const sortLabels: Record<SortKey, { en: string; es: string }> = {
+    senal: { en: 'Signal', es: 'Señal' },
+    value: { en: 'Value', es: 'Valor' },
+    risk: { en: 'Risk', es: 'Riesgo' },
+    size: { en: 'Size', es: 'Tamaño' },
+    sb: { en: 'Single bid', es: 'Prop. única' },
+    gt: { en: 'GT cases', es: 'Casos GT' },
+  }
+
+  // W4 — one origin provider over the body tree so an actor opened to its vendor
+  // dossier (RUNG-3) gets a "← Volver a La Trama" thread back to the exact cluster
+  // + lens. NOT wrapped over the RUNG-3 early return (it owns its own breadcrumb).
+  return (
+    <DossierOriginProvider
+      value={{ route: `/network?${searchParams.toString()}`, label: lang === 'en' ? 'The Mesh' : 'La Trama' }}
+    >
+    <div className="relative space-y-8 max-w-6xl mx-auto pb-12">
+      {/* Paper-grain atmosphere — contemplative atlas surface */}
+      <svg
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{ width: '100%', height: '100%', opacity: 0.045, mixBlendMode: 'multiply', zIndex: 0 }}
+      >
+        <filter id="network-page-paper-grain">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="17" stitchTiles="stitch" />
+          <feColorMatrix type="matrix" values="0 0 0 0 0.41  0 0 0 0 0.27  0 0 0 0 0.13  0 0 0 1 0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#network-page-paper-grain)" />
+      </svg>
+
+      <div className="relative" style={{ zIndex: 1 }}>
+        {/* ── Hero ─────────────────────────────────────────────────────
+            D4 § 4 — the reading frame: text axis 640, figure 760,
+            instrument 1152, all centred on one line. */}
+        <div className="mx-auto max-w-[640px] border-b border-border/60 pb-8">
+          <div
+            className="flex items-center gap-3 mb-4"
+            style={{
+              fontFamily: '"IBM Plex Mono", "JetBrains Mono", monospace',
+              fontSize: '12px',
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--color-text-muted)',
+              fontWeight: 400,
+            }}
+          >
+            <span style={{ fontStyle: 'normal', fontWeight: 300 }}>
+              <span style={{ color: 'var(--color-accent)', fontWeight: 500 }}>Folio·XIV</span>
+              <span style={{ margin: '0 8px', opacity: 0.5 }}>·</span>
+              <span>{isEs ? 'Croquis de co-licitación · comunidades Louvain' : 'Co-bidding sketch · Louvain communities'}</span>
+            </span>
+          </div>
+
+          <h1
+            style={{
+              fontFamily: '"EB Garamond", "Playfair Display", Georgia, serif',
+              fontStyle: 'normal',
+              fontWeight: 500,
+              fontSize: 'clamp(34px, 5vw, 60px)',
+              lineHeight: 1.02,
+              letterSpacing: '-0.012em',
+            }}
+            className="text-text-primary mb-4"
+          >
+            {isEs ? (
+              <>
+                La trama se lee por sus{' '}
+                <span style={{ fontStyle: 'normal', fontWeight: 600, color: 'var(--color-accent)' }}>«nudos»</span>.
+              </>
+            ) : (
+              <>
+                The mesh is read by its{' '}
+                <span style={{ fontStyle: 'normal', fontWeight: 600, color: 'var(--color-accent)' }}>«knots»</span>.
+              </>
+            )}
+          </h1>
+
+          <p
+            style={{
+              fontFamily: '"EB Garamond", Georgia, serif',
+              fontSize: '17px',
+              lineHeight: 1.55,
+              color: 'var(--color-text-secondary)',
+              letterSpacing: '0.005em',
+            }}
+          >
+            {isEs ? (
+              <>
+                El Atlas dibuja una metáfora; esta lámina levanta el{' '}
+                <em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>croquis</em>: cada arista es
+                un par real de proveedores que licitaron juntos, cada cúmulo una comunidad detectada sobre la red de
+                co-licitación. Sin posiciones inventadas. Y una instrucción de lectura: los cúmulos gigantes son
+                plomería de mercado — la señal vive en los nudos pequeños y densos.
+              </>
+            ) : (
+              <>
+                The Atlas draws a metaphor; this plate lifts the{' '}
+                <em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>scene sketch</em>: every edge
+                is a real pair of vendors that bid together, every cluster a community detected over the co-bidding
+                network. No invented positions. And one reading instruction: the giant clusters are market plumbing —
+                the signal lives in the small, dense knots.
+              </>
+            )}
+          </p>
+        </div>
+
+        {/* ── Plano general — the size≠signal inversion, made visible ─── */}
+        {lens === 'clusters' && index && (
+          <div className="mt-8 mx-auto max-w-[760px]">
+            <MeshPlano
+              communities={index.communities}
+              totalCommunities={index.total_communities}
+              selectedId={effectiveComm}
+              onSelect={selectCommunity}
+              lang={lang}
+            />
+          </div>
+        )}
+
+        {/* ── Instrument: index rail ←→ mesh plate ─────────────────── */}
+        {/* Two columns only at xl: at 1024 a 370px rail left the plate 380px
+            wide, so the mesh is full width above the rail instead. */}
+        <div className="mt-8 grid grid-cols-1 xl:grid-cols-[370px_1fr] gap-6 items-start">
+          {/* RUNG 0 — index rail (two lenses) */}
+          <aside className="order-2 xl:order-1 xl:sticky xl:top-14">
+            {/* Lens tabs — CÚMULOS (default) | INSTITUCIONES */}
+            {/* D4 § 6 — the lens swaps rail AND plate and owns no panel, so it
+                is a toggle group, not a tablist. */}
+            <div
+              className="mb-3 flex items-stretch rounded-sm border border-border overflow-hidden"
+              role="group"
+              aria-label={isEs ? 'Lente' : 'Lens'}
+            >
+              <button
+                type="button"
+                aria-pressed={lens === 'clusters'}
+                onClick={() => {
+                  setLens('clusters')
+                  setQuery('')
+                }}
+                className={cn(
+                  'flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-mono font-bold uppercase tracking-[0.14em] transition-colors',
+                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+                  lens === 'clusters' ? 'bg-accent/12 text-accent' : 'text-text-muted hover:text-text-secondary',
+                )}
+              >
+                <Network className="h-3 w-3" aria-hidden="true" />
+                {isEs ? 'Cúmulos' : 'Clusters'}
+              </button>
+              <button
+                type="button"
+                aria-pressed={lens === 'institutions'}
+                onClick={() => {
+                  setLens('institutions')
+                  setQuery('')
+                }}
+                className={cn(
+                  'flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[12px] font-mono font-bold uppercase tracking-[0.14em] border-l border-border transition-colors',
+                  'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+                  lens === 'institutions' ? 'bg-accent/12 text-accent' : 'text-text-muted hover:text-text-secondary',
+                )}
+              >
+                <Building2 className="h-3 w-3" aria-hidden="true" />
+                {isEs ? 'Compradores' : 'Buyers'}
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 mb-3">
+              <h2 className="text-[12px] font-mono font-bold uppercase tracking-[0.2em] text-accent">
+                {lens === 'clusters'
+                  ? isEs ? '§ Índice de cúmulos' : '§ Cluster index'
+                  : isEs ? '§ Compradores sitiados' : '§ Besieged buyers'}
+              </h2>
+              <span className="text-[12px] font-mono text-text-muted">
+                {lens === 'clusters'
+                  ? `${filtered.length}/${index?.communities.length ?? 0}`
+                  : `${sortedInstitutions.length}/${capture?.total ?? 0}`}
+              </span>
+              <button
+                type="button"
+                onClick={copyTrailLink}
+                className="ml-auto rounded-sm border border-border px-2 py-1 text-[13px] font-mono uppercase tracking-wider text-text-muted hover:text-text-primary hover:bg-border/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              >
+                {linkCopied ? (isEs ? 'Copiado ✓' : 'Copied ✓') : isEs ? 'Copiar enlace' : 'Copy link'}
+              </button>
+              {/* The copy confirmation was visual only — announce it. */}
+              <span role="status" aria-live="polite" className="sr-only">
+                {linkCopied ? (isEs ? 'Enlace copiado' : 'Link copied') : ''}
+              </span>
+            </div>
+
+            {/* Search */}
+            <div className="relative mb-2">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text-muted/40" aria-hidden="true" />
+              <input
+                type="search"
+                name="trama-search"
+                autoComplete="off"
+                spellCheck={false}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={
+                  lens === 'clusters'
+                    ? isEs ? 'Buscar firma eje o C-NNN…' : 'Search hub firm or C-NNN…'
+                    : isEs ? 'Buscar institución…' : 'Search institution…'
+                }
+                aria-label={
+                  lens === 'clusters'
+                    ? isEs ? 'Buscar cúmulo' : 'Search cluster'
+                    : isEs ? 'Buscar institución' : 'Search institution'
+                }
+                className="w-full rounded-sm border border-border bg-background px-8 py-1.5 text-[12px] font-mono text-text-primary placeholder:text-text-muted focus:border-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              />
+            </div>
+
+            {/* Institution sort pills */}
+            {lens === 'institutions' && (
+              <div
+                className="mb-3 flex flex-wrap items-center gap-1"
+                role="group"
+                aria-label={isEs ? 'Ordenar instituciones' : 'Sort institutions'}
+              >
+                <span className="text-[13px] font-mono uppercase tracking-[0.15em] text-text-muted mr-1">
+                  {isEs ? 'Ordenar:' : 'Sort:'}
+                </span>
+                {(
+                  [
+                    ['value', isEs ? 'Valor' : 'Value'],
+                    ['top1_share', 'Top-1'],
+                    ['hhi', 'HHI'],
+                    ['risk', isEs ? 'Riesgo' : 'Risk'],
+                  ] as Array<[InstSortKey, string]>
+                ).map(([k, label]) => (
+                  <button
+                    key={k}
+                    type="button"
+                    aria-pressed={instSort === k}
+                    onClick={() => setInstSort(k)}
+                    className={cn(
+                      'px-2 py-1 rounded text-[13px] font-mono uppercase tracking-wider border transition-colors',
+                      'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+                      instSort === k
+                        ? 'bg-text-primary/8 border-text-primary/20 text-text-primary'
+                        : 'border-border text-text-muted hover:border-border-hover hover:text-text-secondary',
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Institution rail */}
+            {lens === 'institutions' && (
+              <>
+                {captureLoading && (
+                  <div className="space-y-2">
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                      <div key={i} className="h-14 rounded-sm border border-border/40 bg-border/20 animate-pulse" />
+                    ))}
+                  </div>
+                )}
+                {captureError && (
+                  <div className="rounded-sm border border-border/60 bg-background px-4 py-6 text-center">
+                    <p className="text-[12px] font-mono text-text-muted">
+                      {isEs
+                        ? 'No se pudo cargar el índice de instituciones.'
+                        : 'Institution index could not be loaded.'}
+                    </p>
+                  </div>
+                )}
+                {!captureLoading && !captureError && (
+                  <ul className="max-h-[72vh] overflow-y-auto pr-1 space-y-1">
+                    {sortedInstitutions.map((inst, rank) => {
+                      const active = inst.institution_id === effectiveInst
+                      const daHot = (inst.direct_award_pct ?? 0) > EU_DIRECT_AWARD_LIMIT * 100
+                      const hhiHot = (inst.latest_hhi ?? 0) >= HHI_CONCENTRATED
+                      return (
+                        <li
+                          key={inst.institution_id}
+                          style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 96px' }}
+                        >
+                          <button
+                            type="button"
+                            aria-pressed={active}
+                            onClick={() => selectInstitution(inst.institution_id)}
+                            className={cn(
+                              'w-full text-left rounded-sm border px-2.5 py-2 transition-colors flex items-center gap-2',
+                              'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+                              active
+                                ? 'border-accent/50 bg-accent/8'
+                                : 'border-border/60 bg-background-card hover:border-border-hover',
+                            )}
+                            style={active ? { boxShadow: 'inset 2px 0 0 var(--color-accent)' } : undefined}
+                          >
+                            <WellDisc inst={inst} maxValue={maxInstValue} />
+                            <span className="block min-w-0 flex-1">
+                              <span className="flex items-baseline justify-between gap-2">
+                                <span className="min-w-0 flex items-baseline gap-1.5 text-[13px] font-mono font-bold text-text-primary">
+                                  <span className="shrink-0 text-[12px] text-text-muted">{rank + 1}</span>
+                                  {/* W1 — known buyers ("Instituto Mexicano del Seguro Social")
+                                      must stay recognizable. D4 § 3: no clamp, no title — the
+                                      name is the row's identity and wraps in full. */}
+                                  <span className="min-w-0" style={{ lineHeight: 1.25 }}>
+                                    {formatEntityName('institution', inst.name, 'full')}
+                                  </span>
+                                </span>
+                                <span className="shrink-0 text-[13px] font-mono font-bold text-text-primary">
+                                  {formatCompactMXN(inst.total_value_mxn)}
+                                </span>
+                              </span>
+                              <span className="mt-0.5 flex flex-wrap gap-x-2.5 gap-y-0.5 text-[13px] font-mono text-text-muted">
+                                <span className="whitespace-nowrap">
+                                  DA{' '}
+                                  <span style={daHot ? { color: RISK_TEXT_COLORS.high, fontWeight: 700 } : undefined}>
+                                    {inst.direct_award_pct != null ? `${Math.round(inst.direct_award_pct)}%` : '—'}
+                                  </span>
+                                </span>
+                                <span className="whitespace-nowrap">
+                                  Top-1{' '}
+                                  <span className={cn((inst.top1_share_pct ?? 0) >= 50 && 'text-accent font-bold')}>
+                                    {inst.top1_share_pct != null ? `${Math.round(inst.top1_share_pct)}%` : '—'}
+                                  </span>
+                                </span>
+                                <span className="whitespace-nowrap">
+                                  HHI{' '}
+                                  <span style={hhiHot ? { color: RISK_TEXT_COLORS.high, fontWeight: 700 } : undefined}>
+                                    {inst.latest_hhi != null ? formatNumber(Math.round(inst.latest_hhi)) : '—'}
+                                  </span>
+                                </span>
+                                {inst.feeding_communities.length > 0 && (
+                                  <span className="whitespace-nowrap text-accent font-bold">
+                                    {inst.feeding_communities.length} {isEs ? 'clanes' : 'clans'}
+                                  </span>
+                                )}
+                              </span>
+                            </span>
+                          </button>
+                        </li>
+                      )
+                    })}
+                    {sortedInstitutions.length === 0 && (
+                      <li>
+                        <p className="py-8 text-center text-[13px] font-mono text-text-muted">
+                          {isEs ? 'Sin instituciones para esta búsqueda' : 'No institutions match this search'}
+                        </p>
+                      </li>
+                    )}
+                  </ul>
+                )}
+              </>
+            )}
+
+            {/* Cluster sort + pattern filter */}
+            {lens === 'clusters' && (
+            <>
+            <div className="mb-3 space-y-1.5">
+              <div
+                className="flex flex-wrap items-center gap-1"
+                role="group"
+                aria-label={isEs ? 'Ordenar cúmulos' : 'Sort clusters'}
+              >
+                <span className="text-[13px] font-mono uppercase tracking-[0.15em] text-text-muted mr-1">
+                  {isEs ? 'Ordenar:' : 'Sort:'}
+                </span>
+                {(Object.keys(sortLabels) as SortKey[]).map((k) => (
+                  <button
+                    key={k}
+                    type="button"
+                    aria-pressed={sortBy === k}
+                    onClick={() => setSortBy(k)}
+                    title={
+                      k === 'senal'
+                        ? isEs
+                          ? 'valor × indicador de riesgo ÷ actores'
+                          : 'value × risk indicator ÷ actors'
+                        : undefined
+                    }
+                    className={cn(
+                      'px-2 py-1 rounded text-[13px] font-mono uppercase tracking-wider border transition-colors',
+                      'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+                      sortBy === k
+                        ? 'bg-text-primary/8 border-text-primary/20 text-text-primary'
+                        : 'border-border text-text-muted hover:border-border-hover hover:text-text-secondary',
+                    )}
+                  >
+                    {isEs ? sortLabels[k].es : sortLabels[k].en}
+                  </button>
+                ))}
+              </div>
+              <div
+                className="flex flex-wrap items-center gap-1"
+                role="group"
+                aria-label={isEs ? 'Filtrar por patrón dominante' : 'Filter by dominant pattern'}
+              >
+                <span className="text-[13px] font-mono uppercase tracking-[0.15em] text-text-muted mr-1">
+                  {isEs ? 'Patrón dominante:' : 'Dominant pattern:'}
+                </span>
+                <button
+                  type="button"
+                  aria-pressed={patternFilter === null}
+                  onClick={() => setPatternFilter(null)}
+                  className={cn(
+                    'px-2 py-1 min-h-6 rounded-full text-[13px] font-mono font-bold uppercase border transition-colors',
+                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+                    patternFilter === null
+                      ? 'bg-text-primary/10 border-text-primary/30 text-text-primary'
+                      : 'border-border text-text-muted hover:border-border-hover',
+                  )}
+                >
+                  {isEs ? 'Todos' : 'All'}
+                </button>
+                {['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'].map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    aria-pressed={patternFilter === p}
+                    onClick={() => setPatternFilter(patternFilter === p ? null : p)}
+                    className={cn(
+                      'px-2 py-1 min-h-6 min-w-6 rounded-full text-[13px] font-mono font-bold uppercase border transition-colors',
+                      'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+                      patternFilter === p ? 'border-transparent text-white' : 'border-border text-text-muted hover:border-border-hover',
+                    )}
+                    style={patternFilter === p ? { background: PATTERN_COLORS[p] ?? 'var(--color-text-muted)' } : undefined}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Index rows */}
+            {indexLoading && (
+              <div className="space-y-2">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="h-16 rounded-sm border border-border/40 bg-border/20 animate-pulse" />
+                ))}
+              </div>
+            )}
+            {indexError && (
+              <div className="rounded-sm border border-border/60 bg-background px-4 py-6 text-center">
+                <p className="text-[12px] font-mono text-text-muted">
+                  {isEs
+                    ? 'No se pudo cargar el índice de cúmulos. El servidor puede estar reiniciando.'
+                    : 'Cluster index could not be loaded. The server may be restarting.'}
+                </p>
+              </div>
+            )}
+            {!indexLoading && !indexError && (
+              <ul className="max-h-[72vh] overflow-y-auto pr-1 space-y-1">
+                {visible.map((c, rank) => {
+                  const lbl = clusterLabel(c, isEs)
+                  const active = c.community_id === effectiveComm
+                  const pinned = pins.includes(c.community_id)
+                  const daHot = (c.da_rate ?? 0) > EU_DIRECT_AWARD_LIMIT
+                  const verdict = getClusterVerdict(c, meshMedianRisk)
+                  return (
+                    <li
+                      key={c.community_id}
+                      className="relative"
+                      style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 96px' }}
+                    >
+                      <button
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => selectCommunity(c.community_id)}
+                        className={cn(
+                          'w-full text-left rounded-sm border px-3 py-2 transition-colors',
+                          'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+                          active
+                            ? 'border-accent/50 bg-accent/8'
+                            : 'border-border/60 bg-background-card hover:border-border-hover',
+                        )}
+                        style={active ? { boxShadow: 'inset 2px 0 0 var(--color-accent)' } : undefined}
+                      >
+                        <span className="flex items-baseline justify-between gap-2 pr-7">
+                          <span className="min-w-0">
+                            <span className="text-[12px] font-mono font-bold text-text-muted mr-1.5">
+                              {rank + 1}
+                            </span>
+                            <span
+                              aria-hidden="true"
+                              className="inline-block rounded-[1px] mr-1 align-middle"
+                              style={{ width: 6, height: 6, background: verdict.color }}
+                            />
+                            <span className="sr-only">{isEs ? verdict.label_es : verdict.label_en}. </span>
+                            <span className="text-[13px] font-mono font-bold text-text-primary">{lbl.code}</span>
+                          </span>
+                          <span className="shrink-0 text-[13px] font-mono font-bold text-text-primary">
+                            {formatCompactMXN(c.total_value_mxn)}
+                          </span>
+                        </span>
+                        {/* W1 — the hub firm IS the cluster's identity: own row.
+                            D4 § 3: no clamp, no title — the name wraps in full. */}
+                        <span
+                          className="block mt-0.5 text-[12px] font-mono text-text-secondary"
+                          style={{ lineHeight: 1.25 }}
+                        >
+                          {lbl.orbit}
+                        </span>
+                        <span className="mt-1 flex flex-wrap gap-x-2.5 gap-y-0.5 text-[13px] font-mono text-text-muted">
+                          <span className="whitespace-nowrap">
+                            {c.size.toLocaleString(isEs ? 'es-MX' : 'en-US')} {isEs ? 'actores' : 'actors'}
+                          </span>
+                          <span className="whitespace-nowrap">
+                            DA{' '}
+                            <span style={daHot ? { color: RISK_TEXT_COLORS.high, fontWeight: 700 } : undefined}>
+                              {c.da_rate != null ? `${Math.round(c.da_rate * 100)}%` : '—'}
+                            </span>
+                          </span>
+                          <span className="whitespace-nowrap">
+                            {isEs ? 'PU' : 'SB'} {c.sb_rate != null ? `${Math.round(c.sb_rate * 100)}%` : '—'}
+                          </span>
+                          <span className="whitespace-nowrap">
+                            {isEs ? 'riesgo' : 'risk'}{' '}
+                            <span style={{ color: RISK_TEXT_COLORS[getRiskLevelFromScore(c.avg_risk)], fontWeight: 700 }}>
+                              {Math.round(c.avg_risk * 100)}%
+                            </span>
+                          </span>
+                          {c.gt_vendor_count > 0 && (
+                            <span className="whitespace-nowrap text-accent font-bold">{c.gt_vendor_count} GT</span>
+                          )}
+                          {c.sanctioned_count > 0 && (
+                            <span
+                              style={{ color: RISK_TEXT_COLORS.critical }}
+                              className="whitespace-nowrap inline-flex items-center gap-0.5 font-bold"
+                            >
+                              <ShieldAlert className="h-2.5 w-2.5" aria-hidden="true" />
+                              {c.sanctioned_count}
+                            </span>
+                          )}
+                        </span>
+                        <span className="block mt-1.5">
+                          <PatternMixBar c={c} isEs={isEs} />
+                        </span>
+                      </button>
+                      {/* Pin — a SIBLING of the selection button, never nested
+                          inside it (D4 § 3: no interactive inside interactive). */}
+                      <button
+                        type="button"
+                        onClick={() => togglePin(c.community_id)}
+                        aria-label={
+                          pinned
+                            ? isEs ? `Desfijar ${lbl.code}` : `Unpin ${lbl.code}`
+                            : isEs ? `Fijar ${lbl.code}` : `Pin ${lbl.code}`
+                        }
+                        aria-pressed={pinned}
+                        className={cn(
+                          'absolute right-1 top-1 inline-flex min-h-6 min-w-6 items-center justify-center rounded-sm transition-colors',
+                          'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+                          pinned ? 'text-accent' : 'text-text-muted hover:text-text-secondary',
+                        )}
+                      >
+                        <Pin className="h-3 w-3" aria-hidden="true" fill={pinned ? 'currentColor' : 'none'} />
+                      </button>
+                    </li>
+                  )
+                })}
+                {!showAll && filtered.length > 60 && (
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => setShowAll(true)}
+                      className="w-full rounded-sm border border-border/60 px-3 py-2 text-[12px] font-mono uppercase tracking-wider text-text-muted hover:bg-border/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                    >
+                      {isEs ? `Mostrar los ${filtered.length} cúmulos` : `Show all ${filtered.length} clusters`}
+                    </button>
+                  </li>
+                )}
+                {filtered.length === 0 && (
+                  <li>
+                    <p className="py-8 text-center text-[13px] font-mono text-text-muted">
+                      {isEs ? 'Sin cúmulos para este filtro' : 'No clusters match this filter'}
+                    </p>
+                  </li>
+                )}
+              </ul>
+            )}
+            </>
+            )}
+          </aside>
+
+          {/* RUNG 1 — the mesh plate + dossier */}
+          <div ref={plateRef} className="order-1 xl:order-2 min-w-0 scroll-mt-4">
+            {lens === 'clusters' && graphLoading && (
+              <div className="h-[540px] rounded-sm border border-border/40 bg-border/10 animate-pulse flex items-center justify-center">
+                <p className="text-[13px] font-mono text-text-muted">
+                  {isEs ? 'Trazando la trama…' : 'Drawing the mesh…'}
+                </p>
+              </div>
+            )}
+            {lens === 'clusters' && graphError && (
+              <div className="rounded-sm border border-border/60 bg-background px-6 py-10 text-center">
+                <Network className="mx-auto mb-3 h-7 w-7 text-text-muted/40" aria-hidden="true" />
+                <p className="text-[12px] font-mono text-text-muted">
+                  {isEs
+                    ? 'No se pudo cargar el grafo de este cúmulo. Intenta de nuevo en unos segundos.'
+                    : 'This cluster graph could not be loaded. Try again in a few seconds.'}
+                </p>
+              </div>
+            )}
+            {lens === 'clusters' && graph && !graphLoading && (
+              <>
+                <PlateFrame
+                  lang={lang}
+                  folio="XIV·B"
+                  captionFull
+                  contextLabel={{ en: "Detail plan · the knot's mesh", es: 'Plano de detalle · la trama del nudo' }}
+                  caption={
+                    isEs
+                      ? `Lámina — Cúmulo C-${graph.community_id}: ${graph.rendered_members}${graph.truncated ? ` de ${formatNumber(graph.total_members)}` : ''} actores y ${formatNumber(graph.edges.length)} aristas reales de co-licitación. Posiciones por fuerza dirigida sobre co_bidding_stats; ningún vínculo es ilustrativo.`
+                      : `Plate — Cluster C-${graph.community_id}: ${graph.rendered_members}${graph.truncated ? ` of ${formatNumber(graph.total_members)}` : ''} actors and ${formatNumber(graph.edges.length)} real co-bidding edges. Force-directed positions over co_bidding_stats; no tie is illustrative.`
+                  }
+                >
+                  <CommunityForceGraph
+                    data={graph}
+                    lang={lang}
+                    selectedVendorId={selectedVendor}
+                    onSelectVendor={setSelectedVendor}
+                    evidence={evidenceEntries}
+                  />
+                  {/* Truncation honesty strip (locked decision: giants → top-100).
+                      Below the canvas — above it, it collides with the
+                      PlateFrame header at mobile widths. */}
+                  {graph.truncated && (
+                    <p className="mt-2 text-[13px] font-mono uppercase tracking-[0.14em] text-text-muted">
+                      {isEs
+                        ? `Mostrando los 100 actores más centrales (pagerank) de ${formatNumber(graph.total_members)}`
+                        : `Showing the 100 most central actors (pagerank) of ${formatNumber(graph.total_members)}`}
+                      {graph.edges_truncated && (isEs ? ' · aristas recortadas a 2,500' : ' · edges capped at 2,500')}
+                    </p>
+                  )}
+                  <EvidenceIndex
+                    entries={evidenceEntries}
+                    onFocusVendor={setSelectedVendor}
+                    lang={lang}
+                  />
+                </PlateFrame>
+              </>
+            )}
+            {lens === 'clusters' && !graph && !graphLoading && !graphError && !indexLoading && (
+              <div className="rounded-sm border border-border/60 bg-background px-6 py-10 text-center">
+                <Network className="mx-auto mb-3 h-7 w-7 text-text-muted/40" aria-hidden="true" />
+                <p className="text-[12px] font-mono text-text-muted">
+                  {isEs ? 'Selecciona un cúmulo del índice para trazar su trama.' : 'Select a cluster from the index to draw its mesh.'}
+                </p>
+              </div>
+            )}
+
+            {/* ── Institution lens: the siege plate ─────────────────── */}
+            {lens === 'institutions' && (starLoading || captureLoading) && (
+              <div className="h-[540px] rounded-sm border border-border/40 bg-border/10 animate-pulse flex items-center justify-center">
+                <p className="text-[13px] font-mono text-text-muted">
+                  {isEs ? 'Levantando el sitio…' : 'Raising the siege…'}
+                </p>
+              </div>
+            )}
+            {lens === 'institutions' && starError && (
+              <div className="rounded-sm border border-border/60 bg-background px-6 py-10 text-center">
+                <Building2 className="mx-auto mb-3 h-7 w-7 text-text-muted/40" aria-hidden="true" />
+                <p className="text-[12px] font-mono text-text-muted">
+                  {isEs
+                    ? 'No se pudo cargar la telaraña de esta institución.'
+                    : 'This institution web could not be loaded.'}
+                </p>
+              </div>
+            )}
+            {lens === 'institutions' && star && !starLoading && (
+              <>
+                <PlateFrame
+                  lang={lang}
+                  folio="XIV"
+                  captionFull
+                  contextLabel={{ en: 'The siege · institution capture web', es: 'El sitio · telaraña de captura' }}
+                  caption={
+                    isEs
+                      ? `Lámina — ${star.name}: sus ${star.vendors.length} proveedores principales por valor contratado, de ${formatNumber(star.total_vendors)} totales. Aros de color agrupan firmas del mismo clan de co-licitación.`
+                      : `Plate — ${star.name}: its top ${star.vendors.length} vendors by contracted value, of ${formatNumber(star.total_vendors)} total. Colored rings group firms from the same co-bidding clan.`
+                  }
+                >
+                  <InstitutionStarGraph
+                    data={star}
+                    lang={lang}
+                    selectedVendorId={selectedVendor}
+                    onSelectVendor={setSelectedVendor}
+                  />
+                </PlateFrame>
+
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* ── The dossier — full-width band. Lifted out of the instrument's
+            right column so the charge sheet / siege reads at full page width
+            instead of being squeezed beside the plate; this also balances the
+            instrument row so the sticky index rail no longer strands a lone
+            card above a tall empty void. ── */}
+        {lens === 'clusters' && graph && !graphLoading && effectiveCommItem && (
+          <div className="mt-6">
+            <ClusterActa
+              community={effectiveCommItem}
+              graph={graph}
+              meshMedianRisk={meshMedianRisk}
+              besiegedBuyers={besiegedBuyers}
+              selectedVendorId={selectedVendor}
+              onViewVendorRing={viewVendorRing}
+              onOpenBuyerSiege={openBuyerSiege}
+              lang={lang}
+            />
+          </div>
+        )}
+        {lens === 'institutions' && star && !starLoading && (
+          <div className="mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div
+                    className="rounded-sm border border-border bg-background-card px-4 py-3.5"
+                    style={{ boxShadow: 'inset 0 0 0 1px rgba(160, 104, 32, 0.06)' }}
+                  >
+                    <h2 className="mb-2.5 text-[13px] font-mono uppercase tracking-[0.18em] text-text-muted">
+                      {isEs ? '§ Firma del sitio' : '§ Siege signature'}
+                    </h2>
+                    {selectedCaptureItem ? (
+                      <>
+                        <div className="space-y-2.5">
+                          <DeviationRow
+                            label={isEs ? 'Adjudicación directa' : 'Direct award'}
+                            value={(selectedCaptureItem.direct_award_pct ?? 0) / 100}
+                            benchmark={EU_DIRECT_AWARD_LIMIT}
+                            benchmarkLabel={isEs ? 'UE' : 'EU'}
+                            maxDelta={0.75}
+                          />
+                          <DeviationRow
+                            label={isEs ? 'Propuesta única' : 'Single bid'}
+                            value={(selectedCaptureItem.single_bid_pct ?? 0) / 100}
+                            benchmark={EU_SINGLE_BID_LIMIT}
+                            benchmarkLabel={isEs ? 'UE' : 'EU'}
+                            maxDelta={0.75}
+                          />
+                        </div>
+                        <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-[12px] font-mono text-text-muted">
+                          <span>
+                            {isEs ? 'Gasto total' : 'Total spend'}{' '}
+                            <span className="text-text-primary font-bold">
+                              {formatCompactMXN(selectedCaptureItem.total_value_mxn)}
+                            </span>
+                          </span>
+                          <span>
+                            {isEs ? 'Proveedores' : 'Vendors'}{' '}
+                            <span className="text-text-primary font-bold">{formatNumber(selectedCaptureItem.vendor_count)}</span>
+                          </span>
+                          <span>
+                            HHI{' '}
+                            <span
+                              style={
+                                (selectedCaptureItem.latest_hhi ?? 0) >= HHI_CONCENTRATED
+                                  ? { color: RISK_TEXT_COLORS.high, fontWeight: 700 }
+                                  : { fontWeight: 700 }
+                              }
+                              className="text-text-primary"
+                            >
+                              {selectedCaptureItem.latest_hhi != null
+                                ? formatNumber(Math.round(selectedCaptureItem.latest_hhi))
+                                : '—'}
+                            </span>{' '}
+                            <span className="text-text-muted">
+                              {isEs ? '(≥2,500 concentrado)' : '(≥2,500 concentrated)'}
+                            </span>
+                          </span>
+                          <span>
+                            {isEs ? 'Riesgo medio' : 'Avg risk'}{' '}
+                            <span
+                              style={{
+                                color: RISK_TEXT_COLORS[getRiskLevelFromScore(selectedCaptureItem.avg_risk_score ?? 0)],
+                                fontWeight: 700,
+                              }}
+                            >
+                              {selectedCaptureItem.avg_risk_score != null
+                                ? `${Math.round(selectedCaptureItem.avg_risk_score * 100)}%`
+                                : '—'}
+                            </span>
+                          </span>
+                        </div>
+                        {selectedCaptureItem.top1_vendor && (
+                          <div className="mt-3 border-t border-border/50 pt-2.5">
+                            <h3 className="mb-1.5 text-[13px] font-mono uppercase tracking-[0.14em] text-text-muted">
+                              {isEs ? 'Proveedor dominante' : 'Dominant vendor'}
+                              {selectedCaptureItem.top1_share_pct != null && (
+                                <span className="text-accent font-bold ml-1.5">
+                                  {Math.round(selectedCaptureItem.top1_share_pct)}% {isEs ? 'del gasto' : 'of spend'}
+                                </span>
+                              )}
+                            </h3>
+                            <EntityIdentityChip
+                              type="vendor"
+                              id={selectedCaptureItem.top1_vendor.vendor_id}
+                              name={selectedCaptureItem.top1_vendor.vendor_name}
+                              size="sm"
+                              riskScore={selectedCaptureItem.top1_vendor.avg_risk_score}
+                              fullName
+                            />
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <p className="text-[13px] font-mono text-text-muted">
+                        {isEs ? 'Sin métricas para esta institución.' : 'No metrics for this institution.'}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Clans + roster */}
+                  <div
+                    className="rounded-sm border border-border bg-background-card px-4 py-3.5"
+                    style={{ boxShadow: 'inset 0 0 0 1px rgba(160, 104, 32, 0.06)' }}
+                  >
+                    <h2 className="mb-2.5 text-[13px] font-mono uppercase tracking-[0.18em] text-text-muted">
+                      {isEs ? '§ Los clanes que se alimentan' : '§ The feeding clans'}
+                    </h2>
+                    {selectedCaptureItem && selectedCaptureItem.feeding_communities.length > 0 ? (
+                      <div className="mb-3 flex flex-wrap gap-1.5">
+                        {selectedCaptureItem.feeding_communities.map((f) => (
+                          <button
+                            key={f.community_id}
+                            type="button"
+                            onClick={() => jumpToClan(f.community_id)}
+                            className="rounded-sm border border-accent/40 bg-accent/8 px-2.5 py-1 text-[13px] font-mono font-bold uppercase tracking-wider text-accent hover:bg-accent/15 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                            title={isEs ? 'Abrir el cúmulo en la trama' : 'Open the cluster in the mesh'}
+                          >
+                            C-{f.community_id} · {f.vendor_count} {isEs ? 'firmas' : 'firms'} →
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mb-3 text-[12px] font-mono text-text-muted">
+                        {isEs
+                          ? 'Ningún clan con ≥2 firmas entre sus proveedores principales.'
+                          : 'No clan with ≥2 firms among its top vendors.'}
+                      </p>
+                    )}
+                    <h3 className="mb-2 text-[13px] font-mono uppercase tracking-[0.14em] text-text-muted">
+                      {isEs ? 'Quiénes se llevan el gasto' : 'Who takes the spend'}
+                    </h3>
+                    <ul className="space-y-1.5">
+                      {star.vendors.slice(0, 8).map((v) => (
+                        <li key={v.vendor_id} className="flex items-center justify-between gap-2 min-w-0">
+                          <EntityIdentityChip
+                            type="vendor"
+                            id={v.vendor_id}
+                            name={v.vendor_name}
+                            size="xs"
+                            riskScore={v.avg_risk_score}
+                            fullName
+                          />
+                          <span className="shrink-0 text-[13px] font-mono text-text-muted">
+                            {formatCompactMXN(v.total_value_mxn)}
+                            {v.community_id != null && <span> · C-{v.community_id}</span>}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    {selectedVendor != null && (
+                      <div className="mt-3 border-t border-border/50 pt-2.5 flex items-center justify-between gap-2">
+                        <span className="text-[12px] font-mono text-text-muted">
+                          {isEs ? 'Actor seleccionado en el sitio' : 'Actor selected in the siege'}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = new URLSearchParams(searchParams)
+                            next.set('vendor', String(selectedVendor))
+                            setSearchParams(next)
+                          }}
+                          className="rounded-sm border border-accent/40 bg-accent/8 px-2.5 py-1 text-[13px] font-mono font-bold uppercase tracking-wider text-accent hover:bg-accent/15 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                        >
+                          {isEs ? 'Ver su red →' : 'View its ring →'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+          </div>
+        )}
+
+        {/* ── Methodology footer ───────────────────────────────────── */}
+        <div className="mt-8 mx-auto max-w-[640px] rounded-sm border border-border bg-background-card px-5 py-4">
+          <h2 className="text-[12px] font-mono uppercase tracking-[0.18em] text-text-muted mb-3">
+            {isEs ? 'Fe de método' : 'Attestation of method'}
+          </h2>
+          <ol className="space-y-2.5">
+            {[
+              {
+                es: 'Las aristas provienen de pares reales de co-licitación: proveedores que participaron en los mismos procedimientos. Ninguna posición es ilustrativa.',
+                en: 'Edges come from real co-bidding pairs: vendors that participated in the same procedures. No position is illustrative.',
+              },
+              {
+                es: 'Los cúmulos son comunidades Louvain (tamaño ≥5) detectadas sobre esa red; la centralidad de cada actor es su pagerank dentro del grafo.',
+                en: 'Clusters are Louvain communities (size ≥5) detected over that network; each actor’s centrality is its pagerank within the graph.',
+              },
+              {
+                es: 'Los cúmulos de más de 150 actores se dibujan recortados a sus 100 más centrales; las aristas se recortan a 2,500.',
+                en: 'Clusters above 150 actors are drawn truncated to their 100 most central; edges are capped at 2,500.',
+              },
+              {
+                es: `Tasas de adjudicación directa y propuesta única promediadas del motor ARIA por cúmulo; referencias del Tablero UE ${Math.round(EU_DIRECT_AWARD_LIMIT * 100)}%/${Math.round(EU_SINGLE_BID_LIMIT * 100)}%.`,
+                en: `Direct-award and single-bid rates are ARIA engine averages per cluster; EU scoreboard references ${Math.round(EU_DIRECT_AWARD_LIMIT * 100)}%/${Math.round(EU_SINGLE_BID_LIMIT * 100)}%.`,
+              },
+              {
+                es: (
+                  <>
+                    El riesgo proviene del modelo v0.8.5 (AUC fuera de muestra 0.656). Es un <em>indicador de riesgo</em>, no
+                    una probabilidad de corrupción; riesgo bajo no certifica integridad.
+                  </>
+                ),
+                en: (
+                  <>
+                    Risk comes from model v0.8.5 (out-of-sample AUC 0.656). It is a <em>risk indicator</em>, not a probability of
+                    corruption; low risk does not certify integrity.
+                  </>
+                ),
+              },
+              {
+                es: 'La «señal» ordena por valor × indicador de riesgo ÷ actores: pesos ponderados por riesgo por cada miembro del cúmulo.',
+                en: '“Signal” sorts by value × risk indicator ÷ actors: risk-weighted pesos per cluster member.',
+              },
+              {
+                es: 'La cobertura de RFC es de 0.1% en 2002–2010: la red de co-licitación está subrepresentada antes de 2010 y este croquis es más confiable de 2010 en adelante.',
+                en: 'RFC coverage is 0.1% for 2002–2010: the co-bidding network is under-represented before 2010 and this sketch is most reliable from 2010 onward.',
+              },
+            ].map((cl, i) => (
+              <li key={i} className="flex gap-3 text-[13px] text-text-secondary leading-relaxed">
+                <span
+                  className="shrink-0 font-mono text-[12px] uppercase tracking-[0.14em] text-accent pt-0.5"
+                  style={{ minWidth: '2rem' }}
+                >
+                  ({['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii'][i]})
+                </span>
+                <span>{isEs ? cl.es : cl.en}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </div>
+    </DossierOriginProvider>
+  )
+}

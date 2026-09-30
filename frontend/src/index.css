@@ -1,0 +1,1074 @@
+/* Google Fonts loaded via <link> in index.html (non-blocking) */
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+/* Enable class-based dark mode so dark: variants respond to html.dark */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* RUBLI Editorial Design System — Investigative Journalism Platform */
+@theme {
+  /* Sector Colors — CLAUDE.md spec (canonical source of truth) */
+  --color-sector-salud: #dc2626;
+  --color-sector-educacion: #3b82f6;
+  --color-sector-infraestructura: #ea580c;
+  --color-sector-energia: #eab308;
+  --color-sector-defensa: #1e3a5f;
+  --color-sector-tecnologia: #8b5cf6;
+  --color-sector-hacienda: #16a34a;
+  --color-sector-gobernacion: #be123c;
+  --color-sector-agricultura: #22c55e;
+  --color-sector-trabajo: #f97316;
+  --color-sector-otros: #64748b;
+
+  /* Risk Colors — canonical Phase 1 palette (dark-first, no green for "low")
+     Rationale: green overclaims safety on a corruption platform — use neutral zinc
+     for the noise floor instead. Critical=red-500, high=amber-500, medium=amber-800. */
+  --color-risk-critical: #ef4444;
+  --color-risk-high: #f59e0b;
+  --color-risk-medium: #a16207;
+  --color-risk-low: #71717a;
+
+  /* Amber accent — bible §2 gold */
+  --color-amber-500: #a06820;
+
+  /* Canonical surface tokens — LIGHT-MODE, bible §2. These are the source of
+     truth for .surface-card, .card, and .fern-card. Sidebar stays dark via its
+     own --color-sidebar-* tokens below. */
+  --color-bg-base: #faf9f6;
+  --color-bg-card: #ffffff;
+  --color-bg-elevated: #f3f1ec;
+
+  /* Light-first editorial palette — bible §2 */
+  --color-background: #faf9f6;
+  --color-background-card: #ffffff;
+  --color-background-elevated: #f3f1ec;
+  --color-border: #e2ddd6;
+  --color-border-hover: #ccc7be;
+
+  /* Text tokens — bible §3.4 */
+  --color-text-primary: #1a1714;
+  --color-text-secondary: #6b6560;
+  /* PARALLAX D1 § Change 1: #7a716c failed WCAG AA (4.22 on elevated,
+     4.27 on the sidebar). #736a65 clears 4.5 on every surface. */
+  --color-text-muted: #736a65;
+  --color-text-disabled: #c5bfb8;
+
+  /* Legacy dark-context tokens, now aliased to light-mode text. The sidebar
+     used to be dark (#1a1714) and these tokens carried the inverted text.
+     After the 2026-04 editorial-unification pass the sidebar became cream,
+     so these tokens now match the regular text tokens — kept as aliases so
+     existing usage across Sidebar.tsx continues working without a rename. */
+  --color-text-on-dark-primary: #1a1714;
+  --color-text-on-dark-secondary: #6b6560;
+  /* PARALLAX D1 § Change 1: #9c9490 was a dark-sidebar leftover reading
+     2.67 on the cream sidebar. Aliased to the AA muted token. */
+  --color-text-on-dark-muted: #736a65;
+
+  /* Primary accent — amber gold (bible §2) */
+  --color-accent: #a06820;
+  --color-accent-hover: #835616;
+  --color-accent-glow: #a0682018;
+
+  /* Secondary accent — blue for data/links (bible §2) */
+  --color-accent-data: #2563eb;
+  --color-accent-data-glow: #2563eb11;
+
+  /* OECD reference lines — cyan (bible §2, §4) */
+  --color-oecd: #22d3ee;
+
+  /* Sidebar — unified editorial light (2026-04 aesthetic pass).
+     Previously dark (#1a1714) to read as "command center chrome" on a cream
+     page. That split (dark tool / light newspaper) worked for Bloomberg
+     Terminal but fought RUBLI's investigative-journalism positioning —
+     NYT/ProPublica/OCCRP run single-palette editorial layouts. Sidebar now
+     uses a cream variant just 3% darker than the page, giving visual
+     separation without the "two different apps glued together" feel.
+     Active/hover states lean on the amber accent + bolder typography. */
+  --color-sidebar: #f5f2ed;
+  --color-sidebar-hover: #ede8e0;
+  --color-sidebar-active: #e4ded4;
+
+  /* Signal colors */
+  --color-signal-pulse: #a06820;
+  --color-signal-live: #16a34a;
+  --color-signal-warn: #d97706;
+  --color-signal-danger: #dc2626;
+
+  /* Typography — canonical per ART_DIRECTION.md §3.1
+     Tailwind v4 maps `font-serif`/`font-sans`/`font-mono` utilities to the
+     short-form tokens below. The long-form aliases are kept for existing
+     `var(--font-family-*)` consumers (utility classes in this file). */
+  --font-mono: "JetBrains Mono", "Fira Code", "SF Mono", Consolas, monospace;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-family-mono: var(--font-mono);
+  --font-family-sans: var(--font-sans);
+  --font-family-serif: var(--font-serif);
+
+  /* Editorial border-radius — ART_DIRECTION.md §5 & §11
+     Cards are 2px (editorial, not SaaS-rounded). Tailwind's `rounded-sm`
+     maps to --radius-sm. We expose --radius as the editorial default
+     alongside a slightly larger variant for pill/badge chrome. */
+  --radius: 2px;
+  --radius-sm: 2px;
+  --radius-editorial: 2px;
+
+  /* Typography Scale */
+  --font-size-display: 3rem;
+  --font-size-h1: 2rem;
+  --font-size-h2: 1.5rem;
+  --font-size-h3: 1.25rem;
+  --font-size-body: 1rem;
+  --font-size-small: 0.875rem;
+  --font-size-tiny: 0.75rem;
+
+  /* Named container widths — these drive max-w-xs/sm/md/lg/xl/2xl utilities in Tailwind v4 */
+  --spacing-xs: 20rem;   /* 320px  — matches Tailwind v3 max-w-xs  */
+  --spacing-sm: 24rem;   /* 384px  — matches Tailwind v3 max-w-sm  */
+  --spacing-md: 28rem;   /* 448px  — matches Tailwind v3 max-w-md  */
+  --spacing-lg: 32rem;   /* 512px  — matches Tailwind v3 max-w-lg  */
+  --spacing-xl: 36rem;   /* 576px  — matches Tailwind v3 max-w-xl  */
+  --spacing-2xl: 42rem;  /* 672px  — matches Tailwind v3 max-w-2xl */
+}
+
+/* Tailwind v4 strips --color-sector-ambiente (#10b981 = emerald-500 in oklch)
+   because it deduplicates @theme values that match built-in tokens.
+   Declare it here outside @theme so it survives the build. */
+:root {
+  --color-sector-ambiente: #10b981;
+}
+
+/* Base Styles */
+@layer base {
+  :root {
+    font-family: var(--font-family-sans);
+    font-feature-settings: "ss01", "ss03", "cv01", "cv02", "cv03", "cv04", "cv11";
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* ─── Editorial tokens (bible §5, §11) ─────────────────────────────── */
+    /* Multi-layer shadows — light/paper mode: warm umber alpha */
+    --shadow-sm: 0 1px 2px 0 rgb(26 23 20 / 0.04);
+    --shadow-md: 0 2px 6px -1px rgb(26 23 20 / 0.06), 0 1px 2px -1px rgb(26 23 20 / 0.04);
+    --shadow-lg: 0 6px 12px -3px rgb(26 23 20 / 0.08), 0 2px 4px -2px rgb(26 23 20 / 0.04);
+    --shadow-xl: 0 12px 20px -5px rgb(26 23 20 / 0.10), 0 4px 6px -4px rgb(26 23 20 / 0.04);
+
+    /* Editorial card treatment — 2px radius per bible §5, not SaaS-rounded */
+    --card-border: 1px solid var(--color-border);
+    --card-radius: 2px;
+
+    /* Frosted glass surfaces (header, overlays) — cream */
+    --color-surface-glass: rgba(250, 249, 246, 0.88);
+
+    /* Border refinements — semantic aliases */
+    --border-color: var(--color-border);
+    --border-color-strong: var(--color-border-hover);
+
+    /* Transitions — Phase 1 canonical timing (snappy but unhurried) */
+    --transition-fast: 100ms ease;
+    --transition-base: 160ms ease;
+    --transition-slow: 260ms ease;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  /* Dark mode retired — RUBLI commits to cream light-mode broadsheet per
+     ART_DIRECTION.md §2. The sidebar and select dark cards/modals get
+     --color-text-on-dark-* overrides; the rest of the platform renders on
+     --color-background (#faf9f6). Kept as a no-op so existing toggleTheme()
+     consumers don't throw; cleanup lives in Header.tsx. */
+  html.dark {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-background text-text-primary m-0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-family-mono);
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-accent outline-offset-2;
+    box-shadow: 0 0 0 4px var(--color-accent-glow);
+  }
+
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50;
+    @apply focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded-md;
+  }
+
+  /* Typography
+   * Weight scale: 400 body, 500 labels/captions, 600 headings, 700 display, 900 hero numbers
+   * Use font-weight sparingly — only 2-3 weights per page to maintain hierarchy.
+   */
+  .text-display {
+    font-size: var(--font-size-display);
+    line-height: 1.02;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+  }
+
+  h1, .text-h1 { font-size: var(--font-size-h1); line-height: 1.08; font-weight: 700; letter-spacing: -0.025em; }
+  h2, .text-h2 { font-size: var(--font-size-h2); line-height: 1.2; font-weight: 600; letter-spacing: -0.015em; }
+  h3, .text-h3 { font-size: var(--font-size-h3); line-height: 1.3; font-weight: 600; letter-spacing: -0.01em; }
+  p, .text-body { font-size: var(--font-size-body); line-height: 1.6; font-weight: 400; }
+  .text-small { font-size: var(--font-size-small); line-height: 1.5; font-weight: 400; }
+  .text-tiny { font-size: var(--font-size-tiny); line-height: 1.5; font-weight: 400; }
+}
+
+/* Scrollbar */
+@layer base {
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-border/60 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-border-hover; }
+}
+
+/* Utility Classes */
+@layer utilities {
+  /* Editorial serif typography */
+  .font-editorial {
+    font-family: var(--font-family-serif);
+    letter-spacing: -0.02em;
+  }
+
+  .text-editorial-display {
+    font-family: var(--font-family-serif);
+    font-size: 2.25rem; /* 36px mobile default */
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-feature-settings: "ss01", "ss03", "kern";
+  }
+  @media (min-width: 640px) {
+    .text-editorial-display { font-size: 3rem; line-height: 1.04; letter-spacing: -0.033em; }
+  }
+  @media (min-width: 768px) {
+    .text-editorial-display { font-size: 3.75rem; line-height: 1.02; letter-spacing: -0.035em; }
+  }
+  @media (min-width: 1024px) {
+    .text-editorial-display { font-size: 4rem; }
+  }
+
+  .text-editorial-h1 {
+    font-family: var(--font-family-serif);
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
+  }
+
+  .text-editorial-h2 {
+    font-family: var(--font-family-serif);
+    font-size: 1.875rem;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  /* ─── EDITORIAL HIERARCHY (commit 4) ─────────────────────────────── */
+
+  /* Kicker — small mono caps above a headline */
+  .text-kicker {
+    font-family: var(--font-family-mono);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* Kicker variants by category */
+  .text-kicker--investigation { color: #ef4444; }
+  .text-kicker--analysis { color: var(--color-accent); }
+  .text-kicker--data { color: var(--color-accent-data); }
+
+  /* Deck — subtitle/sub-headline below a headline (sans, italic-light feel) */
+  .text-deck {
+    font-family: var(--font-family-serif);
+    font-size: 1rem; /* 16px mobile */
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+    color: var(--color-text-secondary);
+  }
+  @media (min-width: 640px) {
+    .text-deck { font-size: 1.125rem; line-height: 1.45; }
+  }
+  @media (min-width: 1024px) {
+    .text-deck { font-size: 1.25rem; }
+  }
+
+  /* Byline — author/date row, mono caps separated by middots */
+  .text-byline {
+    font-family: var(--font-family-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* Lede — first paragraph styling, slightly larger */
+  .text-lede {
+    font-family: var(--font-family-serif);
+    font-size: 1.1875rem;
+    line-height: 1.55;
+    color: var(--color-text-primary);
+    font-weight: 400;
+  }
+
+  /* Drop-cap — first letter of a story */
+  .drop-cap::first-letter {
+    font-family: var(--font-family-serif);
+    float: left;
+    font-size: 4.25rem;
+    font-weight: 800;
+    line-height: 0.85;
+    padding: 0.35rem 0.6rem 0 0;
+    margin-top: 0.15rem;
+    color: var(--color-accent);
+    letter-spacing: -0.03em;
+  }
+  html.dark .drop-cap::first-letter {
+    color: #d4922a;
+  }
+
+  /* Dossier lede drop cap — the colour comes from --dropcap-color (the
+     sector accent); ::first-letter keeps the word whole for AT (D9b § 7). */
+  .lede-dropcap::first-letter {
+    font-family: "Playfair Display", Georgia, serif;
+    font-style: normal;
+    font-weight: 800;
+    font-size: 3.2em;
+    float: left;
+    line-height: 0.82;
+    color: var(--dropcap-color, var(--color-accent));
+    margin-right: 0.09em;
+    margin-top: 0.04em;
+    margin-bottom: -0.04em;
+  }
+
+  /* Pull-quote — large serif blockquote */
+  .text-pullquote {
+    font-family: var(--font-family-serif);
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: var(--color-text-primary);
+    border-left: 3px solid var(--color-accent);
+    padding-left: 1.25rem;
+    margin: 1.5rem 0;
+  }
+
+  /* Section kicker rule — kicker + hairline rule combo */
+  .editorial-kicker-rule {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.875rem;
+  }
+  .editorial-kicker-rule::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-color);
+  }
+
+  /* Display number — hero stat as serif, NYT/FT feel */
+  .text-display-num {
+    font-family: var(--font-family-serif);
+    font-size: 1.875rem; /* 30px mobile — fits 2-col grid at 375px */
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+  }
+  @media (min-width: 640px) {
+    .text-display-num { font-size: 2.5rem; line-height: 0.95; letter-spacing: -0.04em; }
+  }
+  @media (min-width: 1024px) {
+    .text-display-num { font-size: 3.25rem; }
+  }
+  @media (min-width: 1280px) {
+    .text-display-num { font-size: 3.75rem; }
+  }
+
+  /* DEPRECATED: .card, .card-elevated, .fern-card are kept only as
+   * backward-compatibility aliases. All three now render as .surface-card —
+   * the canonical editorial surface (white on cream, 2px radius, bible §5).
+   * New code should use .surface-card. */
+  .card,
+  .card-elevated {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, var(--color-accent), var(--color-accent-data));
+  }
+
+  /* Risk badges */
+  .risk-critical { @apply bg-risk-critical/10 text-risk-critical border border-risk-critical/25; }
+  .risk-high { @apply bg-risk-high/10 text-risk-high border border-risk-high/25; }
+  .risk-medium { @apply bg-risk-medium/10 text-risk-medium border border-risk-medium/25; }
+  .risk-low { @apply bg-risk-low/10 text-risk-low border border-risk-low/25; }
+
+  html.dark .risk-critical { @apply bg-risk-critical/15 text-risk-critical border-risk-critical/30; }
+  html.dark .risk-high { @apply bg-risk-high/15 text-risk-high border-risk-high/30; }
+  html.dark .risk-medium { @apply bg-risk-medium/20 text-risk-medium border-risk-medium/30; }
+  html.dark .risk-low { @apply bg-risk-low/15 text-risk-low border-risk-low/30; }
+
+  .sector-badge { @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium; }
+
+  /* Canonical chart tooltip — paper-dark (bible §8, V9)
+     Dark editorial ground #1a1714 with cream text — reads like a printed
+     newspaper callout against the cream page. */
+  .chart-tooltip {
+    background: #1a1714;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    color: #faf9f6;
+    box-shadow: 0 6px 18px rgba(26, 23, 20, 0.18);
+  }
+
+  /* Canonical editorial surface — white card on cream ground (bible §5).
+     2px radius, 1px warm-gray border, subtle lift shadow. */
+  .surface-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  }
+  .surface-card--elevated {
+    background: var(--color-bg-elevated);
+    border-color: var(--color-border-hover);
+  }
+  .surface-card--glass {
+    background: var(--color-surface-glass);
+    backdrop-filter: blur(12px);
+    border-color: var(--color-border);
+    border-radius: 2px;
+  }
+
+  /* Live signal pulse */
+  .signal-live {
+    position: relative;
+  }
+  .signal-live::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-signal-live);
+    box-shadow: 0 0 8px var(--color-signal-live);
+    animation: signalPulse 2s ease-in-out infinite;
+  }
+
+  /* Accent glow for active elements */
+  .glow-accent {
+    box-shadow: 0 0 15px -3px var(--color-accent-glow);
+  }
+
+  /* Grid pattern for backgrounds */
+  .grid-pattern {
+    background-image:
+      linear-gradient(var(--color-border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    background-position: -1px -1px;
+    opacity: 0.15;
+  }
+
+  /* Animations */
+  .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+  .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
+  .animate-slide-in-right { animation: slideInRight 0.3s ease-out; }
+  .animate-pulse-subtle { animation: pulseSubtle 2s ease-in-out infinite; }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideInRight { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes pulseSubtle { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+  @keyframes signalPulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--color-signal-live); }
+    50% { opacity: 0.5; box-shadow: 0 0 16px var(--color-signal-live), 0 0 32px var(--color-signal-live); }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+    background: linear-gradient(90deg, var(--color-background-elevated) 0%, var(--color-border) 50%, var(--color-background-elevated) 100%);
+    background-size: 200% 100%;
+  }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  /* Note: a second shimmer keyframe below (shimmerSweep) has been intentionally kept separate */
+
+  .stagger-animate > * { opacity: 0; animation: fadeSlideUp 0.4s ease-out forwards; }
+  .stagger-animate > *:nth-child(1) { animation-delay: 0ms; }
+  .stagger-animate > *:nth-child(2) { animation-delay: 50ms; }
+  .stagger-animate > *:nth-child(3) { animation-delay: 100ms; }
+  .stagger-animate > *:nth-child(4) { animation-delay: 150ms; }
+  .stagger-animate > *:nth-child(5) { animation-delay: 200ms; }
+  .stagger-animate > *:nth-child(6) { animation-delay: 250ms; }
+  .stagger-animate > *:nth-child(7) { animation-delay: 300ms; }
+  .stagger-animate > *:nth-child(8) { animation-delay: 350ms; }
+
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Nav active indicator — left accent bar */
+  .nav-active-indicator {
+    position: relative;
+  }
+  .nav-active-indicator::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 4px;
+    bottom: 4px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--color-accent);
+    box-shadow: 0 0 8px var(--color-accent-glow);
+  }
+
+  .hover-lift { @apply transition-all duration-200; }
+  .hover-lift:hover { transform: translateY(-1px); }
+
+  .interactive { @apply transition-colors duration-150 cursor-pointer; }
+  .interactive:hover { @apply bg-background-elevated; }
+
+  .interactive-card { cursor: pointer; transition: box-shadow 0.15s, transform 0.1s; }
+  .interactive-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
+
+  html.dark .interactive-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+
+  .data-cell { @apply px-3 py-2 text-sm border-b border-border; }
+  .data-cell-header { @apply px-3 py-2 text-xs font-medium text-text-muted uppercase tracking-wider bg-background-elevated border-b border-border; }
+
+  /* ─── FERN EDITORIAL UTILITIES ─────────────────────────────────────────── */
+
+  /* ─── DATA TYPOGRAPHY SCALE (normalized) ──────────────────────────────────
+     One coherent system. No more ad-hoc clamp() values. Use these classes
+     consistently so numbers across the platform feel like one family.
+     All sizes are tabular-nums for column alignment.
+     ─────────────────────────────────────────────────────────────────────── */
+
+  .stat-hero {
+    font-family: var(--font-family-sans);
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-lg {
+    font-family: var(--font-family-sans);
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-md {
+    font-family: var(--font-family-sans);
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-sm {
+    font-family: var(--font-family-sans);
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-xs {
+    font-family: var(--font-family-sans);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-label {
+    font-family: var(--font-family-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  /* Section divider with label — "SECTION NAME ────────────────" */
+  .editorial-rule {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .editorial-rule::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+  }
+
+  /* Editorial label — small all-caps tracking label above sections */
+  .editorial-label {
+    font-family: var(--font-family-sans);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* DEPRECATED: .fern-card — backward-compat alias for .surface-card.
+   * Renders as white-on-cream, 2px radius (bible §5). */
+  .fern-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+  }
+
+  /* Shimmer overlay for cards/panels — different from animate-shimmer (which sweeps the bg color) */
+  .shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+
+  /* Accent rule — thin colored rule used for section emphasis */
+  .accent-rule {
+    height: 2px;
+    background: var(--color-accent);
+    width: 2.5rem;
+    border-radius: 999px;
+  }
+
+  /* Pull quote — large contextual data point */
+  .pull-stat {
+    font-size: 1.875rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ─── FERN/NYT BOLD ANIMATION KEYFRAMES ─────────────────────────────── */
+
+  @keyframes slideUpFern {
+    0% { opacity: 0; transform: translateY(60px) scale(0.94); filter: blur(6px); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  }
+
+  @keyframes countReveal {
+    0% { opacity: 0; transform: scale(0.7) translateY(20px); }
+    65% { opacity: 1; transform: scale(1.08) translateY(-4px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  @keyframes barFill {
+    0% { width: 0%; }
+    75% { width: calc(var(--fill-target, 50%) * 1.03); }
+    100% { width: var(--fill-target, 50%); }
+  }
+
+  @keyframes shimmerSweep {
+    0% { transform: translateX(-100%); opacity: 0.6; }
+    100% { transform: translateX(200%); opacity: 0; }
+  }
+
+  @keyframes numberPop {
+    0% { transform: scale(0.6); opacity: 0; }
+    50% { transform: scale(1.12); opacity: 1; }
+    75% { transform: scale(0.96); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Fern reveal utilities */
+  .fern-reveal {
+    animation: slideUpFern 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .fern-reveal-fast {
+    animation: slideUpFern 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .number-pop {
+    animation: numberPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  /* Institution row stagger — fade+slide from left, triggered by parent class */
+  @keyframes instRowFade {
+    0% { opacity: 0; transform: translateX(-12px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  .inst-tbody-hidden .inst-row-stagger {
+    opacity: 0;
+  }
+  .inst-tbody-visible .inst-row-stagger {
+    animation: instRowFade 0.3s ease-out both;
+  }
+
+  /* InstitutionDotScale — dot pop-in animation */
+  @keyframes dotPop {
+    0%   { opacity: 0; transform: scale(0) translateY(20px); }
+    60%  { opacity: 1; transform: scale(1.25) translateY(-2px); }
+    80%  { transform: scale(0.9) translateY(1px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  @keyframes narrativeHeaderSlideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes tickerScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .dot-scale-dot {
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+  .dot-scale-visible .dot-scale-dot {
+    animation: dotPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  /* Dossier folder strip — case file classification bar above vendor/investigation pages */
+  .dossier-folder-strip {
+    font-family: var(--font-family-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    background: color-mix(in oklab, var(--color-accent) 6%, var(--color-background-card));
+    border-bottom: 1px solid color-mix(in oklab, var(--color-accent) 20%, var(--color-border));
+    padding: 0.375rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  html.dark .dossier-folder-strip {
+    background: color-mix(in oklab, var(--color-accent) 8%, var(--color-background));
+    border-bottom-color: color-mix(in oklab, var(--color-accent) 15%, var(--color-border));
+  }
+
+  /* ─── EDITORIAL PAGE SHELL — lede block ───────────────────────────── */
+  .lede-dateline {
+    font-family: var(--font-family-mono);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .lede-headline {
+    font-family: var(--font-family-serif);
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 800;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
+  }
+  .measure-headline { max-width: 36rem; }
+  .lede-paragraph {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: var(--color-text-secondary);
+    max-width: 60ch;
+  }
+
+  /* ─── STAT STRIP ───────────────────────────────────────────────────── */
+  .stat-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem 2.5rem;
+  }
+  .stat-strip-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+  .stat-strip-value {
+    font-family: var(--font-family-sans);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-accent);
+  }
+  .stat-strip-label {
+    font-family: var(--font-family-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* ─── ACT DIVIDER ──────────────────────────────────────────────────── */
+  .act-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  .act-num {
+    font-family: var(--font-family-mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+  .act-rule {
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+  }
+  .act-label {
+    font-family: var(--font-family-mono);
+    font-size: 0.625rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+  .act-title {
+    font-family: var(--font-family-serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--color-text-primary);
+  }
+
+}
+
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .hover-lift:hover { transform: none; }
+  .signal-live::after { animation: none; }
+}
+
+/* Scan-line shimmer for stat bombs */
+@keyframes scan-line {
+  0% { transform: translateY(-100%); opacity: 0; }
+  30% { opacity: 0.15; }
+  100% { transform: translateY(200%); opacity: 0; }
+}
+.stat-bomb-value::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.12), transparent);
+  height: 40%;
+  animation: scan-line 2s ease-out 0.3s 1 forwards;
+  pointer-events: none;
+}
+
+/* Number-pop: scale 0.7 → 1.08 → 1.0 with spring */
+@keyframes number-pop {
+  0% { transform: scale(0.7); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1.0); opacity: 1; }
+}
+.anim-number-pop {
+  animation: number-pop 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ─── REPORT CARD CINEMATIC ANIMATIONS ──────────────────────────────── */
+
+/* Grade badge concentric pulse rings */
+.rc-grade-ring {
+  border: 2px solid currentColor;
+  border-radius: 9999px;
+  animation: rc-ring-pulse 2s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes rc-ring-pulse {
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.15); opacity: 0.2; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+/* Scanning lines for loading intro */
+.rc-scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(196, 30, 58, 0.4) 50%, transparent 100%);
+}
+.rc-scan-line-1 { animation: rc-scan-move 1.8s linear infinite; top: 30%; }
+.rc-scan-line-2 { animation: rc-scan-move 2.2s linear infinite 0.5s; top: 50%; }
+.rc-scan-line-3 { animation: rc-scan-move 1.5s linear infinite 1.0s; top: 70%; }
+
+@keyframes rc-scan-move {
+  0% { transform: translateY(-100vh); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+/* Typewriter cursor blink */
+.rc-typing-cursor {
+  animation: rc-cursor-blink 0.6s step-end infinite;
+  color: var(--color-accent);
+  font-weight: bold;
+}
+@keyframes rc-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Print */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; color: black; }
+  .card { border: 1px solid #e5e7eb; background: white; }
+  .stat-bomb-value::after { display: none; }
+}
+
+/* ── Editorial drop caps for /stories chapter variants ─────────────────────
+   Hero chapter — large drop cap, accent-colored, Playfair serif. The first
+   letter floats left and three lines tall. Falls back gracefully on small
+   screens where floating an enlarged glyph creates layout pressure. */
+.hero-dropcap::first-letter,
+.feature-dropcap::first-letter {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 800;
+  color: var(--dropcap-color, var(--color-accent));
+  float: left;
+  line-height: 0.85;
+  margin: 0.08em 0.12em 0 0;
+  padding-right: 0.04em;
+}
+.hero-dropcap::first-letter {
+  font-size: 5.4em;
+  margin-top: 0.05em;
+}
+.feature-dropcap::first-letter {
+  font-size: 3.6em;
+  margin-top: 0.06em;
+}
+@media (max-width: 640px) {
+  /* Smaller drop caps on phones to avoid wrapping problems */
+  .hero-dropcap::first-letter { font-size: 4em; }
+  .feature-dropcap::first-letter { font-size: 2.8em; }
+}
+
+/* Legibility directive (2026-07-03): kill ALL italic site-wide. The Tailwind
+   .italic utility and any residual italic class render upright. Inline
+   fontStyle:'italic' is removed at source by the legibility codemod. */
+.italic, em, i { font-style: normal !important; }
+
+/* One footer per page (PARALLAX D1 § Change 8, 2026-09-17).
+   MainLayout closes every route with an editorial colophon. Pages that render
+   their own credibility strip (<PageFooter>, Executive's own footer) therefore
+   stacked two <footer> landmarks — measured on /dashboard, /cases,
+   /journalists, /administrations, /methodology, /institutions and /captura.
+   The page's footer lives inside <main>, the colophon is main's next sibling,
+   so :has() suppresses exactly the duplicate and nothing else. Card-level
+   <footer>s (CorruptionClusters' typology + spotlight cards) are untouched
+   because they do not carry the .page-footer marker.
+   :has() is Chrome 105+ / Safari 15.4+ / Firefox 121+; older Firefox keeps the
+   double colophon, which is the pre-existing behaviour. */
+main:has(.page-footer) + footer {
+  display: none;
+}
+
+/* Measure directive (PARALLAX D2c, 2026-09-18): one line length, site-wide.
+   Prod census at 1440 (18 routes): running text with no cap stretched to
+   122–188 characters per line (median on /methodology 122ch, 60% of
+   paragraphs over 80ch) while capped paragraphs stopped at 46–68ch — the
+   "sometimes the box stretches, sometimes it doesn't" flaw. This sets ONE
+   measure for every block of running text and one for headlines, in `ch`
+   so it scales with each font. `:where()` keeps specificity at zero, so any
+   explicit `max-w-*` utility or inline `maxWidth` still wins — the rule only
+   reaches text nobody bounded. Table cells and centered tiles keep their
+   boxes. Alignment is left / ragged-right everywhere (justify is banned by
+   lint:tokens); `text-wrap` trims orphans on the ragged edge. */
+main :where(p, li, dd, dt, figcaption, blockquote) {
+  max-width: 68ch;
+  text-wrap: pretty;
+}
+main :where(h1) { max-width: 32ch; text-wrap: balance; }
+main :where(h2, h3) { max-width: 44ch; text-wrap: balance; }
+main :where(table, .text-center, [style*="text-align: center"]) :where(p, li, dd, dt, h1, h2, h3) {
+  max-width: none;
+}
+
+/* Labels are not paragraphs (PARALLAX D2d § Change 1, 2026-09-18).
+   The 68ch rule above caught single-line editorial furniture as if it were
+   running text: on /methodology the masthead eyebrow
+   "RUBLI · EL DICTAMEN · MODEL v0.8.5 · RUN CAL-v8-…" and every clause kicker
+   wrapped onto a second line at 1440. Eyebrows, kickers, datelines, bylines and
+   editorial-labels are meant to read as one unbroken line regardless of length,
+   so they are exempt. Same `:where()` zero specificity as the D2c block and
+   later in the cascade, so this wins on the labels and nothing else. */
+main :where(.uppercase, .text-kicker, .text-byline, .lede-dateline, .editorial-label, [style*="text-transform: uppercase"]) {
+  max-width: none;
+}
+
+/* A chart caption is not running text (STORY_DAYS.md § 7, 2026-09-18).
+   User, second complaint the same night: "Again with the text not properly
+   formatted below the graphic." The D2c measure above is expressed in `ch`, so
+   applied to a 12.5px mono caption it resolves to roughly 490px — inside a
+   712px card interior that is a narrow ragged column sitting under a full-width
+   chart, with the figure's own white space to its right. A caption belongs to
+   its figure and spans the figure's interior; the 68ch measure is for prose a
+   reader reads line after line, not for text that annotates a drawing directly
+   above it. Same zero-specificity `:where()` and later in the cascade, so it
+   wins inside a figure and changes nothing outside one. */
+main figure :where(p, figcaption, li, dd) {
+  max-width: none;
+}
+
+/* Chapter anchors clear the sticky story bar (PARALLAX
+   docs/parallax/DAY-03-redaccion-story-template.md § Change 5, 2026-09-18).
+   ChapterNav links jump to #chapter-*, which without this lands the chapter
+   banner underneath the sticky reading-progress header. */
+main :where([id^="chapter-"]) {
+  scroll-margin-top: 7rem;
+}

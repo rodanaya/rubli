@@ -1,0 +1,119 @@
+{
+  "title": "Espacio de trabajo",
+  "subtitle": "Sus proveedores, contratos y pistas guardadas — organizados en dossiers.",
+  "addToWatchlist": "Agregar a vigilancia",
+  "columns": {
+    "type": "Tipo",
+    "contracts": "Contratos",
+    "status": "Estado",
+    "entity": "Entidad",
+    "priority": "Prioridad",
+    "riskAtAdd": "Riesgo al Agregar",
+    "currentRisk": "Riesgo Actual",
+    "change": "Cambio",
+    "added": "Agregado",
+    "actions": "Acciones"
+  },
+  "types": {
+    "vendor": "Proveedor",
+    "institution": "Institución",
+    "contract": "Contrato",
+    "vendors": "Proveedores",
+    "institutions": "Instituciones",
+    "contracts": "Contratos"
+  },
+  "status": {
+    "all": "Todos los Estados",
+    "watching": "Vigilando",
+    "investigating": "Investigando",
+    "resolved": "Resuelto",
+    "startInvestigating": "Iniciar investigación",
+    "markResolved": "Marcar como resuelto"
+  },
+  "priority": {
+    "all": "Todas las Prioridades",
+    "high": "Alta",
+    "medium": "Media",
+    "low": "Baja"
+  },
+  "filters": {
+    "allTypes": "Todos los Tipos",
+    "allStatus": "Todos los Estados",
+    "allPriority": "Todas las Prioridades"
+  },
+  "statCards": {
+    "watching": "Vigilando",
+    "investigating": "Investigando",
+    "highPriority": "Alta Prioridad",
+    "resolved": "Resuelto"
+  },
+  "tabs": {
+    "entities": "Entidades",
+    "dossiers": "Expedientes"
+  },
+  "table": {
+    "trackedEntities": "Entidades Rastreadas",
+    "item": "elemento",
+    "items": "elementos"
+  },
+  "empty": "La lista de vigilancia está vacía.",
+  "noItemsMatch": "Ningún elemento coincide con tus filtros",
+  "noItemsMatchDescription": "Intenta ajustar o limpiar los filtros activos para ver más resultados.",
+  "clearFilters": "Limpiar filtros",
+  "exportDossier": "Exportar Expediente",
+  "refresh": "Actualizar",
+  "investigate": "Investigar",
+  "confirm": "Confirmar",
+  "cancel": "Cancelar",
+  "folders": "Carpetas",
+  "errorTitle": "Lista de Vigilancia",
+  "errorDescription": "Rastrea e investiga patrones sospechosos",
+  "errorMessage": "Error al cargar los datos de la lista de vigilancia",
+  "retry": "Reintentar",
+  "riskFactors": "Principales factores de riesgo",
+  "contractsAnalysed": "contratos analizados",
+  "loadingRiskFactors": "Cargando factores de riesgo…",
+  "noRiskFactorData": "No hay datos de factores de riesgo disponibles para este proveedor.",
+  "dossierTab": {
+    "searchVendors": "Buscar proveedores"
+  },
+  "dossierStatus": {
+    "all": "Todos",
+    "active": "Activos",
+    "archived": "Archivados",
+    "closed": "Cerrados"
+  },
+  "sort": {
+    "label": "Ordenar:",
+    "risk": "Riesgo",
+    "change": "Cambio",
+    "added": "Agregado",
+    "name": "Nombre"
+  },
+  "workspaceEmpty": {
+    "title": "Tu investigación comienza aquí.",
+    "description": "Guarda proveedores, instituciones y contratos para rastrear cambios en el puntaje de riesgo a lo largo del tiempo. Empieza por vigilar un proveedor de alta prioridad, explorar los datos de contratación o abrir un caso documentado.",
+    "hint": "Usa el ícono de ojo en cualquier perfil de proveedor o institución para comenzar a rastrear.",
+    "watchVendorTitle": "Vigilar un proveedor",
+    "watchVendorDesc": "Sigue los cambios de riesgo en proveedores prioritarios de la cola ARIA.",
+    "watchVendorCta": "Ver cola T1",
+    "exploreTitle": "Explorar contratos",
+    "exploreDesc": "Encuentra proveedores o instituciones y usa el ícono de ojo para empezar a seguirlos.",
+    "exploreCta": "Buscar proveedores",
+    "caseTitle": "Abrir un caso documentado",
+    "caseDesc": "Explora {{n}} casos documentados y agrega a los involucrados a tu espacio.",
+    "caseCta": "Ver casos"
+  },
+  "dossierEmpty": {
+    "kicker": "ESPACIO DE TRABAJO",
+    "title": "Tu investigación comienza aquí.",
+    "lede": "Crea un dossier para rastrear proveedores, instituciones y contratos bajo un mismo expediente.",
+    "steps": "Crea un dossier  ·  Agrega proveedores bajo investigación  ·  Exporta tus hallazgos",
+    "cta": "Crear tu primer dossier"
+  },
+  "dossierTabHeader": {
+    "lede": "Organiza tus investigaciones en carpetas de caso. Cada dossier contiene proveedores, instituciones y contratos — privado para tu cuenta, exportable en cualquier momento.",
+    "new": "Nuevo dossier"
+  },
+  "tip": "Tip: abre un proveedor desde el explorador o la cola ARIA, y usa el ícono de ojo para agregarlo a tu espacio de trabajo."
+}

@@ -1,0 +1,1578 @@
+import React, { lazy, Suspense, useCallback, useMemo, useEffect, useState, useRef } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useSearchParams, Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { slideUp } from '@/lib/animations'
+import { useTranslation } from 'react-i18next'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  cn,
+  formatCompactMXN,
+  formatNumber,
+  formatDate,
+  getPaginationRange,
+  clampPage,
+  toTitleCase,
+  getRiskLevel,
+} from '@/lib/utils'
+import { contractApi, exportApi } from '@/api/client'
+import { RiskFeedbackButton } from '@/components/RiskFeedbackButton'
+import { AddToDossierButton } from '@/components/AddToDossierButton'
+import { RiskExplainTooltip } from '@/components/RiskExplainTooltip'
+import { TableExportButton } from '@/components/TableExportButton'
+import { SECTORS, RISK_COLORS, RISK_TEXT_COLORS, RISK_INK_ON_PLATE, RISK_THRESHOLDS } from '@/lib/constants'
+import { useDebouncedSearch, useDebouncedValue } from '@/hooks/useDebouncedSearch'
+import { useSavedSearches } from '@/hooks/useSavedSearches'
+import type { ContractFilterParams, ContractListItem } from '@/api/types'
+import { RISK_FACTORS } from '@/api/types'
+import {
+  FileText,
+  FileSearch,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Search,
+  Download,
+  Loader2,
+  AlertCircle,
+  RefreshCw,
+  Copy,
+  Check,
+  AlertTriangle,
+  TrendingUp,
+  ExternalLink,
+  ArrowRight,
+  Flame,
+  Crown,
+  Zap,
+  Target,
+  Scissors,
+  Users,
+  X,
+  GitCompareArrows,
+  Bookmark,
+  BookmarkCheck,
+} from 'lucide-react'
+import { useToast } from '@/components/ui/toast'
+const ContractDetailModal = lazy(() =>
+  import('@/components/ContractDetailModal').then((m) => ({ default: m.ContractDetailModal }))
+)
+import { ContractCompareModal } from '@/components/ContractCompareModal'
+import { ExpandableProvider, useExpandable } from '@/components/ExpandableRow'
+import { MetodologiaTooltip } from '@/components/ui/MetodologiaTooltip'
+import { Act } from '@/components/layout/Act'
+import { EntityIdentityChip } from '@/components/ui/EntityIdentityChip'
+import { VerdictSeal } from '@/components/contracts/VerdictSeal'
+import { SenaladosBand, CaseSeal, WhyFlags } from '@/components/contracts/SenaladosBand'
+import { cleanContractDescription } from '@/lib/contract-audit'
+
+// =============================================================================
+// Configuration
+// =============================================================================
+
+type ContractSortField =
+  | 'amount_mxn'
+  | 'contract_date'
+  | 'risk_score'
+  | 'vendor_name'
+  | 'institution_name'
+  | 'sector_id'
+  | 'risk_level'
+  | 'mahalanobis_distance'
+
+interface ContractPreset {
+  id: string
+  labelKey: string
+  icon: React.ComponentType<{ className?: string }>
+  sort: ContractSortField
+  order: 'asc' | 'desc'
+  filters: Partial<Record<string, string>>
+  descriptionKey: string
+}
+
+// Preset definitions — labels/descriptions resolved via t() inside the component (Fix 3)
+const CONTRACT_PRESET_DEFS: ContractPreset[] = [
+  {
+    id: 'suspicious-monopolies',
+    labelKey: 'presets.suspiciousMonopolies.label',
+    icon: Crown,
+    sort: 'amount_mxn',
+    order: 'desc',
+    filters: { risk_level: 'critical', is_single_bid: 'true' },
+    descriptionKey: 'presets.suspiciousMonopolies.description',
+  },
+  {
+    id: 'december-rush',
+    labelKey: 'presets.decemberRush.label',
+    icon: Flame,
+    sort: 'amount_mxn',
+    order: 'desc',
+    filters: { risk_level: 'high', risk_factor: 'year_end' },
+    descriptionKey: 'presets.decemberRush.description',
+  },
+  {
+    id: 'price-manipulation',
+    labelKey: 'presets.priceManipulation.label',
+    icon: TrendingUp,
+    sort: 'risk_score',
+    order: 'desc',
+    filters: { risk_factor: 'price_hyp', risk_level: 'high' },
+    descriptionKey: 'presets.priceManipulation.description',
+  },
+  {
+    id: 'ghost-companies',
+    labelKey: 'presets.ghostCompanies.label',
+    icon: AlertTriangle,
+    sort: 'amount_mxn',
+    order: 'desc',
+    filters: { risk_factor: 'industry_mismatch', is_direct_award: 'true' },
+    descriptionKey: 'presets.ghostCompanies.description',
+  },
+  {
+    id: 'network-clusters',
+    labelKey: 'presets.networkClusters.label',
+    icon: Users,
+    sort: 'risk_score',
+    order: 'desc',
+    filters: { risk_factor: 'network', risk_level: 'critical' },
+    descriptionKey: 'presets.networkClusters.description',
+  },
+  {
+    id: 'split-contracts',
+    labelKey: 'presets.splitContracts.label',
+    icon: Scissors,
+    sort: 'contract_date',
+    order: 'desc',
+    filters: { risk_factor: 'split' },
+    descriptionKey: 'presets.splitContracts.description',
+  },
+  {
+    id: 'most-anomalous',
+    labelKey: 'presets.mostAnomalous.label',
+    icon: AlertTriangle,
+    sort: 'mahalanobis_distance',
+    order: 'desc',
+    filters: {},
+    descriptionKey: 'presets.mostAnomalous.description',
+  },
+  {
+    id: 'recent-critical',
+    labelKey: 'presets.recentCritical.label',
+    icon: Zap,
+    sort: 'contract_date',
+    order: 'desc',
+    filters: { year: '2024', risk_level: 'critical' },
+    descriptionKey: 'presets.recentCritical.description',
+  },
+  {
+    id: 'largest-direct-awards',
+    labelKey: 'presets.biggestDirectAwards.label',
+    icon: Target,
+    sort: 'amount_mxn',
+    order: 'desc',
+    filters: { is_direct_award: 'true' },
+    descriptionKey: 'presets.biggestDirectAwards.description',
+  },
+]
+
+interface ColumnDef {
+  key: string
+  labelKey: string
+  align: 'left' | 'center' | 'right'
+  sortField?: ContractSortField
+  hideBelow?: string
+  thClass?: string
+}
+
+// Column definitions — labels resolved via t() inside the component.
+// Re-ranked by investigative weight: WHAT (title) → WHO → HOW MUCH → WHEN → RISK.
+// Percentage widths (table is table-fixed) so the title can't sprawl and
+// starve the WHO column — CONTRACT is bounded, WHO gets enough room to show the
+// full provider + institution instead of truncating them to "Instituto…".
+const CONTRACT_COLUMN_DEFS: ColumnDef[] = [
+  { key: 'contract', labelKey: 'columns.contract', align: 'left', thClass: 'w-[38%]' },
+  { key: 'vendor', labelKey: 'columns.who', align: 'left', sortField: 'vendor_name', thClass: 'w-[32%]' },
+  { key: 'amount', labelKey: 'columns.amount', align: 'right', sortField: 'amount_mxn', thClass: 'w-[12%]' },
+  { key: 'date', labelKey: 'columns.date', align: 'right', sortField: 'contract_date', thClass: 'w-[8%]' },
+  { key: 'risk', labelKey: 'columns.risk', align: 'right', sortField: 'risk_score', thClass: 'w-[10%]' },
+]
+
+// =============================================================================
+// Main Component
+// =============================================================================
+
+export function Contracts() {
+  const { t, i18n } = useTranslation('contracts')
+  const { t: ts } = useTranslation('sectors')
+  const lang = i18n.language?.startsWith('es') ? 'es' : 'en'
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [activePreset, setActivePreset] = useState<string | null>(null)
+  // Pre-2010 data quality banner dismissal (sessionStorage so it resets per session)
+  const [pre2010Dismissed, setPre2010Dismissed] = useState(
+    () => sessionStorage.getItem('rubli_pre2010_dismissed') === '1'
+  )
+
+  const {
+    inputValue: searchInput,
+    setInputValue: setSearchInput,
+    debouncedValue: debouncedSearch,
+    isPending: isSearchPending,
+  } = useDebouncedSearch(searchParams.get('search') || '', { delay: 300, minLength: 2 })
+
+  // Fix 1: Amount range local state + 500ms debounce
+  const [minAmountInput, setMinAmountInput] = useState<string>(searchParams.get('min_amount') || '')
+  const [maxAmountInput, setMaxAmountInput] = useState<string>(searchParams.get('max_amount') || '')
+  const debouncedMinAmount = useDebouncedValue(minAmountInput, 500)
+  const debouncedMaxAmount = useDebouncedValue(maxAmountInput, 500)
+
+  const sortBy = (searchParams.get('sort_by') as ContractSortField) || 'contract_date'
+  const sortOrder = (searchParams.get('sort_order') as 'asc' | 'desc') || 'desc'
+
+  // Fix 6: filters always reads per_page from URL (no hardcoded fallback at query level)
+  const filters: ContractFilterParams = useMemo(() => ({
+    page: Number(searchParams.get('page')) || 1,
+    per_page: Number(searchParams.get('per_page')) || 50,
+    sector_id: searchParams.get('sector_id') ? Number(searchParams.get('sector_id')) : undefined,
+    year: searchParams.get('year') ? Number(searchParams.get('year')) : undefined,
+    vendor_id: searchParams.get('vendor_id') ? Number(searchParams.get('vendor_id')) : undefined,
+    institution_id: searchParams.get('institution_id') ? Number(searchParams.get('institution_id')) : undefined,
+    category_id: searchParams.get('category_id') ? Number(searchParams.get('category_id')) : undefined,
+    risk_level: searchParams.get('risk_level') as ContractFilterParams['risk_level'],
+    risk_factor: searchParams.get('risk_factor') || undefined,
+    is_direct_award: searchParams.get('is_direct_award') === 'true' ? true : undefined,
+    is_single_bid: searchParams.get('is_single_bid') === 'true' ? true : undefined,
+    min_amount: searchParams.get('min_amount') ? Number(searchParams.get('min_amount')) : undefined,
+    max_amount: searchParams.get('max_amount') ? Number(searchParams.get('max_amount')) : undefined,
+    search: debouncedSearch || undefined,
+    sort_by: sortBy,
+    sort_order: sortOrder,
+  }), [searchParams, debouncedSearch, sortBy, sortOrder])
+
+  // Sync debounced search to URL
+  useEffect(() => {
+    const currentSearch = searchParams.get('search') || ''
+    if (debouncedSearch !== currentSearch) {
+      const newParams = new URLSearchParams(searchParams)
+      if (debouncedSearch) {
+        newParams.set('search', debouncedSearch)
+        newParams.set('page', '1')
+      } else {
+        newParams.delete('search')
+      }
+      setSearchParams(newParams, { replace: true })
+    }
+  }, [debouncedSearch, searchParams, setSearchParams])
+
+  // Fix 1: Sync debounced min_amount to URL
+  useEffect(() => {
+    const currentMin = searchParams.get('min_amount') || ''
+    if (debouncedMinAmount !== currentMin) {
+      const newParams = new URLSearchParams(searchParams)
+      if (debouncedMinAmount) {
+        newParams.set('min_amount', debouncedMinAmount)
+        newParams.set('page', '1')
+      } else {
+        newParams.delete('min_amount')
+      }
+      setSearchParams(newParams, { replace: true })
+    }
+  }, [debouncedMinAmount, searchParams, setSearchParams])
+
+  // Fix 1: Sync debounced max_amount to URL
+  useEffect(() => {
+    const currentMax = searchParams.get('max_amount') || ''
+    if (debouncedMaxAmount !== currentMax) {
+      const newParams = new URLSearchParams(searchParams)
+      if (debouncedMaxAmount) {
+        newParams.set('max_amount', debouncedMaxAmount)
+        newParams.set('page', '1')
+      } else {
+        newParams.delete('max_amount')
+      }
+      setSearchParams(newParams, { replace: true })
+    }
+  }, [debouncedMaxAmount, searchParams, setSearchParams])
+
+  const toast = useToast()
+  const [selectedContractId, setSelectedContractId] = useState<number | null>(null)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
+
+  // Compare selection
+  const [compareIds, setCompareIds] = useState<Set<number>>(new Set())
+  const [isCompareOpen, setIsCompareOpen] = useState(false)
+  const MAX_COMPARE = 4
+
+  const toggleCompare = useCallback((id: number) => {
+    setCompareIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else if (next.size < MAX_COMPARE) {
+        next.add(id)
+      } else {
+        toast.error(t('toast.tooManyTitle'), t('toast.tooManyBody', { max: MAX_COMPARE }))
+      }
+      return next
+    })
+  }, [toast, t])
+
+  const clearCompare = useCallback(() => {
+    setCompareIds(new Set())
+    setIsCompareOpen(false)
+  }, [])
+
+  const { data, isLoading, error, isFetching, refetch } = useQuery({
+    queryKey: ['contracts', filters],
+    queryFn: () => contractApi.getAll(filters),
+    staleTime: 2 * 60 * 1000,
+  })
+
+  // Archive-wide totals (unfiltered, amount > 0) — never a typed constant.
+  const { data: archiveStats } = useQuery({
+    queryKey: ['contracts-statistics'],
+    queryFn: () => contractApi.getStatistics(),
+    staleTime: 24 * 60 * 60 * 1000,
+  })
+
+  useEffect(() => {
+    if (error) toast.error(t('error.failedToLoad'), error instanceof Error ? error.message : String(error))
+  }, [error, toast, t])
+
+  // --- Handlers ---
+
+  const updateFilter = useCallback((key: string, value: string | number | boolean | undefined) => {
+    if (key === 'search') { setSearchInput(String(value || '')); return }
+    const newParams = new URLSearchParams(searchParams)
+    if (value === undefined || value === '') {
+      newParams.delete(key)
+    } else {
+      newParams.set(key, String(value))
+    }
+    if (key !== 'page') newParams.set('page', '1')
+    setSearchParams(newParams)
+    setActivePreset(null)
+  }, [searchParams, setSearchParams, setSearchInput])
+
+  const handleSort = useCallback((field: ContractSortField) => {
+    const newParams = new URLSearchParams(searchParams)
+    if (sortBy === field) {
+      newParams.set('sort_order', sortOrder === 'desc' ? 'asc' : 'desc')
+    } else {
+      newParams.set('sort_by', field)
+      newParams.set('sort_order', 'desc')
+    }
+    newParams.set('page', '1')
+    setSearchParams(newParams)
+    setActivePreset(null)
+  }, [searchParams, setSearchParams, sortBy, sortOrder])
+
+  const applyPreset = useCallback((presetId: string) => {
+    const preset = CONTRACT_PRESET_DEFS.find((p) => p.id === presetId)
+    if (!preset) return
+    const newParams = new URLSearchParams()
+    newParams.set('sort_by', preset.sort)
+    newParams.set('sort_order', preset.order)
+    for (const [k, v] of Object.entries(preset.filters)) {
+      if (v !== undefined) newParams.set(k, v)
+    }
+    newParams.set('page', '1')
+    setSearchInput('')
+    setMinAmountInput('')
+    setMaxAmountInput('')
+    setSearchParams(newParams)
+    setActivePreset(presetId)
+  }, [setSearchParams, setSearchInput])
+
+  const clearAllFilters = useCallback(() => {
+    setSearchInput('')
+    setMinAmountInput('')
+    setMaxAmountInput('')
+    setSearchParams({})
+    setActivePreset(null)
+  }, [setSearchParams, setSearchInput])
+
+  const [isExporting, setIsExporting] = useState(false)
+  // The export endpoint uses `limit` (max 100,000) and ignores pagination params.
+  // Strip per_page/page/sort_by/sort_order before calling it to avoid confusion.
+  const EXPORT_MAX_ROWS = 10_000 // backend default for /export/contracts/csv
+  const handleExport = async () => {
+    setIsExporting(true)
+    const total = data?.pagination.total ?? 0
+    // Warn the user before exporting if the filtered set exceeds the export cap
+    if (total > EXPORT_MAX_ROWS) {
+      toast.warning(
+        t('error.exportCapped'),
+        t('toast.exportCappedBody', { total: formatNumber(total), max: formatNumber(EXPORT_MAX_ROWS) })
+      )
+    }
+    try {
+      // Build export params: omit pagination fields (page, per_page, sort_by, sort_order)
+      // The export endpoint does not accept per_page — it uses its own `limit` param.
+      const { page: _page, per_page: _perPage, sort_by: _sortBy, sort_order: _sortOrder, ...exportFilters } = filters
+      const blob = await exportApi.exportContracts(exportFilters)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `contracts_export_${new Date().toISOString().split('T')[0]}.csv`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      const exported = Math.min(total, EXPORT_MAX_ROWS)
+      if (total > EXPORT_MAX_ROWS) {
+        toast.success(
+          t('error.exportComplete'),
+          t('toast.exportCompleteCapped', { exported: formatNumber(exported), total: formatNumber(total), max: formatNumber(EXPORT_MAX_ROWS) })
+        )
+      } else {
+        toast.success(t('error.exportComplete'), t('toast.exportCompleteBody', { exported: formatNumber(exported) }))
+      }
+    } catch {
+      toast.error(t('error.exportFailed'), t('toast.exportFailedBody'))
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  // Excel export — same current-filter semantics as the CSV path, via the
+  // existing /export/contracts/excel endpoint (the Records Room "take it with
+  // you" affordance, now offered in both formats).
+  const [isExportingExcel, setIsExportingExcel] = useState(false)
+  const handleExportExcel = async () => {
+    setIsExportingExcel(true)
+    const total = data?.pagination.total ?? 0
+    if (total > EXPORT_MAX_ROWS) {
+      toast.warning(
+        t('error.exportCapped'),
+        t('toast.exportCappedBody', { total: formatNumber(total), max: formatNumber(EXPORT_MAX_ROWS) })
+      )
+    }
+    try {
+      const { page: _page, per_page: _perPage, sort_by: _sortBy, sort_order: _sortOrder, ...exportFilters } = filters
+      const blob = await exportApi.downloadExcel(exportFilters)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `contracts_export_${new Date().toISOString().split('T')[0]}.xlsx`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+      toast.success(t('error.exportComplete'), t('toast.exportCompleteXlsx', { exported: formatNumber(Math.min(total, EXPORT_MAX_ROWS)) }))
+    } catch (err) {
+      // 501 = the server build lacks openpyxl (Excel optional dep). Degrade
+      // honestly to CSV rather than a generic failure; self-heals once the
+      // backend image carries openpyxl.
+      const status = (err as { response?: { status?: number } })?.response?.status
+      if (status === 501) {
+        toast.error(t('toast.excelUnavailable'), t('toast.excelUnavailableBody'))
+      } else {
+        toast.error(t('error.exportFailed'), t('toast.exportFailedBody'))
+      }
+    } finally {
+      setIsExportingExcel(false)
+    }
+  }
+
+  // Saved contract filters (localStorage)
+  const CONTRACT_FILTERS_KEY = 'rubli_contract_filters'
+  const { items: savedFilters, save: saveFilter, remove: removeSavedFilter } = useSavedSearches(CONTRACT_FILTERS_KEY)
+  const [savedFiltersOpen, setSavedFiltersOpen] = useState(false)
+  const savedFiltersRef = useRef<HTMLDivElement>(null)
+  const [filterSavedAnim, setFilterSavedAnim] = useState(false)
+
+  const handleApplySavedFilter = useCallback((params: string) => {
+    setSavedFiltersOpen(false)
+    setSearchInput('')
+    setMinAmountInput('')
+    setMaxAmountInput('')
+    setSearchParams(new URLSearchParams(params))
+    setActivePreset(null)
+  }, [setSearchParams, setSearchInput])
+
+  const [linkCopied, setLinkCopied] = useState(false)
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href)
+      setLinkCopied(true)
+      toast.success(t('error.linkCopied'), t('toast.linkCopiedBody'))
+      setTimeout(() => setLinkCopied(false), 2000)
+    } catch {
+      toast.error(t('error.copyFailed'), t('toast.copyFailedBody'))
+    }
+  }
+
+  // --- Computed ---
+
+  const showSearchLoading = isSearchPending || (isFetching && searchInput !== debouncedSearch)
+  const hasActiveFilters = !!(
+    filters.search ||
+    filters.sector_id ||
+    filters.year ||
+    filters.risk_level ||
+    filters.risk_factor ||
+    filters.is_direct_award ||
+    filters.is_single_bid ||
+    filters.min_amount ||
+    filters.max_amount
+  )
+
+  const pageStats = useMemo(() => {
+    if (!data?.data?.length) return null
+    const contracts = data.data
+    const totalValue = contracts.reduce((s, c) => s + c.amount_mxn, 0)
+    const avgRisk = contracts.reduce((s, c) => s + (c.risk_score || 0), 0) / contracts.length
+    const criticalCount = contracts.filter((c) => (c.risk_score || 0) >= RISK_THRESHOLDS.critical).length
+    const highPlusCount = contracts.filter((c) => (c.risk_score || 0) >= RISK_THRESHOLDS.high).length
+    const daCount = contracts.filter((c) => c.is_direct_award).length
+    const daPct = contracts.length > 0 ? (daCount / contracts.length) * 100 : 0
+    return { totalValue, avgRisk, criticalCount, highPlusCount, daPct }
+  }, [data])
+
+  const pageExportData = useMemo(() => {
+    if (!data?.data?.length) return []
+    return data.data.map((c) => ({
+      id: c.id,
+      title: c.title ?? '',
+      vendor_name: c.vendor_name ?? '',
+      amount_mxn: c.amount_mxn,
+      risk_level: c.risk_level ?? '',
+      risk_score: c.risk_score != null ? Number(c.risk_score.toFixed(4)) : '',
+      year: c.contract_year ?? '',
+      procedure_type: c.procedure_type ?? '',
+      sector_name: c.sector_name ?? '',
+    }))
+  }, [data])
+
+  const activeFilterTags = useMemo(() => {
+    const tags: { key: string; label: string }[] = []
+    if (filters.search) tags.push({ key: 'search', label: `"${filters.search}"` })
+    if (filters.sector_id) {
+      const sec = SECTORS.find((s) => s.id === filters.sector_id)
+      tags.push({ key: 'sector_id', label: sec ? ts(sec.code) : `Sector ${filters.sector_id}` })
+    }
+    if (filters.year) tags.push({ key: 'year', label: t('filterTags.year', { year: filters.year }) })
+    if (filters.risk_level) tags.push({ key: 'risk_level', label: t('filterTags.risk', { level: t(`riskLevels.${filters.risk_level}`) }) })
+    if (filters.risk_factor) {
+      const f = RISK_FACTORS.find((rf) => rf.value === filters.risk_factor)
+      tags.push({ key: 'risk_factor', label: f ? f.label : filters.risk_factor })
+    }
+    if (filters.is_direct_award) tags.push({ key: 'is_direct_award', label: t('filterTags.directAwards') })
+    if (filters.is_single_bid) tags.push({ key: 'is_single_bid', label: t('filterTags.singleBidders') })
+    if (filters.min_amount) tags.push({ key: 'min_amount', label: `≥ ${formatCompactMXN(filters.min_amount)}` })
+    if (filters.max_amount) tags.push({ key: 'max_amount', label: `≤ ${formatCompactMXN(filters.max_amount)}` })
+    if (filters.category_id) tags.push({ key: 'category_id', label: t('filterTags.category', { id: filters.category_id }) })
+    return tags
+  }, [filters, t, ts])
+
+  // Remove a filter tag — amount tags also clear local input state
+  const removeFilterTag = useCallback((key: string) => {
+    if (key === 'min_amount') { setMinAmountInput(''); return }
+    if (key === 'max_amount') { setMaxAmountInput(''); return }
+    updateFilter(key, undefined)
+  }, [updateFilter])
+
+  // Save current filter to localStorage (defined after activeFilterTags is available)
+  const handleSaveFilter = useCallback(() => {
+    const params = searchParams.toString()
+    if (!params) return
+    const label = activeFilterTags.map((tag) => tag.label).join(', ') || 'Filter'
+    saveFilter(label, params)
+    setFilterSavedAnim(true)
+    setTimeout(() => setFilterSavedAnim(false), 2000)
+  }, [searchParams, activeFilterTags, saveFilter])
+
+  // --- Render ---
+
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <header className="mb-5 pb-4 border-b border-border">
+          <div className="flex items-baseline justify-between gap-4 flex-wrap">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight">
+                {t('title')}
+              </h1>
+              <p className="text-[12px] font-mono uppercase tracking-[0.12em] text-text-muted mt-1.5">
+                {t('header.kicker')}
+              </p>
+            </div>
+            <div className="flex items-baseline gap-5">
+              <MastheadCell
+                value={archiveStats ? formatNumber(archiveStats.total_contracts) : null}
+                label={t('header.withAmount')}
+              />
+              <MastheadCell
+                value={archiveStats ? formatNumber(archiveStats.high_risk_count + archiveStats.critical_risk_count) : null}
+                label={t('header.highRisk')}
+                color={RISK_TEXT_COLORS.high}
+              />
+              <MastheadCell
+                value={archiveStats ? formatCompactMXN(archiveStats.total_value_mxn) : null}
+                label={t('header.totalSpend')}
+              />
+            </div>
+          </div>
+        </header>
+      {/* Investigation preset shelf removed — same 9 presets render inline
+          inside the filter bar below (L~693). Two visual styles for the
+          identical control was the noisiest finding from Batch C critique. */}
+
+      <Act number="I" label={t('header.actLedger')}>
+
+      {/* Subheader: live count + actions */}
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <p className="text-xs text-text-muted flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0 w-full md:w-auto md:flex-1" aria-live="polite">
+          <FileText className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
+          <span className="whitespace-nowrap">
+            {data ? `${formatNumber(data?.pagination?.total ?? 0)} ${t('common:results', 'resultados')}` : t('common:loading', 'Cargando...')}
+            {isFetching && !isLoading && (
+              <Loader2 className="inline h-3 w-3 ml-1.5 animate-spin text-accent" />
+            )}
+          </span>
+          <span className="hidden md:inline text-text-muted/50" aria-hidden="true">&middot;</span>
+          <span className="basis-full md:basis-auto">{t('guidance')}</span>
+        </p>
+        <div className="flex items-center gap-1.5 ml-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs px-2"
+            onClick={handleCopyLink}
+            title={linkCopied ? t('actions.copied') : t('actions.copyLink')}
+            aria-label={t('actions.copyLink')}
+          >
+            {linkCopied ? <Check className="h-3.5 w-3.5 text-risk-low" /> : <Copy className="h-3.5 w-3.5" />}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs px-2"
+            onClick={handleExport}
+            disabled={isExporting || !data || (data?.pagination?.total ?? 0) === 0}
+            title={t('actions.exportCsv')}
+            aria-label={t('actions.exportCsv')}
+          >
+            {isExporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-[12px] px-2 font-mono tracking-wide"
+            onClick={handleExportExcel}
+            disabled={isExportingExcel || !data || (data?.pagination?.total ?? 0) === 0}
+            title={t('actions.exportXlsx')}
+            aria-label={t('actions.exportXlsx')}
+          >
+            {isExportingExcel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'XLSX'}
+          </Button>
+          <TableExportButton
+            data={pageExportData}
+            filename="contracts-page"
+          />
+        </div>
+      </div>
+
+      {/* Pre-2010 data quality banner — shown when year filter is ≤2010 or no year filter (includes 2002+ data) */}
+      {!pre2010Dismissed && (!filters.year || filters.year <= 2010) && (
+        <div
+          className="flex items-start gap-3 rounded-md border border-risk-high/30 bg-risk-high/5 px-4 py-3 text-text-secondary"
+          role="alert"
+          aria-live="polite"
+        >
+          <span className="mt-0.5 text-base leading-none select-none" aria-hidden>ⓘ</span>
+          <p className="flex-1 text-xs leading-relaxed">{t('pre2010Banner')}</p>
+          <button
+            onClick={() => {
+              sessionStorage.setItem('rubli_pre2010_dismissed', '1')
+              setPre2010Dismissed(true)
+            }}
+            type="button"
+            aria-label={t('actions.dismissNotice')}
+            className="ml-2 -my-1 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-risk-high hover:text-risk-critical transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Full-width search bar */}
+      <div className="relative">
+        {showSearchLoading ? (
+          <Loader2 className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted animate-spin pointer-events-none" />
+        ) : (
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted pointer-events-none" aria-hidden="true" />
+        )}
+        <input
+          type="search"
+          name="q"
+          autoComplete="off"
+          spellCheck={false}
+          placeholder={t('searchPlaceholder')}
+          className="h-11 w-full rounded-sm border border-border bg-background-card pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/50 transition-colors"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          aria-label={t('actions.searchLabel')}
+        />
+        {searchInput && (
+          <button
+            type="button"
+            onClick={() => setSearchInput('')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded-sm text-text-muted hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+            aria-label={t('actions.clearSearch')}
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
+      {/* Preset chips — Fix 3: labels via t() */}
+      <div className="flex flex-wrap items-center gap-1.5">
+        {CONTRACT_PRESET_DEFS.map((preset) => {
+          const Icon = preset.icon
+          const isActive = activePreset === preset.id
+          return (
+            <button
+              key={preset.id}
+              type="button"
+              title={t(preset.descriptionKey)}
+              aria-pressed={isActive}
+              onClick={() => isActive ? clearAllFilters() : applyPreset(preset.id)}
+              className={cn(
+                'inline-flex min-h-6 items-center gap-1.5 px-2.5 py-1 rounded-full text-xs whitespace-nowrap border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+                isActive
+                  ? 'bg-risk-high/20 border-risk-high/40 font-medium'
+                  : 'bg-background-elevated text-text-secondary hover:bg-background-elevated border-border'
+              )}
+              style={isActive ? { color: RISK_INK_ON_PLATE.high } : undefined}
+            >
+              <Icon className="h-3 w-3" aria-hidden="true" />
+              {t(preset.labelKey)}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Filter bar */}
+      <div className="bg-background-elevated border border-border rounded-sm p-4 mb-2">
+        <div className="text-[12px] uppercase tracking-wide text-text-muted mb-3 font-semibold">
+          {t('filters.heading')}
+        </div>
+      <div className="flex items-center gap-2 flex-wrap">
+        {/* Risk level chips — Fix 2: labels via t() */}
+        <div className="flex items-center gap-1" role="group" aria-label={t('actions.filterRisk')}>
+          {(['critical', 'high', 'medium', 'low'] as const).map((level) => {
+            const isActive = filters.risk_level === level
+            const color = RISK_COLORS[level]
+            return (
+              <button
+                key={level}
+                type="button"
+                onClick={() => updateFilter('risk_level', isActive ? undefined : level)}
+                className={cn(
+                  'min-h-6 px-2.5 py-1 rounded-full text-xs border transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+                  isActive
+                    ? 'border-current font-semibold'
+                    : 'border-border text-text-muted hover:border-current'
+                )}
+                style={isActive ? { color: RISK_TEXT_COLORS[level], borderColor: color, backgroundColor: `${color}18` } : undefined}
+                aria-pressed={isActive}
+                title={t('actions.filterRiskLevel', { level: t(`riskLevels.${level}`) })}
+              >
+                {t(`riskLevels.${level}`)}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Sector dropdown */}
+        <select
+          className="h-8 rounded-md border border-border bg-background-card px-2 text-xs focus:outline-none focus:ring-1 focus:ring-accent"
+          value={filters.sector_id || ''}
+          onChange={(e) => updateFilter('sector_id', e.target.value ? Number(e.target.value) : undefined)}
+          aria-label={t('actions.filterSector')}
+        >
+          <option value="">{t('filters.allSectors')}</option>
+          {SECTORS.map((s) => (
+            <option key={s.id} value={s.id}>{ts(s.code)}</option>
+          ))}
+        </select>
+
+        {/* Year dropdown */}
+        <select
+          className="h-8 rounded-md border border-border bg-background-card px-2 text-xs focus:outline-none focus:ring-1 focus:ring-accent"
+          value={filters.year || ''}
+          onChange={(e) => updateFilter('year', e.target.value ? Number(e.target.value) : undefined)}
+          aria-label={t('actions.filterYear')}
+        >
+          <option value="">{t('filters.allYears')}</option>
+          {Array.from({ length: 24 }, (_, i) => 2025 - i).map((year) => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+
+        {/* Risk factor dropdown */}
+        <select
+          className="h-8 rounded-md border border-border bg-background-card px-2 text-xs focus:outline-none focus:ring-1 focus:ring-accent"
+          value={filters.risk_factor || ''}
+          onChange={(e) => updateFilter('risk_factor', e.target.value || undefined)}
+          aria-label={t('actions.filterFactor')}
+        >
+          <option value="">{t('filters.allFactors')}</option>
+          {RISK_FACTORS.map((f) => (
+            <option key={f.value} value={f.value}>{f.label}</option>
+          ))}
+        </select>
+
+        {/* Fix 1: Min amount input with debounce */}
+        <div className="relative">
+          <input
+            type="number"
+            placeholder={t('filters.minAmountPlaceholder')}
+            aria-label={t('filters.minAmount')}
+            className="h-8 w-28 rounded-md border border-border bg-background-card px-2 pr-6 text-xs focus:outline-none focus:ring-1 focus:ring-accent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            value={minAmountInput}
+            onChange={(e) => { setMinAmountInput(e.target.value); setActivePreset(null) }}
+            min={0}
+          />
+          {minAmountInput && (
+            <button
+              type="button"
+              onClick={() => setMinAmountInput('')}
+              className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded-sm text-text-muted hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              aria-label={`Clear ${t('filters.minAmount')}`}
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+
+        {/* Fix 1: Max amount input with debounce */}
+        <div className="relative">
+          <input
+            type="number"
+            placeholder={t('filters.maxAmountPlaceholder')}
+            aria-label={t('filters.maxAmount')}
+            className="h-8 w-28 rounded-md border border-border bg-background-card px-2 pr-6 text-xs focus:outline-none focus:ring-1 focus:ring-accent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            value={maxAmountInput}
+            onChange={(e) => { setMaxAmountInput(e.target.value); setActivePreset(null) }}
+            min={0}
+          />
+          {maxAmountInput && (
+            <button
+              type="button"
+              onClick={() => setMaxAmountInput('')}
+              className="absolute right-1 top-1/2 -translate-y-1/2 inline-flex h-6 w-6 items-center justify-center rounded-sm text-text-muted hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              aria-label={`Clear ${t('filters.maxAmount')}`}
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+
+        {/* Direct award toggle */}
+        <button
+          type="button"
+          onClick={() => updateFilter('is_direct_award', filters.is_direct_award ? undefined : true)}
+          className={cn(
+            'h-8 px-3 rounded-md text-xs border transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+            filters.is_direct_award
+              ? 'border-risk-high bg-risk-high/10 font-semibold'
+              : 'border-border text-text-muted hover:border-risk-high/50'
+          )}
+          style={filters.is_direct_award ? { color: RISK_INK_ON_PLATE.high } : undefined}
+          aria-pressed={!!filters.is_direct_award}
+        >
+          {t('filters.directAward')}
+        </button>
+
+        {/* Single bid toggle */}
+        <button
+          type="button"
+          onClick={() => updateFilter('is_single_bid', filters.is_single_bid ? undefined : true)}
+          className={cn(
+            'h-8 px-3 rounded-md text-xs border transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+            filters.is_single_bid
+              ? 'border-risk-critical bg-risk-critical/10 font-semibold'
+              : 'border-border text-text-muted hover:border-risk-critical/50'
+          )}
+          style={filters.is_single_bid ? { color: RISK_TEXT_COLORS.critical } : undefined}
+          aria-pressed={!!filters.is_single_bid}
+        >
+          {t('filters.singleBid')}
+        </button>
+
+        {/* Per page — Fix 6: value always from filters.per_page */}
+        <select
+          className="h-8 rounded-md border border-border bg-background-card px-2 text-xs focus:outline-none focus:ring-1 focus:ring-accent"
+          value={filters.per_page}
+          onChange={(e) => updateFilter('per_page', Number(e.target.value))}
+          aria-label={t('actions.perPage')}
+        >
+          <option value={25}>25</option>
+          <option value={50}>50</option>
+          <option value={100}>100</option>
+        </select>
+
+        {/* Clear all */}
+        {hasActiveFilters && (
+          <Button variant="ghost" size="sm" className="h-8 text-xs px-2 text-text-muted hover:text-text-primary" onClick={clearAllFilters}>
+            <X className="h-3 w-3 mr-1" />
+            {t('filters.clearAll')}
+          </Button>
+        )}
+
+        {/* Save current filter */}
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-xs px-2 text-text-muted hover:text-accent transition-colors"
+            onClick={handleSaveFilter}
+            title={t('actions.saveFilterLabel')}
+            aria-label={t('actions.saveFilterLabel')}
+          >
+            {filterSavedAnim ? (
+              <BookmarkCheck className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
+            ) : (
+              <Bookmark className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
+            <span className="ml-1">{filterSavedAnim ? t('actions.filterSaved') : t('actions.saveFilter')}</span>
+          </Button>
+        )}
+
+        {/* Saved filters dropdown */}
+        {savedFilters.length > 0 && (
+          <div className="relative" ref={savedFiltersRef}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs px-2 text-text-muted hover:text-accent transition-colors"
+              onClick={() => setSavedFiltersOpen((o) => !o)}
+              aria-label={t('actions.showSaved')}
+              aria-expanded={savedFiltersOpen}
+              aria-haspopup="menu"
+            >
+              <BookmarkCheck className="h-3.5 w-3.5 mr-1" aria-hidden="true" />
+              {t('actions.savedCount', { count: savedFilters.length })}
+            </Button>
+            {savedFiltersOpen && (
+              <div
+                role="menu"
+                className="absolute left-0 top-9 z-50 min-w-[220px] rounded-md border border-border bg-background-card shadow-lg py-1"
+              >
+                {savedFilters.map((sf, i) => (
+                  <div key={`${sf.value}-${i}`} className="flex items-center gap-1 px-3 py-1.5 hover:bg-accent/5 group">
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="flex-1 text-xs text-left truncate hover:text-accent transition-colors"
+                      onClick={() => handleApplySavedFilter(sf.value)}
+                      title={sf.label}
+                    >
+                      {sf.label}
+                    </button>
+                    <button
+                      type="button"
+                      className="shrink-0 opacity-0 group-hover:opacity-100 text-text-muted hover:text-risk-critical transition-all"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        removeSavedFilter(i)
+                        if (savedFilters.length <= 1) setSavedFiltersOpen(false)
+                      }}
+                      aria-label={t('actions.removeSaved', { label: sf.label })}
+                    >
+                      <X className="h-3 w-3" aria-hidden="true" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      </div>{/* end filter container */}
+
+      {/* LOS SEÑALADOS — the flagged contracts in the current filter (documented
+          cases first, then high+critical). Replaces the page-slice histogram:
+          a real, named, sourced "what matters here" signal. */}
+      <SenaladosBand filters={filters} lang={lang} />
+
+      {/* Summary stats + Active filters */}
+      <motion.div
+        className="flex items-center justify-between flex-wrap gap-2"
+        variants={slideUp}
+        initial="initial"
+        animate="animate"
+      >
+        {pageStats && (
+          <div className="flex items-center gap-3 flex-wrap">
+            <StatPill label={t('stats.pageTotal')} value={formatCompactMXN(pageStats.totalValue)} />
+            <StatPill
+              label={t('stats.avgRisk')}
+              value={String(Math.round(pageStats.avgRisk * 100))}
+              suffix="/100"
+              color={RISK_TEXT_COLORS[getRiskLevel(pageStats.avgRisk)]}
+            />
+            {pageStats.criticalCount > 0 && (
+              <StatPill label={t('stats.critical')} value={String(pageStats.criticalCount)} color={RISK_TEXT_COLORS.critical} />
+            )}
+            {pageStats.highPlusCount > 0 && (
+              <StatPill label={t('stats.highPlus')} value={String(pageStats.highPlusCount)} color={RISK_TEXT_COLORS.high} />
+            )}
+            <StatPill label={t('stats.direct')} value={`${pageStats.daPct.toFixed(0)}%`} />
+          </div>
+        )}
+
+        {activeFilterTags.length > 0 && (
+          <div className="flex items-center gap-1 flex-wrap">
+            {activeFilterTags.map((tag) => (
+              <button
+                key={tag.key}
+                type="button"
+                onClick={() => removeFilterTag(tag.key)}
+                className="inline-flex min-h-6 items-center gap-1 px-2.5 py-1 rounded-full text-xs bg-risk-high/20 border border-risk-high/40 hover:bg-risk-high/30 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                style={{ color: RISK_INK_ON_PLATE.high }}
+                title={t('actions.removeFilter', { label: tag.label })}
+                aria-label={t('actions.removeFilter', { label: tag.label })}
+              >
+                {tag.label}
+                <X className="h-2.5 w-2.5" aria-hidden="true" />
+              </button>
+            ))}
+          </div>
+        )}
+      </motion.div>
+
+      {/* Contracts table */}
+      {/* overflow-clip (not hidden): rounds the corners without becoming the
+          sticky thead's scroll container at lg+, where the page scrolls */}
+      <div className="rounded-sm border border-border/60 overflow-clip bg-background-card">
+        <div className="p-0 bg-background-card">
+          {isLoading ? (
+            <div className="space-y-2 p-4">
+              {[...Array(10)].map((_, i) => (
+                <Skeleton key={i} className="h-12" />
+              ))}
+            </div>
+          ) : error ? (
+            <div className="p-8 text-center" role="alert">
+              <AlertCircle className="h-10 w-10 text-risk-high mx-auto mb-3" aria-hidden="true" />
+              <h3 className="text-sm font-medium mb-1">{t('error.failedToLoad')}</h3>
+              <p className="text-xs text-text-muted mb-3">
+                {(error as Error).message === 'Network Error'
+                  ? t('toast.networkError')
+                  : (error as Error).message || t('toast.unexpectedError')}
+              </p>
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
+                <RefreshCw className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                {t('actions.retry')}
+              </Button>
+            </div>
+          ) : data?.data?.length === 0 ? (
+            !hasActiveFilters ? (
+              <div className="p-12 text-center">
+                <FileText className="h-14 w-14 mx-auto mb-4 opacity-10" aria-hidden="true" />
+                <p className="text-base font-semibold text-text-primary mb-1">{archiveStats ? t('emptyInitial', { total: formatNumber(archiveStats.total_contracts) }) : null}</p>
+                <p className="text-xs text-text-muted max-w-xs mx-auto leading-relaxed">
+                  {t('emptyInitialDesc')}
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <FileSearch className="h-8 w-8 text-text-muted mb-3" aria-hidden="true" />
+                <p className="text-sm font-medium text-text-secondary">{t('emptyFiltered')}</p>
+                <p className="text-xs text-text-muted mt-1">{t('emptyFilteredDesc')}</p>
+              </div>
+            )
+          ) : (
+            <ExpandableProvider>
+            {/* Scroll affordance: gradient fade + hint text, mobile only */}
+            <div className="relative lg:hidden pointer-events-none">
+              <div
+                className="absolute inset-y-0 right-0 w-12 z-20"
+                style={{
+                  background: 'linear-gradient(to right, transparent, var(--color-background-card, #0f172a))',
+                }}
+                aria-hidden="true"
+              />
+              <p className="absolute bottom-0 right-2 z-20 text-[12px] text-text-muted pb-1 select-none" aria-hidden="true">
+                {t('table.scrollHint')}
+              </p>
+            </div>
+            {/* overflow-x-auto + overflow-y-auto: plain div avoids Radix ScrollArea's
+                overflow-hidden root which clips the min-w content on mobile */}
+            {/* Phones/tablets keep the horizontal scroller (Jun-23 pattern);
+                at lg+ the page scrolls and the thead sticks to it. */}
+            <div className="overflow-x-auto overflow-y-auto h-[600px] lg:h-auto lg:overflow-visible">
+              <div className="min-w-[700px]">
+              <table className="w-full table-fixed" role="table" aria-label={t('actions.contractsList')}>
+                <thead className="sticky top-0 lg:top-11 z-20 bg-background-card/95 backdrop-blur-sm border-b border-border">
+                  <tr>
+                    <th scope="col" className="px-2 py-2 w-8" title={t('table.selectForCompare')}>
+                      {compareIds.size > 0 && (
+                        <button
+                          type="button"
+                          onClick={clearCompare}
+                          className="inline-flex min-h-6 min-w-6 items-center justify-center rounded-sm text-xs text-text-muted hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                          title={t('table.clearSelection')}
+                          aria-label={t('table.clearSelection')}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </th>
+                    <th scope="col" className="px-2 py-2 w-8" />
+                    {/* Fix 4: Column headers via t() */}
+                    {/* Sortable headers: aria-sort on the <th>, a real <button> inside
+                        (the shared SortHeaderTh's 13px sans label would fight this
+                        12px mono-caps row). The ? tooltip is a sibling, so opening
+                        it never sorts. */}
+                    {CONTRACT_COLUMN_DEFS.map((col) => {
+                      const active = !!col.sortField && sortBy === col.sortField
+                      return (
+                      <th scope="col"
+                        key={col.key}
+                        aria-sort={col.sortField ? (active ? (sortOrder === 'desc' ? 'descending' : 'ascending') : 'none') : undefined}
+                        className={cn(
+                          'px-3 py-2 text-[12px] font-medium uppercase tracking-[0.08em] select-none',
+                          col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left',
+                          col.hideBelow === 'lg' && 'hidden lg:table-cell',
+                          active ? 'text-accent' : 'text-text-muted',
+                          col.thClass
+                        )}
+                      >
+                        {col.sortField ? (
+                          <button
+                            type="button"
+                            onClick={() => handleSort(col.sortField!)}
+                            className="inline-flex min-h-6 items-center rounded-sm uppercase tracking-[0.08em] hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                          >
+                            {t(col.labelKey)}
+                            {active && (
+                              sortOrder === 'desc'
+                                ? <ChevronDown className="h-3 w-3 inline ml-0.5" aria-hidden="true" />
+                                : <ChevronUp className="h-3 w-3 inline ml-0.5" aria-hidden="true" />
+                            )}
+                          </button>
+                        ) : t(col.labelKey)}
+                        {col.key === 'risk' && (
+                          <MetodologiaTooltip
+                            title={t('table.riskScoreTooltipTitle')}
+                            body={t('table.riskScoreTooltipBody')}
+                            link="/methodology"
+                          />
+                        )}
+                      </th>
+                      )
+                    })}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  {data?.data?.map((contract) => (
+                    <ContractRow
+                      key={contract.id}
+                      contract={contract}
+                      isSelected={compareIds.has(contract.id)}
+                      onToggleCompare={toggleCompare}
+                      lang={lang}
+                    />
+                  ))}
+                </tbody>
+              </table>
+              </div>
+            </div>
+            </ExpandableProvider>
+          )}
+        </div>
+      </div>
+
+      {/* Pagination — Fix 6: use filters.per_page throughout */}
+      {data && (data?.pagination?.total ?? 0) > 0 && (
+        <nav aria-label={t('actions.pagination')} className="flex items-center justify-between">
+          <p className="text-xs text-text-muted font-mono tabular-nums">
+            {(() => {
+              const { start, end } = getPaginationRange(filters.page || 1, filters.per_page || 50, data.pagination?.total ?? 0)
+              return t('actions.rangeOf', { start: formatNumber(start), end: formatNumber(end), total: formatNumber(data.pagination?.total ?? 0) })
+            })()}
+          </p>
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs px-2"
+              disabled={filters.page === 1}
+              onClick={() => updateFilter('page', Math.max(1, (filters.page || 1) - 1))}
+              aria-label={t('actions.prevPage')}
+            >
+              <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+            </Button>
+            <span className="text-xs text-text-muted font-mono tabular-nums px-1">
+              {clampPage(filters.page || 1, data.pagination?.total_pages ?? 1)}/{Math.max(1, data.pagination?.total_pages ?? 1)}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs px-2"
+              disabled={filters.page === (data.pagination?.total_pages ?? 0) || (data.pagination?.total_pages ?? 0) === 0}
+              onClick={() => updateFilter('page', Math.min(data.pagination?.total_pages ?? 1, (filters.page || 1) + 1))}
+              aria-label={t('actions.nextPage')}
+            >
+              <ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </Button>
+          </div>
+        </nav>
+      )}
+
+      {isDetailOpen && (
+        <Suspense fallback={null}>
+          <ContractDetailModal
+            contractId={selectedContractId}
+            open={isDetailOpen}
+            onOpenChange={setIsDetailOpen}
+          />
+        </Suspense>
+      )}
+
+      {/* Floating compare bar */}
+      {compareIds.size >= 2 && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '1.5rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9000,
+          }}
+          className="flex items-center gap-3 px-4 py-2.5 rounded-full shadow-xl border border-accent/30 bg-background-card backdrop-blur-sm"
+        >
+          <span className="text-xs text-text-muted">
+            {t('actions.selectedCount', { count: compareIds.size })}
+          </span>
+          <Button
+            size="sm"
+            className="h-7 text-xs px-3 rounded-full"
+            onClick={() => setIsCompareOpen(true)}
+          >
+            <GitCompareArrows className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
+            {t('actions.compare')}
+          </Button>
+          <button
+            type="button"
+            onClick={clearCompare}
+            className="inline-flex h-6 w-6 items-center justify-center rounded-sm text-text-muted hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+            aria-label={t('actions.clearSelection')}
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Compare modal */}
+      <ContractCompareModal
+        contracts={(data?.data || []).filter((c) => compareIds.has(c.id))}
+        open={isCompareOpen}
+        onOpenChange={setIsCompareOpen}
+        onViewDetail={(id) => { setSelectedContractId(id); setIsDetailOpen(true) }}
+      />
+
+      </Act>
+
+      {/* Data dictionary + freeze-date footer — the transparency-archive
+          affordance the methodology audit flagged as missing. Makes the
+          frozen-Sep-2025 horizon and the export semantics explicit, and
+          glosses the load-bearing fields for a first-time reader. */}
+      <details className="mt-8 border-t border-border pt-4 group">
+        <summary className="flex items-center gap-2 cursor-pointer list-none rounded-sm text-[13px] font-mono uppercase tracking-[0.14em] text-text-muted hover:text-text-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1">
+          <FileText className="h-3.5 w-3.5" aria-hidden="true" />
+          {t('dictionary.title')}
+          <ChevronDown className="h-3.5 w-3.5 ml-auto transition-transform group-open:rotate-180" aria-hidden="true" />
+        </summary>
+        <div className="mt-3 space-y-3 text-xs leading-relaxed text-text-secondary">
+          <p>{t('dictionary.frozen')}</p>
+          <p>{t('dictionary.export')}</p>
+          <div>
+            <div className="text-[12px] font-mono uppercase tracking-[0.14em] text-text-muted mb-1.5">
+              {t('dictionary.fieldsTitle')}
+            </div>
+            <ul className="space-y-1 list-none">
+              <li>{t('dictionary.contract')}</li>
+              <li>{t('dictionary.directAward')}</li>
+              <li>{t('dictionary.singleBid')}</li>
+              <li>{t('dictionary.risk')}</li>
+              <li>{t('dictionary.category')}</li>
+            </ul>
+          </div>
+        </div>
+      </details>
+      </div>
+    </div>
+  )
+}
+
+// =============================================================================
+// Helper Components
+// =============================================================================
+
+function MastheadCell({ value, label, color }: { value: string | null; label: string; color?: string }) {
+  return (
+    <div className="text-right">
+      {value == null ? (
+        <Skeleton className="ml-auto h-6 w-24" />
+      ) : (
+        <div className="text-xl sm:text-2xl font-bold text-text-primary tabular-nums leading-none" style={color ? { color } : undefined}>{value}</div>
+      )}
+      <div className="text-[13px] uppercase tracking-[0.12em] text-text-muted mt-1">{label}</div>
+    </div>
+  )
+}
+
+function StatPill({ label, value, color, suffix }: { label: string; value: string; color?: string; suffix?: string }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="text-xs text-text-muted">{label}</span>
+      <span className="text-xs font-semibold font-mono tabular-nums" style={color ? { color } : undefined}>
+        {value}
+        {suffix && <span className="font-normal text-text-muted"> {suffix}</span>}
+      </span>
+    </div>
+  )
+}
+
+// =============================================================================
+function abbreviateProcedure(raw: string): string {
+  const s = raw.toUpperCase()
+  if (s.includes('ADJUDICACI')) return 'Adj. Directa'
+  if (s.includes('LICITACI') && s.includes('BLICA')) return 'Lic. Pública'
+  if (s.includes('INVITACI')) return 'Inv. 3 Pers.'
+  if (s.includes('ENTES P')) return 'Entes Públ.'
+  if (s.includes('PROYECTO')) return 'Proy. Conv.'
+  if (s.includes('OTRAS')) return 'Otras'
+  return raw.length > 18 ? raw.slice(0, 16) + '…' : raw
+}
+
+// Contract Row
+// =============================================================================
+
+const ContractRow = React.memo(function ContractRow({
+  contract,
+  isSelected,
+  onToggleCompare,
+  lang,
+}: {
+  contract: ContractListItem
+  isSelected: boolean
+  onToggleCompare: (id: number) => void
+  lang: string
+}) {
+  const { t } = useTranslation('contracts')
+  const { t: ts } = useTranslation('sectors')
+  const { toggle, isExpanded } = useExpandable()
+  const expanded = isExpanded(contract.id)
+  const riskLevel = contract.risk_score != null ? getRiskLevel(contract.risk_score) : (contract.risk_level ?? null)
+  const sector = contract.sector_id ? SECTORS.find((s) => s.id === contract.sector_id) : null
+  const title =
+    cleanContractDescription(contract.title || '', Infinity).objeto ||
+    contract.contract_number ||
+    (lang === 'es' ? `Contrato #${contract.id}` : `Contract #${contract.id}`)
+
+  const rowBorder =
+    riskLevel === 'critical' ? 'border-l-4 border-l-risk-critical'
+    : riskLevel === 'high' ? 'border-l-4 border-l-risk-high'
+    : riskLevel === 'medium' ? 'border-l-4 border-l-risk-medium'
+    : 'border-l-4 border-l-transparent'
+
+  // Rows are links, not buttons (PARALLAX D12 § Change 3, Day 9 § 3 pattern):
+  // the title is the one <Link>; its ::after stretches over the whole <tr>
+  // (position: relative) so a click anywhere opens the dossier, while the
+  // checkbox, quick-look, chips and risk seal sit above it at z-10.
+  return (
+    <>
+      <tr
+        className={cn('group relative transition-colors hover:bg-background-elevated/40', expanded && 'bg-background-elevated/30', rowBorder)}
+      >
+        {/* Compare checkbox — the cell is the hit area */}
+        <td className="p-0 w-8">
+          <label className="relative z-10 flex min-h-11 w-full cursor-pointer items-center justify-center">
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => onToggleCompare(contract.id)}
+              className="min-h-5 min-w-5 rounded border-border accent-accent cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              aria-label={lang === 'es' ? `Comparar contrato ${contract.contract_number || contract.id}` : `Select contract ${contract.contract_number || contract.id} for comparison`}
+            />
+          </label>
+        </td>
+        {/* Peek chevron */}
+        <td className="px-1 py-2.5 w-8">
+          <button
+            type="button"
+            onClick={() => toggle(contract.id)}
+            aria-expanded={expanded}
+            aria-label={t('table.peek', 'Quick look')}
+            title={t('table.peek', 'Quick look')}
+            className="relative z-10 inline-flex min-h-6 min-w-6 items-center justify-center rounded-sm text-text-muted hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+          >
+            <ChevronRight className={cn('h-4 w-4 transition-transform', expanded && 'rotate-90')} aria-hidden="true" />
+          </button>
+        </td>
+
+        {/* CONTRATO — title (the surfaced gold) + why-flagged strip */}
+        <td className="px-3 py-2.5 min-w-0">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0">
+              {sector && (
+                <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: sector.color }} title={ts(sector.code)} aria-hidden="true" />
+              )}
+              {sector && (
+                <span className="sr-only">{ts(sector.code)}: </span>
+              )}
+              <Link
+                to={`/contracts/${contract.id}`}
+                state={{ from: 'archive' }}
+                className="whitespace-normal break-words leading-tight text-sm font-medium text-text-primary group-hover:text-accent rounded-sm after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              >
+                {title}
+              </Link>
+            </div>
+            {(contract.is_documented_case || (contract.risk_factors?.length ?? 0) > 0 || contract.is_direct_award || contract.is_single_bid || (contract.mahalanobis_distance ?? 0) > 20) && (
+              <div className="relative z-10 mt-1 flex flex-wrap items-center gap-1.5">
+                <CaseSeal contract={contract} lang={lang} />
+                <WhyFlags contract={contract} lang={lang} max={2} />
+              </div>
+            )}
+          </div>
+        </td>
+
+        {/* QUIÉN — vendor → institution */}
+        <td className="px-3 py-2.5 w-[32%]">
+          <div className="flex min-w-0 flex-col gap-1">
+            {contract.vendor_id ? (
+              <div className="relative z-10 flex min-w-0 items-center gap-1">
+                {contract.vendor_is_individual && (
+                  <span
+                    className="shrink-0 rounded border border-risk-high/40 bg-risk-high/10 px-1 py-0.5 text-[13px] font-bold leading-none"
+                    style={{ color: RISK_INK_ON_PLATE.high }}
+                    title={lang === 'es' ? 'Persona física — no es una empresa' : 'Natural person (individual) — not a company'}
+                  >
+                    {lang === 'es' ? 'P. FÍSICA' : 'PERSON'}
+                  </span>
+                )}
+                <EntityIdentityChip type="vendor" id={contract.vendor_id} name={contract.vendor_name || ''} size="sm" fullName />
+              </div>
+            ) : (
+              <span className="text-sm text-text-secondary" title={contract.vendor_name || ''}>
+                {contract.vendor_name ? toTitleCase(contract.vendor_name) : '—'}
+              </span>
+            )}
+            {contract.institution_id ? (
+              <div className="relative z-10 min-w-0">
+                <EntityIdentityChip type="institution" id={contract.institution_id} name={contract.institution_name || `Inst #${contract.institution_id}`} size="sm" fullName />
+              </div>
+            ) : contract.institution_name ? (
+              <span className="text-xs text-text-muted" title={contract.institution_name}>{contract.institution_name}</span>
+            ) : null}
+          </div>
+        </td>
+
+        {/* MONTO */}
+        <td className="px-3 py-2.5 text-right w-24">
+          <span className="font-mono text-xs font-medium tabular-nums text-text-primary">
+            {formatCompactMXN(contract.amount_mxn)}
+          </span>
+        </td>
+
+        {/* FECHA */}
+        <td className="px-3 py-2.5 text-right w-16">
+          <span className="whitespace-nowrap font-mono text-xs tabular-nums text-text-muted">
+            {contract.contract_date ? contract.contract_date.slice(0, 7) : contract.contract_year || '—'}
+          </span>
+        </td>
+
+        {/* RIESGO — the Verdict Seal (collision-proof) */}
+        <td className="px-3 py-2.5 w-28">
+          {riskLevel ? (
+            <RiskExplainTooltip contractId={contract.id} riskScore={contract.risk_score ?? 0} riskLevel={riskLevel}>
+              <span className="relative z-10 inline-block">
+                <VerdictSeal score={contract.risk_score} level={contract.risk_level} align="right" />
+              </span>
+            </RiskExplainTooltip>
+          ) : (
+            <div className="text-right text-xs text-text-muted">—</div>
+          )}
+        </td>
+      </tr>
+
+      {/* Rich peek (chevron) — title, full why-strip, actions, full-dossier CTA */}
+      {expanded && (
+        <tr className="bg-background-elevated/20">
+          <td colSpan={7} className="border-b border-border px-4 py-3">
+            <div className="space-y-3">
+              <p className="text-sm text-text-primary">{title}</p>
+
+              {(contract.is_documented_case || (contract.risk_factors?.length ?? 0) > 0 || contract.is_direct_award || contract.is_single_bid) && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <CaseSeal contract={contract} lang={lang} />
+                  <WhyFlags contract={contract} lang={lang} max={99} />
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 gap-x-6 gap-y-1 text-xs text-text-muted sm:grid-cols-2">
+                {contract.contract_date && <p>{t('columns.date')}: {formatDate(contract.contract_date)}</p>}
+                {contract.procedure_type && <p title={contract.procedure_type}>{t('columns.procedure')}: {abbreviateProcedure(contract.procedure_type)}</p>}
+                {contract.contract_number && <p>{t('detail.numberLabel')}: {contract.contract_number}</p>}
+                {contract.mahalanobis_distance != null && (
+                  <p>{t('detail.anomalyLabel')}: D²={contract.mahalanobis_distance.toFixed(2)}</p>
+                )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3 border-t border-border/30 pt-2">
+                {contract.vendor_id && (
+                  <EntityIdentityChip type="vendor" id={contract.vendor_id} name={contract.vendor_name || `Vendor #${contract.vendor_id}`} size="sm" />
+                )}
+                {contract.institution_id && (
+                  <EntityIdentityChip type="institution" id={contract.institution_id} name={contract.institution_name || `Inst #${contract.institution_id}`} size="xs" />
+                )}
+                {contract.contract_number && (
+                  <a
+                    href={`https://compranet.hacienda.gob.mx/esop/toolkit/opportunity/opportunityDetail.do?opportunityId=${encodeURIComponent(contract.contract_number)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-xs text-text-muted hover:text-accent"
+                    title="COMPRANET"
+                  >
+                    <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                    COMPRANET<span className="sr-only"> {t('actions.opensNewTab')}</span>
+                  </a>
+                )}
+                <div className="ml-auto flex items-center gap-2">
+                  <RiskFeedbackButton entityType="contract" entityId={contract.id} className="h-6 w-6" />
+                  <AddToDossierButton
+                    entityType="contract"
+                    entityId={contract.id}
+                    entityName={contract.title ?? contract.contract_number ?? `Contract #${contract.id}`}
+                    iconOnly
+                    className="h-6 w-6"
+                  />
+                  <Link
+                    to={`/contracts/${contract.id}`}
+                    state={{ from: 'archive' }}
+                    className="inline-flex items-center gap-1.5 rounded-sm bg-accent/10 px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-accent/20"
+                    title={t('peek.openDossier', 'Open full dossier')}
+                  >
+                    {t('peek.openDossier', 'Open full dossier')}
+                    <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
+  )
+})
+
+export default Contracts

@@ -1,0 +1,246 @@
+{
+  "pageTitle": "Informe de Inteligencia ARIA",
+  "pageSubtitle": "Algoritmo Automatizado de Investigación de Riesgo — inteligencia de riesgo de contratación seleccionada",
+  "stats": {
+    "totalLeads": "Pistas Totales",
+    "totalLeadsSub": "proveedores en pipeline",
+    "elevatedValue": "Valor Elevado",
+    "elevatedValueSub": "Niveles 1 + 2 combinados",
+    "efosListed": "En Lista EFOS",
+    "efosListedSub": "+ {{sfpCount}} sancionados por SFP",
+    "newVendorRisk": "proveedores nuevos de riesgo",
+    "newVendorRiskSub": "señales de proveedor de baja huella",
+    "lastRun": "Última ejecución del pipeline: {{date}}",
+    "vendorsSurveillance": "proveedores bajo vigilancia",
+    "vendorsUnderSurveillance": "proveedores bajo vigilancia",
+    "elevatedValueRisk": "valor bajo riesgo elevado",
+    "valueAtRisk": "valor en riesgo",
+    "efosOnList": "en Lista EFOS (SAT)",
+    "efosAnnotation": "+ {{count}} sanciones SFP",
+    "onEfos": "en lista EFOS"
+  },
+  "errors": {
+    "notRun": "El pipeline aún no se ha ejecutado",
+    "notRunDesc": "Ejecute el pipeline de ARIA desde el backend para poblar las pistas de investigación."
+  },
+  "filters": {
+    "byPattern": "Filtrar por Patrón",
+    "all": "Todos",
+    "newVendorOnly": "Riesgo de Proveedor Nuevo",
+    "novelOnly": "Solo nuevos",
+    "novelOnlyTooltip": "Mostrar solo leads que no están en la base de casos documentados"
+  },
+  "tier1": {
+    "heading": "Proveedores con caso documentado — Nivel 1",
+    "subtitle": "Todo proveedor de Nivel 1 ya está en la base de casos de RUBLI: el nivel se ancla en la verdad fundamental, así que confirma casos conocidos en lugar de descubrir nuevos.",
+    "empty": "No se encontraron pistas de Nivel 1. Ejecuta el pipeline de ARIA para rellenar.",
+    "description": "Ya en la base de casos — revisar el expediente",
+    "label": "NIVEL 1",
+    "name": "CRÍTICO",
+    "objective": "PISTA #{{number}}"
+  },
+  "tierCard": {
+    "avgRisk": "Riesgo prom.",
+    "valueAtRisk": "Valor en riesgo",
+    "clickFilter": "Clic para filtrar por nivel",
+    "activeFilter": "Filtrado — clic para limpiar"
+  },
+  "tier2": {
+    "description": "Revisión prioritaria en las próximas semanas",
+    "label": "NIVEL 2",
+    "name": "ALTO"
+  },
+  "tier3": {
+    "description": "Monitoreo activo — revisar en 90 días",
+    "label": "NIVEL 3",
+    "name": "MEDIO"
+  },
+  "tier4": {
+    "description": "Vigilancia pasiva — alertas automáticas",
+    "label": "NIVEL 4",
+    "name": "BAJO"
+  },
+  "whyItMatters": {
+    "kicker": "POR QUÉ IMPORTA",
+    "body": "Los métodos tradicionales de auditoría revisan el 0.1% de los contratos. ARIA puntúa el 100%. Los {{t1Count}} proveedores de Nivel 1 ya están todos en la base de casos de RUBLI (el nivel se ancla en la verdad fundamental); las pistas nuevas están en los Niveles 2 y 3."
+  },
+  "leads": {
+    "filteredResults": "Resultados Filtrados",
+    "allLeads": "Todas las Pistas",
+    "vendorCount": "proveedores",
+    "searchPlaceholder": "Buscar proveedores…",
+    "investigateBtn": "Investigar proveedor",
+    "empty": "No hay pistas que coincidan con tus filtros.",
+    "filterActive": "filtro activo"
+  },
+  "table": {
+    "headers": {
+      "vendor": "Proveedor",
+      "pattern": "Patrón",
+      "value": "Valor",
+      "ips": "IPS",
+      "tier": "Nivel",
+      "revision": "Revisión"
+    },
+    "review": "Revisión:"
+  },
+  "card": {
+    "totalValue": "Valor Total",
+    "contracts": "Contratos",
+    "avgRisk": "Riesgo Promedio",
+    "directAward": "Adjudicación Directa"
+  },
+  "memo": {
+    "loadError": "Error al cargar memo",
+    "kicker": "§ El memo ARIA",
+    "aiGenerated": "Generado por IA",
+    "template": "Plantilla",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "footer": "Generado automáticamente — requiere verificación periodística",
+    "sourceLanguage": "texto del memo tal como se generó",
+    "fpTitle": "Marcado como falso positivo estructural",
+    "fpBody": "Este proveedor es multinacional o estructural. La concentración refleja su posición de mercado,",
+    "fpStrong": "no evidencia de fraude.",
+    "fpTail": "El perfil se mantiene únicamente para transparencia metodológica.",
+    "fpReason": "Motivo",
+    "tplTitle": "Memo automático · sin verificación humana",
+    "tplBody": "Este memo fue generado por plantilla, no por análisis investigativo. La sección \"FUENTES\" sugiere búsquedas manuales (no son citaciones verificadas).",
+    "tplStrong": "Úselo solo como punto de partida",
+    "tplTail": "para investigación periodística.",
+    "stale": "Memo escrito antes del modelo activo v0.8.5 (mayo 2026). Las puntuaciones citadas pueden no coincidir con los valores actuales.",
+    "emptyTitle": "Análisis narrativo no disponible para",
+    "emptyBody": "Este proveedor no ha sido analizado aún por el pipeline de investigación.",
+    "stubTitle": "Perfil algorítmico · sin memo investigativo",
+    "stubBody": "No existe memo narrativo para este proveedor. Se muestran las señales del modelo de riesgo v0.8.5 como punto de partida para investigación.",
+    "stubStrong": "Requiere verificación periodística independiente.",
+    "riskScale": "Indicador de riesgo · escala 0–100",
+    "contractsAnalyzed": "contratos analizados",
+    "topFactors": "Factores de riesgo principales",
+    "modelNote": "Análisis generado por modelo — no sustituye investigación periodística"
+  },
+  "pagination": {
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "pageOf": "Página {{page}} de {{total}}"
+  },
+  "about": {
+    "title": "Acerca de ARIA",
+    "description": "El Algoritmo Automatizado de Investigación de Riesgo (ARIA) combina puntuaciones de riesgo de ML, detección de anomalías, clasificación de patrones y referencias cruzadas de registros externos (EFOS, SFP, RUPC) para clasificar proveedores según la Puntuación de Prioridad de Investigación (IPS). Las notas editoriales se generan previamente mediante síntesis asistida por LLM de señales de contratación.",
+    "disclaimer": "Las puntuaciones de IPS son indicadores de riesgo, no veredictos de corrupción. Las puntuaciones altas indican similitud estadística con patrones de corrupción documentados y justifican una investigación más profunda."
+  },
+  "patterns": {
+    "P1": "Monopolio de Mercado",
+    "P2": "Proveedor de baja huella (sin RFC)",
+    "P3": "Intermediario de Contratos",
+    "P4": "Patrón de coadjudicación",
+    "P5": "Sobreprecio",
+    "P6": "Dependencia de un solo comprador",
+    "P7": "Vinculado a un caso documentado"
+  },
+  "patternFilter": {
+    "P1": "Monopolio",
+    "P2": "Proveedor de baja huella (sin RFC)",
+    "P3": "Intermediario",
+    "P6": "Dependencia de un solo comprador",
+    "P7": "Vinculado a un caso documentado"
+  },
+  "searchBar": {
+    "placeholder": "Buscar proveedores por nombre...",
+    "patternLabel": "Filtrar por patrón",
+    "allPatterns": "Todos los patrones"
+  },
+  "patternSection": {
+    "title": "Patrones de Riesgo Detectados"
+  },
+  "queueSection": {
+    "title": "Pistas de Investigación"
+  },
+  "reviewFilter": {
+    "all": "Todos"
+  },
+  "status": {
+    "pending": "Pendiente",
+    "reviewing": "En revisión",
+    "confirmed": "Confirmado",
+    "dismissed": "Descartado",
+    "needs_review": "Por revisar",
+    "reviewed": "Revisado",
+    "confirmed_corrupt": "Confirmado en revisión interna",
+    "false_positive": "Falso positivo",
+    "fp_excluded": "FP estructural excluido",
+    "structural_fp": "FP estructural",
+    "cleared": "Revisado · sin hallazgos",
+    "reviewed_clean": "Revisado · sin hallazgos",
+    "skipped": "Omitido",
+    "reviewed_skip": "Omitido",
+    "gt_added": "Añadido a Ground Truth",
+    "classified": "Clasificado"
+  },
+  "reviewPopover": {
+    "reviewStatus": "Estado de Revisión",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "close": "Cerrar",
+    "error": "Error al guardar. Intenta de nuevo.",
+    "updateTitle": "Actualizar estado de revisión",
+    "promoting": "Promoviendo…",
+    "promotedToGT": "✓ Añadido a GT",
+    "promoteToGT": "↑ Añadir a Ground Truth",
+    "alreadyInGT": "Ya en Ground Truth"
+  },
+  "header": {
+    "systemLabel": "Sistema ARIA · Análisis de Riesgo en Adquisiciones",
+    "live": "EN VIVO",
+    "title": "Centro de Inteligencia",
+    "subtitle": "{{count}} proveedores bajo vigilancia activa. Sistema automatizado de detección de riesgo en contratación pública federal.",
+    "statusActive": "Activo",
+    "t1Require": "proveedores T1 son prioritarios para revisión",
+    "lastUpdated": "Última actualización"
+  },
+  "editorial": {
+    "section": "INTELIGENCIA RUBLI",
+    "headline": "Briefing de Análisis de Riesgo",
+    "subtitle": "Cola automatizada de riesgo con priorización por nivel"
+  },
+  "methodology": {
+    "title": "¿Cómo funciona ARIA?",
+    "body": "ARIA combina score de riesgo ML (v0.8.5), detección de anomalías PyOD, y cruce con registros externos (SAT EFOS, SFP, RUPC) para priorizar investigaciones. IPS = Integrated Priority Score."
+  },
+  "threatLevels": "Niveles de Prioridad",
+  "ipsBreakdown": {
+    "title": "Desglose IPS",
+    "risk": "Riesgo (40%)",
+    "ensemble": "Ensemble (20%)",
+    "financial": "Financiero (20%)",
+    "external": "Externo (20%)"
+  },
+  "filterBar": {
+    "active": "{{count}} filtro(s) activo(s)",
+    "clearAll": "Limpiar todo",
+    "pattern": "Patrón"
+  },
+  "emptyState": {
+    "noSearchResults": "No se encontraron proveedores para \"{{query}}\""
+  },
+  "hero": {
+    "headline": "{{vendorCount}} proveedores bajo vigilancia en 4 niveles de amenaza",
+    "subtitle": "ARIA monitorea proveedores de contratación pública federal usando ML, detección de anomalías y cruce con registros externos. El Nivel 1 reúne a los 299 proveedores que ya están en la base de casos de RUBLI; las pistas nuevas empiezan en el Nivel 2.",
+    "t1RequireShort": "Proveedores T1 con caso documentado"
+  },
+  "patternDesc": {
+    "P1": "Un proveedor domina un mercado — >60% del gasto sectorial",
+    "P2": "Pocos contratos, sin RFC registrado, vida contratante corta — una huella, no un hallazgo",
+    "P3": "Proveedor actua como intermediario entre gobierno y subcontratistas",
+    "P4": "Proveedores adjudicados juntos en los mismos procedimientos de forma repetida — coadjudicación, no colusión probada",
+    "P5": "Precios de contratos significativamente arriba del mercado",
+    "P6": "Una institución otorga >80% de su presupuesto a un solo proveedor",
+    "P7": "El proveedor está vinculado a un caso documentado (con fuente) en la base de casos de RUBLI"
+  },
+  "connectionError": {
+    "title": "Error de Conexión",
+    "headline": "ARIA no está disponible",
+    "body": "No se pudieron cargar las pistas de investigación. El servidor puede estar reiniciando — intenta actualizar en un momento.",
+    "retry": "Reintentar"
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "guide": {
+    "title": "Inicia Tu Investigación",
+    "description": "Usa dossiers para organizar tu investigación. Agrega proveedores, instituciones y contratos para construir un panorama completo de los patrones de contratación.",
+    "createFirstDossier": "Crear Primer Dossier",
+    "searchVendorLink": "O busca un proveedor para comenzar",
+    "exampleInvestigations": "Ejemplos de investigaciones",
+    "howItWorks": "Cómo funciona",
+    "howItWorksP1": "Los dossiers son carpetas privadas de investigación que se guardan en tu navegador. Cada dossier puede contener proveedores, instituciones y contratos individuales.",
+    "howItWorksP2": "Usa el botón Agregar al Dossier en cualquier perfil de proveedor o institución para comenzar a recopilar evidencia. Los dossiers persisten entre sesiones para que puedas retomar la investigación más tarde.",
+    "howItWorksP3": "Cuando estés listo para publicar o compartir, Exporta tu dossier como CSV o JSON con todas las entidades recopiladas y sus metadatos de riesgo.",
+    "dossiers": "Dossiers",
+    "addToDossierLabel": "Agregar al Dossier",
+    "exportLabel": "Exportar"
+  },
+  "search": {
+    "noResults": "Sin resultados para \"{{query}}\""
+  },
+  "folderSidebar": {
+    "allItems": "Todos los elementos",
+    "namePlaceholder": "Nombre de carpeta",
+    "create": "Crear",
+    "newFolder": "Nueva Carpeta"
+  }
+}

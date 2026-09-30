@@ -1,0 +1,478 @@
+import { useMemo } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import { ariaApi } from '@/api/client'
+import { getStoriesByLensTag, type AriaPattern, type SectorCode } from '@/lib/story-content'
+import { SECTOR_NAMES_EN, getNewsTypeColor } from '@/lib/constants'
+import { EntityIdentityChip } from '@/components/ui/EntityIdentityChip'
+import { PageFooter } from '@/components/layout/PageFooter'
+import { PlanaMasthead } from '@/components/journalists/PlanaMasthead'
+import { PlanaLeadBlock } from '@/components/journalists/PlanaLeadBlock'
+import { PlanaDesk } from '@/components/journalists/PlanaDesk'
+import { PlanaColofon } from '@/components/journalists/PlanaColofon'
+import type { PlanaStory } from '@/components/journalists/plana-parts'
+
+// ---------------------------------------------------------------------------
+// INVESTIGATIONS — hardcoded editorial metadata (the front page's story set)
+// ---------------------------------------------------------------------------
+
+type FraudType = 'ghost_company' | 'procurement_fraud' | 'embezzlement' | 'monopoly' | 'overpricing'
+type StatusKind = 'procesado' | 'auditado' | 'reporteado' | 'solo_datos'
+type Era = 'pena' | 'amlo' | 'cross' | 'sheinbaum'
+
+interface Investigation {
+  slug: string
+  headline: string
+  headline_es?: string
+  sub: string
+  sub_es?: string
+  type: FraudType
+  status: StatusKind
+  amount: number
+  era: Era
+  contracts: number
+  brief: string
+  brief_es?: string
+  yearSpan?: string
+}
+
+const LEAD_SLUG = 'el-sexenio-del-riesgo'
+const OFFLEAD_SLUG = 'el-vacio'
+
+const INVESTIGATIONS: Investigation[] = [
+  {
+    slug: 'el-sexenio-del-riesgo',
+    headline: 'The Ledger of Five Administrations',
+    headline_es: 'El libro mayor de cinco sexenios',
+    sub: 'AMLO term HR 12.53% · v0.8.5',
+    sub_es: 'Sexenio AMLO AR 12.53% · v0.8.5',
+    type: 'procurement_fraud',
+    status: 'reporteado',
+    amount: 2758,
+    era: 'amlo',
+    contracts: 1050552,
+    yearSpan: '2019–2024',
+    brief: "AMLO's 12.53% high-risk rate is the highest of any complete term in the register's 24 years. Every administration through AMLO read riskier than the one before it — 5.0 points of drift. Sheinbaum's open account is the first that does not climb.",
+    brief_es: 'La tasa de alto riesgo de 12.53% de AMLO es la más alta de cualquier sexenio completo en los 24 años del registro. Cada administración hasta AMLO se leyó más riesgosa que la anterior — 5.0 puntos de deriva. La cuenta abierta de Sheinbaum es la primera que no sube.',
+  },
+  {
+    slug: 'el-vacio',
+    headline: 'A Government Erased Its Own Procurement Record. We Rebuilt 94,899 Contracts It Stopped Publishing.',
+    headline_es: 'Un gobierno borró su propio registro de compras. Reconstruimos los 94,899 contratos que dejó de publicar.',
+    sub: 'ComprasMX gap · 78.4% direct award',
+    sub_es: 'Hueco ComprasMX · 78.4% adjudicación directa',
+    type: 'procurement_fraud',
+    status: 'solo_datos',
+    amount: 92.9,
+    era: 'sheinbaum',
+    contracts: 94899,
+    yearSpan: '2025–2026',
+    brief: 'CompraNet froze in September 2025 and the successor portal publishes only fragments. By reverse-engineering it, RUBLI rebuilt 94,899 awards that fell out of the public record — 78.4% with no competition, three in four with no disclosed price.',
+    brief_es: 'CompraNet se congeló en septiembre de 2025 y el portal sucesor publica solo fragmentos. Con ingeniería inversa, RUBLI reconstruyó 94,899 adjudicaciones que se cayeron del registro público — 78.4% sin competencia, tres de cada cuatro sin precio divulgado.',
+  },
+  {
+    slug: 'captura-institucional',
+    headline: 'The Suppliers Who Cannot Leave',
+    headline_es: 'Los proveedores que no pueden irse',
+    sub: 'IMSS · CFE · PEMEX',
+    sub_es: 'IMSS · CFE · PEMEX',
+    type: 'monopoly',
+    status: 'auditado',
+    amount: 1077,
+    era: 'cross',
+    // The buyer groups carry vendor counts and value, not a contract total —
+    // 0 is the card's "not applicable", and the renderer drops the line.
+    contracts: 0,
+    yearSpan: '2002–2025',
+    brief: '15,939 companies send four fifths or more of everything they sell to a single government buyer; the average is 96%. At IMSS 3,468 of them hold 405.3 billion pesos between them — while no supplier comes close to dominating the institute in return.',
+    brief_es: '15,939 empresas le venden cuatro quintas partes o más de todo lo suyo a un solo comprador de gobierno; el promedio es 96%. En el IMSS, 3,468 de ellas acumulan 405.3 mil millones de pesos — mientras ningún proveedor se acerca a dominar al instituto a cambio.',
+  },
+  {
+    slug: 'el-cartel-de-los-vales',
+    headline: 'Five Firms, a Closed Market, and a Winner That Keeps Changing',
+    headline_es: 'Cinco empresas, un mercado cerrado y un ganador que no deja de cambiar',
+    sub: 'Toka · Edenred · Efectivale · Si Vale · Sodexo',
+    sub_es: 'Toka · Edenred · Efectivale · Si Vale · Sodexo',
+    type: 'monopoly',
+    status: 'auditado',
+    amount: 142.6,
+    era: 'cross',
+    contracts: 10786,
+    yearSpan: '2001–2025',
+    brief: 'Five issuers hold 142.6 billion pesos of federal card contracts. 96.4% skipped an open contest; the lead changed hands three times.',
+    brief_es: 'Cinco emisoras concentran 142.6 mil millones en contratos federales de tarjetas. El 96.4% no pasó por concurso abierto; el liderazgo cambió tres veces.',
+  },
+  {
+    slug: 'el-monopolio-invisible',
+    headline: 'Anatomy of a Captured Market',
+    headline_es: 'Anatomía de un mercado capturado',
+    sub: 'Grupo Fármacos · IMSS',
+    type: 'monopoly',
+    status: 'reporteado',
+    amount: 133.2,
+    era: 'cross',
+    contracts: 6303,
+    yearSpan: '2002–2025',
+    brief: 'Four pharmaceutical distributors collected 326 billion pesos from IMSS over 23 years with no meaningful competition. Their combined risk indicator averages 0.96.',
+    brief_es: 'Cuatro distribuidoras farmacéuticas cobraron 326 mil millones de pesos al IMSS en 23 años sin competencia significativa. Su indicador de riesgo combinado promedia 0.96.',
+  },
+  {
+    slug: 'el-ano-de-la-emergencia',
+    headline: 'The Ratchet: Competition Never Came Back',
+    headline_es: 'El trinquete: la competencia nunca regresó',
+    sub: 'Post-emergency floor 79.1% · above every pre-2020 year',
+    sub_es: 'Piso post-emergencia 79.1% · por encima de todo año pre-2020',
+    type: 'procurement_fraud',
+    status: 'reporteado',
+    amount: 4.5,
+    era: 'amlo',
+    contracts: 158319,
+    yearSpan: '2020–2021',
+    brief: "Mexico's COVID emergency decree suspended competitive bidding overnight — and the direct-award rate barely moved, because it was already 77.8%. What never came back is the floor: every year since is more direct than any year before the pandemic.",
+    brief_es: 'El decreto de emergencia COVID suspendió la licitación competitiva de la noche a la mañana — y la tasa de adjudicación directa apenas se movió, porque ya estaba en 77.8%. Lo que nunca regresó es el piso: cada año desde entonces es más directo que cualquier año anterior a la pandemia.',
+  },
+  {
+    slug: 'la-ilusion-competitiva',
+    headline: 'Now You See Competition',
+    headline_es: 'Ahora usted ve competencia',
+    sub: 'Single-bid "competitive" tenders',
+    type: 'procurement_fraud',
+    status: 'reporteado',
+    amount: 0,
+    era: 'cross',
+    contracts: 361599,
+    yearSpan: '2011–2024',
+    brief: 'For 14 straight years, over 45% of Mexico\'s "competitive" procurement drew exactly one bidder — 362,000 contracts, peaking at 65.65% in 2014. The EU scoreboard rates anything above 20% unsatisfactory.',
+    brief_es: 'Durante 14 años seguidos, más del 45% de la contratación "competitiva" de México atrajo exactamente un oferente — 362,000 contratos, con un pico de 65.65% en 2014. El Tablero UE considera insatisfactorio todo lo que supere el 20%.',
+  },
+  {
+    slug: 'marea-de-adjudicaciones',
+    // Matches the story's own h1 (SD-09). The card and the page must not greet
+    // a reader with two different titles for the same investigation.
+    headline: 'The 82 Percent Rule',
+    headline_es: 'La regla del 82 por ciento',
+    sub: 'Every completed term worse',
+    type: 'procurement_fraud',
+    status: 'reporteado',
+    amount: 0,
+    era: 'cross',
+    // Direct awards 2011–2024, as the renderer reads it.
+    contracts: 1931317,
+    yearSpan: '2011–2024',
+    brief: '82.18% of 2023 federal contracts were awarded without a contest — the highest of the 14 full years COMPRANET codes procedure type. Each completed administration since 2011 has run higher than the last.',
+    brief_es: 'El 82.18% de los contratos federales de 2023 se adjudicó sin concurso — la lectura más alta de los 14 años completos que CompraNet codifica el tipo de procedimiento. Cada administración completa ha corrido más alto que la anterior.',
+  },
+  {
+    slug: 'el-ejercito-fantasma',
+    // Matches the story's own h1 (SD-06). The card and the page must not greet
+    // a reader with two different titles for the same investigation.
+    headline: 'The Man Who Won 370 Million Pesos and Disappeared',
+    headline_es: 'El hombre que ganó 370 millones de pesos y desapareció',
+    sub: 'P2 ghost-company pattern',
+    type: 'ghost_company',
+    status: 'solo_datos',
+    // Billions of pesos, as the renderer reads it — the P2 cohort's lifetime
+    // federal contracting, 39.6B.
+    amount: 39.6,
+    era: 'cross',
+    contracts: 0,
+    yearSpan: '2002–2025',
+    brief: "RUBLI identified 6,118 vendors matching ghost-company patterns across 23 years. They appear, win contracts, then vanish from the tax registry — 126 of them, 2.1%, carry SAT's definitive Article 69-B listing.",
+    brief_es: 'RUBLI identificó 6,118 proveedores con patrones de empresa fantasma en 23 años. Aparecen, ganan contratos y desaparecen del registro fiscal — 126 de ellos, el 2.1%, llevan el listado definitivo del SAT bajo el Artículo 69-B.',
+  },
+  {
+    slug: 'el-gran-precio',
+    headline: 'The Contracts No One Is Watching Are the Biggest Ones',
+    headline_es: 'Los contratos que nadie vigila son los más grandes',
+    sub: '40 mega-contracts above 10B',
+    type: 'overpricing',
+    status: 'reporteado',
+    amount: 0,
+    era: 'cross',
+    contracts: 3000000,
+    yearSpan: '2002–2025',
+    brief: "Across 3 million contracts, risk rises in near-lockstep with size: the 40 contracts above 10 billion pesos — 819 billion in all — are every one high-risk, and oversight runs thinnest exactly there.",
+    brief_es: 'En 3 millones de contratos, el riesgo sube casi en paralelo con el tamaño: los 40 contratos por encima de 10 mil millones — 819 mil millones en total — son todos de alto riesgo, y la fiscalización es más débil justo ahí.',
+  },
+  {
+    slug: 'la-industria-del-intermediario',
+    // Matches the story's own h1 (SD-05). The card and the page must not
+    // greet a reader with two different titles for the same investigation.
+    headline: 'Follow the Middleman',
+    headline_es: 'Sigan al intermediario',
+    sub: 'P3 pass-through vendors',
+    type: 'procurement_fraud',
+    status: 'solo_datos',
+    // Billions of pesos, as the renderer reads it — the P3 cohort's lifetime
+    // federal contracting, 556.5B.
+    amount: 556,
+    era: 'cross',
+    contracts: 0,
+    yearSpan: '2002–2025',
+    brief: '2,972 vendors match the pass-through pattern and hold 556.5 billion pesos between them. But more than half the money at the top of that list has already been reviewed and ruled out — and 2,691 of the 2,972 have never been opened at all.',
+    brief_es: '2,972 proveedores coinciden con el patrón de paso y acumulan 556.5 mil millones de pesos. Pero más de la mitad del dinero de la cima de esa lista ya fue revisado y descartado — y 2,691 de los 2,972 no se han abierto nunca.',
+  },
+  {
+    slug: 'el-umbral-de-los-300k',
+    headline: 'The Prices That End in Zeros',
+    headline_es: 'Los precios que terminan en ceros',
+    sub: 'Contracts written on round numbers',
+    type: 'overpricing',
+    status: 'solo_datos',
+    amount: 0,
+    era: 'cross',
+    // Contracts in the 200K-400K band written on an exact multiple of 10,000.
+    contracts: 22263,
+    yearSpan: '2002–2025',
+    brief: '22,263 contracts between 200,000 and 400,000 pesos are written on an exact multiple of ten thousand — up to 29 times the count a thousand pesos to either side. 81.5% of them were awarded without a contest, against 70.8% of the band.',
+    brief_es: '22,263 contratos de 200 mil a 400 mil pesos están escritos sobre un múltiplo exacto de diez mil — hasta 29 veces el conteo a mil pesos de cualquier lado. El 81.5% se adjudicó sin competencia, contra el 70.8% de la banda.',
+  },
+  {
+    slug: 'volatilidad-el-precio-del-riesgo',
+    headline: "The Smoking Gun Is a Number",
+    headline_es: 'La pistola humeante es un número',
+    sub: 'Strongest predictor · v0.8.5',
+    type: 'overpricing',
+    status: 'solo_datos',
+    amount: 0,
+    era: 'cross',
+    contracts: 3051294,
+    yearSpan: '2002–2025',
+    brief: "Price volatility is the single strongest predictor in RUBLI's risk model (coefficient +0.558), outperforming 17 other features. It captures the forensic fingerprint of negotiated — not competed — prices.",
+    brief_es: 'La volatilidad de precios es el predictor más fuerte del modelo de RUBLI (coeficiente +0.558), por encima de otros 17 factores. Captura la huella forense de precios negociados, no competidos.',
+  },
+]
+
+const TYPE_LABEL: Record<FraudType, { en: string; es: string }> = {
+  ghost_company: { en: 'Ghost companies', es: 'Empresas fantasma' },
+  procurement_fraud: { en: 'Procurement', es: 'Contratación' },
+  embezzlement: { en: 'Embezzlement', es: 'Desvío de recursos' },
+  monopoly: { en: 'Market capture', es: 'Captura de mercado' },
+  overpricing: { en: 'Overpricing', es: 'Sobreprecio' },
+}
+
+// Distance-to-consequence ladder — drives the agate rubric's ink weight + order.
+const STATUS_RANK: Record<StatusKind, PlanaStory['statusRank']> = {
+  procesado: 'consequence',
+  auditado: 'consequence',
+  reporteado: 'reported',
+  solo_datos: 'lead',
+}
+const RANK_ORDER: Record<PlanaStory['statusRank'], number> = { consequence: 0, reported: 1, lead: 2 }
+
+// i18n fallbacks (keys live in journalists.json; these guard against a missing key).
+const STATUS_FALLBACK: Record<StatusKind, { en: string; es: string }> = {
+  procesado: { en: 'PROSECUTED', es: 'PROCESADO' },
+  auditado: { en: 'UNDER AUDIT', es: 'BAJO AUDITORÍA' },
+  reporteado: { en: 'REPORTED', es: 'REPORTADO' },
+  solo_datos: { en: 'DATA LEAD', es: 'PISTA DE DATOS' },
+}
+const ERA_FALLBACK: Record<Era, { en: string; es: string }> = {
+  pena: { en: 'EPN · 2012–2018', es: 'EPN · 2012–2018' },
+  amlo: { en: '4T · 2018–2024', es: '4T · 2018–2024' },
+  cross: { en: 'CROSS-ERA', es: 'MULTI-SEXENIO' },
+  sheinbaum: { en: 'CSP · 2024–', es: 'CSP · 2024–' },
+}
+
+// ---------------------------------------------------------------------------
+// AriaLiveTicker — the wire desk (kept; EntityIdentityChip only, header re-skinned)
+// ---------------------------------------------------------------------------
+
+function AriaLiveTicker({ lang }: { lang: 'en' | 'es' }) {
+  const { data } = useQuery({
+    queryKey: ['aria', 'journalists-ticker'],
+    queryFn: () => ariaApi.getQueue({ tier: 1, per_page: 6 }),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const items = data?.data ?? []
+  const total = data?.pagination?.total ?? 0
+  if (items.length === 0) return null
+
+  return (
+    <section aria-label={lang === 'es' ? 'Investigaciones en vivo' : 'Live investigations'} className="mt-16 pt-8 border-t border-border">
+      <div className="flex items-center gap-3 mb-5 flex-wrap">
+        <span className="text-[10px] font-mono font-bold uppercase tracking-[0.18em] text-text-muted">
+          {lang === 'es' ? '§ EL CABLE · ARIA T1' : '§ THE WIRE · ARIA T1'}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-risk-critical animate-pulse" aria-hidden="true" />
+          <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-risk-critical">
+            {lang === 'es' ? 'EN VIVO' : 'LIVE'}
+          </span>
+        </span>
+        <span className="text-[11px] font-mono uppercase tracking-[0.12em] text-text-secondary tabular-nums">
+          {(total > 0 ? total : items.length).toLocaleString('en-US')}{' '}
+          {lang === 'es' ? 'proveedores bajo investigación activa' : 'vendors under active investigation'}
+        </span>
+        <span className="h-px flex-1 bg-background-elevated" />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        {items.slice(0, 6).map((item) => {
+          const risk = item.risk_score_norm ?? item.avg_risk_score ?? 0
+          const flags: ('gt' | 'efos' | 'sfp')[] = []
+          if (item.in_ground_truth) flags.push('gt')
+          if (item.is_efos_definitivo) flags.push('efos')
+          if (item.is_sfp_sanctioned) flags.push('sfp')
+          return (
+            <div key={item.vendor_id} className="px-2 py-1.5 bg-background-card border border-border rounded-sm hover:border-border-hover transition-colors">
+              <EntityIdentityChip
+                type="vendor"
+                id={item.vendor_id}
+                name={item.vendor_name}
+                riskScore={risk}
+                ariaTier={item.ips_tier}
+                flags={flags.length > 0 ? flags : undefined}
+                size="xs"
+                className="w-full"
+              />
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Main page — «La Primera Plana»: the newsroom prints its own front page
+// ---------------------------------------------------------------------------
+
+export default function Journalists() {
+  const { t, i18n } = useTranslation('journalists')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const lang: 'en' | 'es' = i18n.language.startsWith('es') ? 'es' : 'en'
+  const isEs = lang === 'es'
+
+  // Cross-surface lens filter (from the Atlas)
+  const lensPattern = searchParams.get('pattern') as AriaPattern | null
+  const lensSector = searchParams.get('sector') as SectorCode | null
+  const lensFilterActive = !!(lensPattern || lensSector)
+  const lensFilteredSlugs = useMemo(() => {
+    if (!lensFilterActive) return null
+    return new Set(
+      getStoriesByLensTag({ pattern: lensPattern ?? undefined, sector: lensSector ?? undefined }).map((s) => s.slug),
+    )
+  }, [lensPattern, lensSector, lensFilterActive])
+
+  // Status counts drive the masthead thesis + the colophon (all computed, none hardcoded).
+  const counts = useMemo(() => {
+    const c = { total: INVESTIGATIONS.length, procesado: 0, auditado: 0, reporteado: 0, soloDatos: 0 }
+    for (const inv of INVESTIGATIONS) {
+      if (inv.status === 'procesado') c.procesado++
+      else if (inv.status === 'auditado') c.auditado++
+      else if (inv.status === 'reporteado') c.reporteado++
+      else c.soloDatos++
+    }
+    return c
+  }, [])
+
+  // Map one investigation to the localized shape the front-page parts render.
+  const toPlana = (inv: Investigation, withContracts: boolean): PlanaStory => ({
+    slug: inv.slug,
+    headline: isEs ? inv.headline_es ?? inv.headline : inv.headline,
+    brief: isEs ? inv.brief_es ?? inv.brief : inv.brief,
+    color: getNewsTypeColor(inv.type),
+    typeLabel: isEs ? TYPE_LABEL[inv.type].es : TYPE_LABEL[inv.type].en,
+    statusLabel: t(`status.${inv.status}`, { defaultValue: isEs ? STATUS_FALLBACK[inv.status].es : STATUS_FALLBACK[inv.status].en }),
+    statusRank: STATUS_RANK[inv.status],
+    eraLabel: t(`eraLabel.${inv.era}`, { defaultValue: isEs ? ERA_FALLBACK[inv.era].es : ERA_FALLBACK[inv.era].en }),
+    contractsLabel:
+      withContracts && inv.contracts > 0
+        ? `${inv.contracts.toLocaleString('en-US')} ${isEs ? 'CONTRATOS' : 'CONTRACTS'}`
+        : null,
+  })
+
+  // Partition (lens-filtered subset when a lens is active).
+  const shownInvs = useMemo(
+    () => (lensFilteredSlugs ? INVESTIGATIONS.filter((i) => lensFilteredSlugs.has(i.slug)) : INVESTIGATIONS),
+    [lensFilteredSlugs],
+  )
+  const leadInv = shownInvs.find((i) => i.slug === LEAD_SLUG) ?? shownInvs[0] ?? null
+  const offLeadInv = shownInvs.find((i) => i.slug === OFFLEAD_SLUG && i.slug !== leadInv?.slug) ?? null
+  const restInvs = shownInvs
+    .filter((i) => i.slug !== leadInv?.slug && i.slug !== offLeadInv?.slug)
+    .sort((a, b) => RANK_ORDER[STATUS_RANK[a.status]] - RANK_ORDER[STATUS_RANK[b.status]])
+
+  const leadPlana = leadInv ? toPlana(leadInv, true) : null
+  const offLeadPlana = offLeadInv ? toPlana(offLeadInv, true) : null
+  const restPlana = restInvs.map((i) => toPlana(i, false))
+  const allShownPlana = shownInvs.map((i) => toPlana(i, false))
+
+  const clearLens = () => {
+    const next = new URLSearchParams(searchParams)
+    next.delete('pattern')
+    next.delete('sector')
+    setSearchParams(next, { replace: true })
+  }
+
+  return (
+    <div className="min-h-screen" style={{ background: 'var(--color-background)' }}>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        {/* ── Masthead / folio ── */}
+        <PlanaMasthead lang={lang} counts={counts} />
+
+        {/* ── Lens filter pill (from the Atlas) ── */}
+        {lensFilterActive && (
+          <div className="mt-6 flex items-center gap-2 flex-wrap">
+            <span className="text-[10px] font-mono uppercase tracking-[0.15em] text-text-muted">◆ {isEs ? 'Desde el Atlas:' : 'From the Atlas:'}</span>
+            <button
+              type="button"
+              onClick={clearLens}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-mono font-bold tracking-[0.12em] rounded-sm border border-risk-high/40 text-risk-high bg-risk-high/[0.06] hover:bg-risk-high/[0.12] transition-colors"
+            >
+              {lensPattern && <span>PATTERN · {lensPattern}</span>}
+              {lensSector && <span>SECTOR · {SECTOR_NAMES_EN[lensSector]?.toUpperCase() ?? lensSector.toUpperCase()}</span>}
+              <span className="opacity-60" aria-hidden="true">·</span>
+              <span className="opacity-80">{isEs ? 'QUITAR' : 'CLEAR'} ✕</span>
+            </button>
+          </div>
+        )}
+
+        {/* ── The stories ── */}
+        {shownInvs.length === 0 ? (
+          <div className="py-20 text-center border border-dashed border-border rounded-sm mt-8">
+            <p className="text-sm font-mono text-text-muted">
+              {isEs ? 'Ninguna investigación coincide con este filtro.' : 'No investigations match this filter.'}
+            </p>
+          </div>
+        ) : lensFilterActive ? (
+          // Filtered mode — tiers collapse to one flat register (avoids half-empty tiers)
+          <div className="mt-2">
+            <PlanaDesk stories={allShownPlana} lang={lang} filtered />
+          </div>
+        ) : (
+          <>
+            {leadPlana && <PlanaLeadBlock lead={leadPlana} offLead={offLeadPlana} lang={lang} />}
+            <PlanaDesk stories={restPlana} lang={lang} />
+          </>
+        )}
+
+        {/* ── The wire (ARIA ticker, kept) ── */}
+        <AriaLiveTicker lang={lang} />
+
+        {/* ── Atlas band (kept, Day-13 copy) ── */}
+        <div
+          className="mt-14 sm:mt-16 py-4 px-5 flex items-center gap-4 rounded-sm border border-border hover:border-border-hover transition-colors"
+          style={{ background: 'var(--color-background-card)' }}
+        >
+          <span className="text-[11px] font-mono font-bold uppercase tracking-[0.2em] flex-shrink-0" style={{ color: 'var(--color-accent)' }} aria-hidden="true">◆</span>
+          <p className="text-[12px] font-mono text-text-secondary flex-1 min-w-0">
+            <span className="font-bold text-text-primary">{isEs ? 'El Atlas' : 'The Atlas'}</span>
+            {' — '}
+            {isEs ? 'un mapa vivo de cúmulos de proveedores por escala y riesgo.' : 'a live scatter of vendor clusters by scale and risk indicator.'}
+          </p>
+          <Link to="/atlas" className="flex-shrink-0 inline-flex items-center gap-1.5 text-[11px] font-mono font-bold uppercase tracking-[0.14em] transition-colors hover:opacity-80 whitespace-nowrap" style={{ color: 'var(--color-accent)' }}>
+            {isEs ? 'Explorar →' : 'Explore →'}
+          </Link>
+        </div>
+
+        {/* ── Fe de plana (editor's note) ── */}
+        <PlanaColofon lang={lang} total={counts.total} procesadoCount={counts.procesado} />
+
+        <PageFooter />
+      </div>
+    </div>
+  )
+}

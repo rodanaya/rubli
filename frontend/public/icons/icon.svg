@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="glow" cx="62%" cy="14%" r="62%">
+      <stop offset="0%" stop-color="#dc2626" stop-opacity="0.38"/>
+      <stop offset="55%" stop-color="#dc2626" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#dc2626" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="spike-grad" x1="40%" y1="0%" x2="62%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#0d0f0e"/>
+  <rect width="512" height="512" rx="96" fill="url(#glow)"/>
+
+  <!-- Baseline segments, flanking the leaning spike -->
+  <line x1="64"  y1="397" x2="168" y2="397" stroke="#1e2220" stroke-width="18" stroke-linecap="round"/>
+  <line x1="396" y1="397" x2="448" y2="397" stroke="#1e2220" stroke-width="18" stroke-linecap="round"/>
+
+  <!-- Speed ticks — the motion trail (upper-left) -->
+  <line x1="70"  y1="320" x2="134" y2="320" stroke="#dc2626" stroke-width="9" stroke-linecap="round" opacity="0.34"/>
+  <line x1="86"  y1="256" x2="144" y2="256" stroke="#dc2626" stroke-width="9" stroke-linecap="round" opacity="0.24"/>
+  <line x1="102" y1="194" x2="146" y2="194" stroke="#dc2626" stroke-width="9" stroke-linecap="round" opacity="0.16"/>
+
+  <!-- Ghost spike (trailing copy) -->
+  <polyline points="128,397 282,64 333,397" fill="none" stroke="#dc2626" stroke-width="24"
+    stroke-linejoin="round" stroke-linecap="round" opacity="0.26"/>
+
+  <!-- THE SPIKE — bold, crimson, leaning forward -->
+  <polyline points="179,397 333,64 384,397" fill="none" stroke="url(#spike-grad)" stroke-width="32"
+    stroke-linejoin="round" stroke-linecap="round"/>
+
+  <!-- Peak: glow halo + core + specular highlight -->
+  <circle cx="333" cy="64" r="44" fill="#dc2626" opacity="0.14"/>
+  <circle cx="333" cy="64" r="28" fill="#dc2626" opacity="0.22"/>
+  <circle cx="333" cy="64" r="16" fill="#ef4444"/>
+  <circle cx="325" cy="56" r="6" fill="#fda4af" opacity="0.85"/>
+</svg>

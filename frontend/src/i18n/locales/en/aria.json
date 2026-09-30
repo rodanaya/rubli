@@ -1,0 +1,246 @@
+{
+  "pageTitle": "ARIA Investigation Queue",
+  "pageSubtitle": "Automated Risk Investigation Algorithm — curated procurement risk intelligence",
+  "stats": {
+    "totalLeads": "Total Leads",
+    "totalLeadsSub": "vendors in pipeline",
+    "elevatedValue": "Elevated Value",
+    "elevatedValueSub": "Tier 1 + 2 combined",
+    "efosListed": "EFOS Listed",
+    "efosListedSub": "+ {{sfpCount}} SFP sanctioned",
+    "newVendorRisk": "new high-risk vendors",
+    "newVendorRiskSub": "low-footprint supplier signals",
+    "lastRun": "Last pipeline run: {{date}}",
+    "vendorsSurveillance": "vendors under active monitoring",
+    "vendorsUnderSurveillance": "vendors under active monitoring",
+    "elevatedValueRisk": "value at elevated risk",
+    "valueAtRisk": "value at risk",
+    "efosOnList": "on EFOS List (SAT)",
+    "efosAnnotation": "+ {{count}} SFP sanctions",
+    "onEfos": "on EFOS list"
+  },
+  "errors": {
+    "notRun": "Pipeline hasn't run yet",
+    "notRunDesc": "Run the ARIA pipeline from the backend to populate investigation leads."
+  },
+  "filters": {
+    "byPattern": "Filter by Pattern",
+    "all": "All",
+    "newVendorOnly": "New Vendor Risk",
+    "novelOnly": "New leads only",
+    "novelOnlyTooltip": "Show only leads not already in the documented cases database"
+  },
+  "tier1": {
+    "heading": "Documented-case vendors — Tier 1",
+    "subtitle": "Every Tier 1 vendor is already in RUBLI's case set: the tier is anchored on ground truth, so it confirms known cases rather than discovering new ones.",
+    "empty": "No Tier 1 leads found. Run the ARIA pipeline to populate.",
+    "description": "Already in the case set — review the case record",
+    "label": "TIER 1",
+    "name": "CRITICAL",
+    "objective": "LEAD #{{number}}"
+  },
+  "tierCard": {
+    "avgRisk": "Avg risk",
+    "valueAtRisk": "Value at risk",
+    "clickFilter": "Click to filter queue",
+    "activeFilter": "Filtered — click to clear"
+  },
+  "tier2": {
+    "description": "Priority review in the coming weeks",
+    "label": "TIER 2",
+    "name": "HIGH"
+  },
+  "tier3": {
+    "description": "Active monitoring — revisit within 90 days",
+    "label": "TIER 3",
+    "name": "MEDIUM"
+  },
+  "tier4": {
+    "description": "Passive monitoring — automated alerts",
+    "label": "TIER 4",
+    "name": "LOW"
+  },
+  "whyItMatters": {
+    "kicker": "WHY IT MATTERS",
+    "body": "Traditional audit methods review 0.1% of contracts. ARIA scores 100%. All {{t1Count}} Tier 1 vendors are already in RUBLI's case set (the tier is ground-truth anchored); new leads sit in Tiers 2 and 3."
+  },
+  "leads": {
+    "filteredResults": "Filtered Results",
+    "allLeads": "All Leads",
+    "vendorCount": "vendors",
+    "searchPlaceholder": "Search vendors…",
+    "investigateBtn": "Investigate vendor",
+    "empty": "No leads match your filters.",
+    "filterActive": "filter active"
+  },
+  "table": {
+    "headers": {
+      "vendor": "Vendor",
+      "pattern": "Pattern",
+      "value": "Value",
+      "ips": "IPS",
+      "tier": "Tier",
+      "revision": "Review"
+    },
+    "review": "Review:"
+  },
+  "card": {
+    "totalValue": "Total Value",
+    "contracts": "Contracts",
+    "avgRisk": "Avg Risk",
+    "directAward": "Direct Award"
+  },
+  "memo": {
+    "loadError": "Error loading memo",
+    "kicker": "§ The ARIA memo",
+    "aiGenerated": "AI-generated",
+    "template": "Template",
+    "copy": "Copy",
+    "copied": "Copied",
+    "footer": "Generated automatically — requires journalistic verification",
+    "sourceLanguage": "memo text as generated, in Spanish",
+    "fpTitle": "Flagged as a structural false positive",
+    "fpBody": "This vendor is a multinational or structural supplier. Its concentration reflects its market position,",
+    "fpStrong": "not evidence of fraud.",
+    "fpTail": "The profile is kept only for methodological transparency.",
+    "fpReason": "Reason",
+    "tplTitle": "Automatic memo · no human review",
+    "tplBody": "This memo was generated from a template, not by investigative analysis. Its \"FUENTES\" section suggests manual searches (they are not verified citations).",
+    "tplStrong": "Use it only as a starting point",
+    "tplTail": "for journalistic investigation.",
+    "stale": "Memo written before the active v0.8.5 model (May 2026). Scores it cites may not match current values.",
+    "emptyTitle": "Narrative analysis not available for",
+    "emptyBody": "The investigation pipeline has not analysed this vendor yet.",
+    "stubTitle": "Algorithmic profile · no investigative memo",
+    "stubBody": "No narrative memo exists for this vendor. The v0.8.5 risk model's signals are shown as a starting point for investigation.",
+    "stubStrong": "Requires independent journalistic verification.",
+    "riskScale": "Risk indicator · 0–100 scale",
+    "contractsAnalyzed": "contracts analysed",
+    "topFactors": "Top risk factors",
+    "modelNote": "Model-generated analysis — no substitute for journalistic investigation"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{page}} of {{total}}"
+  },
+  "about": {
+    "title": "About ARIA",
+    "description": "The Automated Risk Investigation Algorithm (ARIA) combines ML risk scores, anomaly detection, pattern classification, and external registry cross-referencing (EFOS, SFP, RUPC) to rank vendors by Investigation Priority Score (IPS). Editorial memos are pre-generated by the analysis team using LLM-assisted synthesis of procurement signals.",
+    "disclaimer": "IPS scores are risk indicators, not corruption verdicts. High scores indicate statistical similarity to documented corruption patterns and warrant further investigation."
+  },
+  "patterns": {
+    "P1": "Market Monopoly",
+    "P2": "Low-footprint supplier (no RFC)",
+    "P3": "Contract Intermediary",
+    "P4": "Co-award pattern",
+    "P5": "Overpricing",
+    "P6": "Single-buyer dependence",
+    "P7": "Linked to a documented case"
+  },
+  "patternFilter": {
+    "P1": "Monopoly",
+    "P2": "Low-footprint supplier (no RFC)",
+    "P3": "Intermediary",
+    "P6": "Single-buyer dependence",
+    "P7": "Linked to a documented case"
+  },
+  "searchBar": {
+    "placeholder": "Search vendors by name...",
+    "patternLabel": "Filter by pattern",
+    "allPatterns": "All patterns"
+  },
+  "patternSection": {
+    "title": "Detected Risk Patterns"
+  },
+  "queueSection": {
+    "title": "Investigation Queue"
+  },
+  "reviewFilter": {
+    "all": "All"
+  },
+  "status": {
+    "pending": "Pending",
+    "reviewing": "Reviewing",
+    "confirmed": "Confirmed",
+    "dismissed": "Dismissed",
+    "needs_review": "Needs review",
+    "reviewed": "Reviewed",
+    "confirmed_corrupt": "Confirmed in internal review",
+    "false_positive": "False positive",
+    "fp_excluded": "Structural FP excluded",
+    "structural_fp": "Structural FP",
+    "cleared": "Reviewed · no findings",
+    "reviewed_clean": "Reviewed · no findings",
+    "skipped": "Skipped",
+    "reviewed_skip": "Skipped",
+    "gt_added": "Added to Ground Truth",
+    "classified": "Classified"
+  },
+  "reviewPopover": {
+    "reviewStatus": "Review Status",
+    "save": "Save",
+    "saving": "Saving…",
+    "close": "Close",
+    "error": "Error saving. Please try again.",
+    "updateTitle": "Update review status",
+    "promoting": "Promoting…",
+    "promotedToGT": "✓ Added to GT",
+    "promoteToGT": "↑ Add to Ground Truth",
+    "alreadyInGT": "Already in Ground Truth"
+  },
+  "header": {
+    "systemLabel": "ARIA System · Procurement Risk Analysis",
+    "live": "LIVE",
+    "title": "Risk Assessment Center",
+    "subtitle": "{{count}} vendors under active monitoring. Automated risk assessment system for federal public contracting.",
+    "statusActive": "Active",
+    "t1Require": "T1 vendors are prioritized for review",
+    "lastUpdated": "Last updated"
+  },
+  "editorial": {
+    "section": "RUBLI RISK ANALYSIS",
+    "headline": "Risk Analysis Briefing",
+    "subtitle": "Automated risk queue with priority-level classification"
+  },
+  "methodology": {
+    "title": "How does ARIA work?",
+    "body": "ARIA combines ML risk score (v0.8.5), PyOD anomaly detection, and cross-referencing with external registries (SAT EFOS, SFP, RUPC) to prioritize investigations. IPS = Integrated Priority Score."
+  },
+  "threatLevels": "Priority Levels",
+  "ipsBreakdown": {
+    "title": "IPS Breakdown",
+    "risk": "Risk (40%)",
+    "ensemble": "Ensemble (20%)",
+    "financial": "Financial (20%)",
+    "external": "External (20%)"
+  },
+  "filterBar": {
+    "active": "{{count}} filter(s) active",
+    "clearAll": "Clear all",
+    "pattern": "Pattern"
+  },
+  "emptyState": {
+    "noSearchResults": "No vendors found for \"{{query}}\""
+  },
+  "hero": {
+    "headline": "{{vendorCount}} vendors monitored across 4 priority tiers",
+    "subtitle": "ARIA monitors federal procurement vendors using ML risk scoring, anomaly detection, and external registry cross-referencing. Tier 1 holds the 299 vendors already in RUBLI's case set; new leads start in Tier 2.",
+    "t1RequireShort": "T1 documented-case vendors"
+  },
+  "patternDesc": {
+    "P1": "Single vendor dominates a market — >60% of sector spend",
+    "P2": "Few contracts, no RFC on record, short contracting life — a footprint, not a finding",
+    "P3": "Vendor acts as pass-through between government and subcontractors",
+    "P4": "Vendors repeatedly awarded together in the same procedures — co-awards, not proven collusion",
+    "P5": "Contract prices significantly above market or sector median",
+    "P6": "One institution awards >80% of its budget to one vendor",
+    "P7": "Vendor is linked to a documented (sourced) case in RUBLI's case set"
+  },
+  "connectionError": {
+    "title": "Connection Error",
+    "headline": "ARIA is unavailable",
+    "body": "The investigation queue could not be loaded. The backend may be restarting — try refreshing in a moment.",
+    "retry": "Retry"
+  }
+}
