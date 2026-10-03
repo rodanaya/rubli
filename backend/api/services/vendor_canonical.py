@@ -53,7 +53,7 @@ def rfc_recovery_source(conn: sqlite3.Connection, vendor_id: int) -> str | None:
     return row[0] if row else None
 
 
-# UI copy per tier (_entity_res/method/FINDINGS_method.md § 8)
+# UI copy per tier (entity-resolution findings, § 8; working notes not in this repo)
 LINK_NOTE = {
     "en": "Possibly the same entity (name variant). Not merged: contracts, risk indicators and sanctions are shown separately.",
     "es": "Posible misma entidad (variante del nombre). No fusionada: contratos, indicadores de riesgo y sanciones se muestran por separado.",

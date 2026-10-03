@@ -11,7 +11,7 @@
  * tooltips). Zero fetch — the page hands this component the movers
  * payload it already holds in memory (first/last_contract_year were
  * fetched and dropped by the old table).
- * See .claude/designus/administrations-2026-07-02/proposals/data-first.md §C.
+ * See internal design note data-first (not published) §C.
  */
 
 import { useMemo, useState } from 'react'

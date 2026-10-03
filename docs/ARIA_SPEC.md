@@ -1,12 +1,18 @@
 # ARIA: Automated Risk Investigation Algorithm
 
-**Version:** 1.1 | **Author:** Risk Model Engineer | **Date:** 2026-03-09
-**Status:** Fully Implemented (All 3 Phases Live)
+**Spec version:** 1.1 (2026-03-09) · **Status:** implemented (`backend/scripts/aria_pipeline.py`) · **Current scoring input:** model v0.8.5
 
----
-
-> *The duty of a soldier is to protect, not to kill. To save, not to destroy.*
-> ARIA exists to focus scarce investigative resources on the procurement patterns most likely to represent genuine corruption, while filtering out the noise.
+> **Read this first.** ARIA produces an *investigation queue*, not findings. Tiers and pattern labels are signals for prioritising human review. They do not establish that a vendor did anything wrong.
+>
+> **Current queue (run on v0.8.5 scores):** 248,944 vendors · Tier 1 = 299 · Tier 2 = 1,488 · Tier 3 = 5,578 · Tier 4 = 241,579.
+> All 299 Tier-1 vendors are already in the labelled case set, so Tier 1 mostly *confirms known cases*. New leads start in Tier 2.
+>
+> **Changes since this spec was written:**
+> - The risk input is now model v0.8.5, not v5.1. Tables in §1 describe the original v5.1 motivation.
+> - Pattern labels are not shown for natural persons or public bodies, and false-positive vendors are screened out of the public queue.
+> - Module 8 (ground-truth auto-update) feeds model-discovered leads into the label set. This is the main source of label circularity documented in [GROUND_TRUTH.md](GROUND_TRUTH.md). Cases it creates carry `case_origin = 'model_discovery'` and are reported separately.
+> - Investigation memos (Module 7) are internal working notes and are **not published**.
+> - Vendor names used as examples in early drafts have been replaced with generic descriptions.
 
 ---
 
@@ -46,7 +52,7 @@ RUBLI currently provides four independent risk signals per contract/vendor:
 
 These signals are displayed independently. No system combines them into a unified investigation queue, classifies the type of corruption pattern, cross-references external registries, screens for false positives, or synthesizes evidence into actionable investigation memos.
 
-**UAB JORINIS example** -- the canonical blind spot case:
+**Example: a foreign vaccine intermediary** -- the canonical blind spot case:
 - risk_score = 0.07 (7%) -- logistic regression sees low vendor_concentration and assigns low risk
 - mahalanobis_distance = 706 -- extreme multivariate outlier (p = 4.6e-140)
 - Pattern: single-use foreign intermediary, burst of high-value vaccine contracts, disappeared after reform
@@ -57,7 +63,7 @@ These signals are displayed independently. No system combines them into a unifie
 ARIA is a 9-module pipeline that:
 
 1. **Combines** all four signals + external data + financial scale into one Investigation Priority Score (IPS)
-2. **Classifies** which corruption pattern type(s) apply using a rule-based classifier grounded in 25 documented cases
+2. **Classifies** which corruption pattern type(s) apply using a rule-based classifier grounded in the typologies of the labelled case set
 3. **Detects** intermediary and burst-then-disappear patterns that the logistic regression misses
 4. **Cross-references** SAT EFOS, SFP sanctions, and ASF audit findings
 5. **Screens** false positives (patent exceptions, data errors, structural monopolies)
@@ -157,9 +163,9 @@ Combine heterogeneous risk signals into a single 0-1 score. The IPS must handle 
 
 | Vendor | risk_score | mahalanobis | total_value | Expected IPS | Tier |
 |--------|-----------|-------------|-------------|--------------|------|
-| UAB JORINIS (intermediary) | 0.07 | 706 (norm:0.99) | 2B | >= 0.75 | 1 |
-| LICONSA (known bad) | 0.98 | 45 (norm:0.25) | 50B | >= 0.85 | 1 |
-| Gilead (patent exception) | 0.35 | 30 (norm:0.18) | 500M | ~0.30 | 3* |
+| Foreign vaccine intermediary (example) | 0.07 | 706 (norm:0.99) | 2B | >= 0.75 | 1 |
+| Large vendor in a labelled case | 0.98 | 45 (norm:0.25) | 50B | >= 0.85 | 1 |
+| Patent-holding pharma supplier | 0.35 | 30 (norm:0.18) | 500M | ~0.30 | 3* |
 | Random small vendor | 0.05 | 12 (norm:0.06) | 1M | < 0.10 | 4 |
 | EFOS ghost | 0.15 | 25 (norm:0.15) | 5M | ~0.35 | 2** |
 
@@ -194,13 +200,13 @@ Combine heterogeneous risk signals into a single 0-1 score. The IPS must handle 
 
 | ID | Name | Archetypes | Key Features |
 |----|------|-----------|-------------|
-| P1 | Concentrated Monopoly | IMSS Ghost, Segalmex, Edenred | vendor sector share > 0.03 (3%), institution_count <= 3 |
-| P2 | Ghost Company | EFOS, Estafa Maestra, Decoaro | is_efos OR (no RFC + years<=2 + tc<=10 + DA>80% + value>=1M) |
-| P3 | Single-Use Intermediary | UAB JORINIS | burst_score > 0.7, high_value, disappeared |
-| P4 | Bid Rigging | IPN Cartel | co_bid_rate > 0.50, win_rate > 0.70, low price_variance |
-| P5 | Overpricing | Cyber Robotic | z_price_ratio > 2.0, industry_mismatch |
-| P6 | Institution Capture | Garza Ponce, Cotemar | top_institution_ratio > 0.80, institution_count = 1 |
-| P7 | Conflict of Interest | Grupo Higa | External evidence only |
+| P1 | Concentrated Monopoly | Segalmex (ASF audits) | vendor sector share > 0.03 (3%), institution_count <= 3 |
+| P2 | Ghost Company | EFOS (SAT Art. 69-B), Estafa Maestra | is_efos OR (no RFC + years<=2 + tc<=10 + DA>80% + value>=1M) |
+| P3 | Single-Use Intermediary | Foreign one-off vaccine supplier | burst_score > 0.7, high_value, disappeared |
+| P4 | Bid Rigging | Co-bidding rings | co_bid_rate > 0.50, win_rate > 0.70, low price_variance |
+| P5 | Overpricing | Technology supplier with outlier prices | z_price_ratio > 2.0, industry_mismatch |
+| P6 | Institution Capture | Long-tenure single-buyer suppliers | top_institution_ratio > 0.80, institution_count = 1 |
+| P7 | Conflict of Interest | Documented politically connected supplier | External evidence only |
 
 ### Classification Rules (Pseudocode)
 
@@ -368,7 +374,7 @@ After web search, one Claude call generates the full memo.
   "shap_top3": [ { "feature": "z_price_volatility", "shap_value": 1.44 }, ... ],
   "external_flags": { "is_efos": false, "is_sfp_sanctioned": false, "in_ground_truth": false },
   "fp_screens": { "fp1_patent": false, "fp2_data_error": false, "fp3_structural": false },
-  "comparable_gt_cases": [ { "case_name": "BIRMEX Vaccine Intermediary", "similarity": 0.87 } ],
+  "comparable_gt_cases": [ { "case_name": "Vaccine intermediary case", "similarity": 0.87 } ],
   "web_evidence": [ { "source": "Animal Político", "url": "...", "snippet": "...", "date": "2022-05-14" } ],
   "contract_sample": [ { "year", "amount_mxn", "institution", "procedure_type" } ]
 }
@@ -830,7 +836,7 @@ class VendorFeatures:
 def classify_patterns(v: VendorFeatures) -> dict:
     results = {}
 
-    # P1: Concentrated Monopoly (IMSS, Segalmex, Edenred)
+    # P1: Concentrated Monopoly
     conf = 0.0
     if v.vendor_concentration > 0.50:
         conf = 0.80
@@ -845,7 +851,7 @@ def classify_patterns(v: VendorFeatures) -> dict:
     if conf >= 0.30:
         results["P1"] = min(conf, 1.0)
 
-    # P2: Ghost Company (EFOS, Estafa Maestra, Decoaro)
+    # P2: Ghost Company (EFOS, Estafa Maestra)
     conf = 0.0
     if v.is_efos_definitivo:
         conf = 0.90
@@ -858,11 +864,11 @@ def classify_patterns(v: VendorFeatures) -> dict:
     if conf >= 0.30:
         results["P2"] = min(conf, 1.0)
 
-    # P3: Single-Use Intermediary (UAB JORINIS)
+    # P3: Single-Use Intermediary
     if v.burst_score > 0.50:
         results["P3"] = min(v.burst_score, 1.0)
 
-    # P4: Bid Rigging (IPN Cartel de la Limpieza)
+    # P4: Bid Rigging (co-bidding rings)
     conf = 0.0
     if v.co_bid_rate > 0.50:
         conf = 0.40
@@ -875,7 +881,7 @@ def classify_patterns(v: VendorFeatures) -> dict:
     if conf >= 0.30:
         results["P4"] = min(conf, 1.0)
 
-    # P5: Overpricing (Cyber Robotic Solutions)
+    # P5: Overpricing
     conf = 0.0
     if v.avg_z_price_ratio > 2.0:
         conf = 0.50
@@ -888,7 +894,7 @@ def classify_patterns(v: VendorFeatures) -> dict:
     if conf >= 0.30:
         results["P5"] = min(conf, 1.0)
 
-    # P6: Institution Capture (Garza Ponce, Cotemar)
+    # P6: Institution Capture
     conf = 0.0
     if v.top_institution_ratio > 0.80 and v.total_contracts > 10:
         conf = 0.60
@@ -899,7 +905,7 @@ def classify_patterns(v: VendorFeatures) -> dict:
     if conf >= 0.30:
         results["P6"] = min(conf, 1.0)
 
-    # P7: Conflict of Interest (Grupo Higa)
+    # P7: Conflict of Interest
     if v.is_sfp_sanctioned:
         results["P7"] = 0.50
 
@@ -1019,7 +1025,7 @@ ground_truth_vendors by RFC. Non-RFC: Jaccard >= 0.80 auto, >= 0.60 review.
 
 ## 15. Implementation Roadmap
 
-> **All 3 phases completed.** 3,178 lines, 18 files, 66 tests passing (as of commit 4ee0583).
+> **All 3 phases completed.**
 
 ### Phase 1: Foundation -- COMPLETE
 
@@ -1042,7 +1048,7 @@ Goh-Barabasi burstiness (M3), institution capture ratio (M4), z-score enrichment
 | Queue pruning | All 320K vendors | tc>=2 OR risk>=0.10 OR EFOS/SFP/GT | 320K -> 198K |
 | Shell score boost | >=4 (+0.20) | >=7 (+0.25) | Stopped boosting 85% of vendors |
 
-**Current queue:** T1=285, T2=894, T3=5,151, T4=191,708 (198K total)
+Queue size at the v1.1 calibration: T1=285, T2=894, T3=5,151, T4=191,708 (198K). See the box at the top for the current queue.
 
 ---
 
@@ -1051,7 +1057,7 @@ Goh-Barabasi burstiness (M3), institution capture ratio (M4), z-score enrichment
 ### 16.1 GT Regression
 
 After each run, verify all GT vendors: >= 80% Tier 1-2, zero Tier 4,
-UAB JORINIS-type in Tier 1, Mann-Whitney p < 0.001.
+intermediary-type example in Tier 1, Mann-Whitney p < 0.001.
 
 ### 16.2 FP Rate
 
@@ -1070,11 +1076,11 @@ Tier 1: 500-2000 vendors. Tier 4: >= 70%. r(IPS, risk_score) = 0.5-0.7.
 | COVID-19 | P1/P6 |
 | EFOS | P2 |
 | Estafa Maestra | P2 |
-| UAB JORINIS | P3 |
-| IPN Cartel | P4 |
-| Cyber Robotic | P5 |
-| Cotemar | P6 |
-| Grupo Higa | P7 |
+| Foreign vaccine intermediary | P3 |
+| Co-bidding rings | P4 |
+| Outlier-price technology supplier | P5 |
+| Single-buyer long-tenure supplier | P6 |
+| Politically connected supplier | P7 |
 
 **Target: >= 80% correct primary pattern.**
 

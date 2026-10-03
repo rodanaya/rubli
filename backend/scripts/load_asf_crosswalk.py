@@ -3,7 +3,7 @@
     python -m scripts.load_asf_crosswalk [db_path]
 
 Source: data/asf_institution_crosswalk.csv, built by the 2026-09-24 entity-resolution
-pass (_entity_res/inst/asf/build_crosswalk.py): exact normalized name, municipality
+pass (build_crosswalk.py in the unpublished _entity_res working dir): exact normalized name, municipality
 + state check, state-prefixed name + state check, 10 curated aliases. 683 links,
 605/692 asf_cases rows; 50/50 hand-checked correct. Replaces the 20/40-char prefix
 LIKE joins in institutions.py / analysis.py (~2% correct).

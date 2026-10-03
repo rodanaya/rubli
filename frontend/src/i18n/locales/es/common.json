@@ -107,7 +107,7 @@
     "methodology": "Metodología",
     "methodologyP1": "Este análisis fue producido por la plataforma RUBLI, que procesa",
     "methodologyP2": "contratos calificados de un registro de 3,058,286 registrados en COMPRANET entre 2002 y 2025.",
-    "methodologyP3": "Los puntajes de riesgo son generados por el modelo v0.8.5, entrenado con la base de casos etiquetados de RUBLI (1,401 casos al entrenar; 1,427 hoy, la mayoría documentados por analistas y no resoluciones). Con proveedores añadidos a la base después del entrenamiento obtiene un AUC de 0.656 — el AUC es la proporción de veces que el modelo coloca un contrato de un caso por encima de uno al azar. El AUC de prueba de 0.785 reportado originalmente no pudo reproducirse. Los puntajes miden similitud con casos etiquetados — no constituyen prueba de irregularidad.",
+    "methodologyP3": "Los puntajes de riesgo son generados por el modelo v0.8.5, entrenado con la base de casos etiquetados de RUBLI (1,401 casos al entrenar; 1,417 hoy, la mayoría documentados por analistas y no resoluciones). Con proveedores añadidos a la base después del entrenamiento obtiene un AUC de 0.656 — el AUC es la proporción de veces que el modelo coloca un contrato de un caso por encima de uno al azar. El AUC de prueba de 0.785 reportado originalmente no pudo reproducirse. Los puntajes miden similitud con casos etiquetados — no constituyen prueba de irregularidad.",
     "methodologyP4": "Todas las cifras provienen de datos públicos de COMPRANET. Los cálculos de adjudicación directa se basan en el campo procedure_type del registro oficial. Las clasificaciones sectoriales usan la taxonomía de 12 sectores de RUBLI basada en códigos de ramo presupuestal. Los proveedores señalados como pistas provienen de ARIA, la cola de investigación de RUBLI que ordena a los proveedores por evidencia de patrones.",
     "nextSteps": "Próximos pasos para periodistas",
     "fullMethodology": "Metodología completa",
@@ -121,7 +121,7 @@
     "shareInvestigation": "Compartir esta investigación",
     "ariaIntelligence": "Informe de Inteligencia ARIA",
     "ariaDesc": "Colas de investigación automatizada",
-    "documentedCases": "Casos documentados",
+    "documentedCases": "Casos etiquetados",
     "documentedCasesDesc": "Biblioteca de ground truth",
     "exploreContracts": "Explorar contratos",
     "exploreContractsDesc": "Buscar en 3M+ contratos",
@@ -139,7 +139,7 @@
     "collapse": "cerrar"
   },
   "welcome": {
-    "subtitle": "Red Unificada de Búsqueda de Licitaciones Irregulares — Detección de Corrupción con IA para Contrataciones del Gobierno de México",
+    "subtitle": "Red Unificada de Búsqueda de Licitaciones Irregulares — Análisis de Riesgo de Código Abierto para Contrataciones del Gobierno de México",
     "step1Title": "Cola de Investigación ARIA",
     "step1Desc": "ARIA clasifica cada proveedor en 4 niveles por prioridad de investigación. El Tier 1 muestra 299 proveedores marcados para revisión inmediata — combinando puntuaciones de riesgo, detección de anomalías y registros externos de sanciones (SAT EFOS, SFP, ASF) en un puntaje IPS único.",
     "step2Title": "Modelo de Riesgo v0.8.5",
@@ -214,7 +214,7 @@
       "other": "Otro"
     }
   },
-  "aboutData": "Los puntajes de riesgo son calculados por un modelo de aprendizaje automático entrenado con la base de casos etiquetados de RUBLI (1,427 casos hoy; la mayoría son documentación de analistas sobre pistas surgidas del modelo, 389 provienen de prensa o registros oficiales). Los puntajes miden la similitud estadística con esos casos — no son determinaciones legales ni prueba de ilegalidad. Fuente: COMPRANET (SHCP). Metodología: rubli.xyz/metodologia",
+  "aboutData": "Los puntajes de riesgo son calculados por un modelo de aprendizaje automático entrenado con la base de casos etiquetados de RUBLI (1,417 casos hoy; la mayoría son documentación de analistas sobre pistas surgidas del modelo, 387 provienen de prensa o registros oficiales). Los puntajes miden la similitud estadística con esos casos — no son determinaciones legales ni prueba de ilegalidad. Fuente: COMPRANET (SHCP). Metodología: rubli.xyz/metodologia",
   "aboutDataToggle": "Acerca de estos datos",
   "storyType": {
     "era": "Análisis de Era",

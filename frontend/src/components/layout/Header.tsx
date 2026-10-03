@@ -143,7 +143,7 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const alertCount = anomalies?.total || 0
   const qualityScore = dataQuality?.overall_score
   // 2026-05-12 (Audit F023): header DQ chip used letter grades A/B/C/D/F.
-  // CLAUDE.md canonical wording is the 5-tier ladder (Excelente /
+  // Canonical wording (src/lib/tiers.ts) is the 5-tier ladder (Excelente /
   // Satisfactorio / Regular / Deficiente / Crítico) — same one /sectors
   // PHI uses. Renders "DQ · Satisfactorio" instead of "DQ · B" so the
   // platform stops mixing two grading vocabularies on the same screen.

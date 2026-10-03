@@ -1,7 +1,7 @@
 /**
  * CategoryCaptureDumbbell — FT/Pudding Cleveland-pair: #1 vs #2 vendor share
  *
- * Implements docs/CATEGORIES_REDESIGN_PLAN.md § 5 HERO 2.
+ * Implements internal planning note CATEGORIES_REDESIGN_PLAN (not published) § 5 HERO 2.
  *
  * Design decisions:
  * - Fan-out: one getTopVendors(catId, 2) per top-12-by-spend category.

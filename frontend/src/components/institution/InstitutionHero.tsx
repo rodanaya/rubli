@@ -530,7 +530,7 @@ function buildInstitutionLede({
 }): string {
   const name = formatEntityName('institution', institution.name, 'full')
   const spend = formatCompactMXN(institution.total_amount_mxn ?? 0)
-  // ES reads MXN natively (CLAUDE.md currency rule): the USD aside is EN-only.
+  // ES reads MXN natively (docs/DESIGN_SYSTEM.md currency rules): the USD aside is EN-only.
   const usdAside = lang === 'es' ? '' : ` (≈${formatCompactUSD(institution.total_amount_mxn ?? 0)})`
   const contracts = formatNumber(institution.total_contracts ?? 0)
   const vendors = institution.vendor_count ? formatNumber(institution.vendor_count) : null

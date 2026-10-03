@@ -11,7 +11,7 @@ Amounts above MAX_CONTRACT_VALUE (100B MXN, data errors) are excluded.
 
     cd backend && python -m scripts.precompute_institution_categories [db_path]
 
-PARALLAX Day 9 § Change 1 (docs/parallax/DAY-09-institutions.md).
+PARALLAX Day 9 § Change 1 (internal planning note DAY-09-institutions (not published)).
 """
 import sqlite3
 import sys

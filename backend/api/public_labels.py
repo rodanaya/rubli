@@ -1,4 +1,4 @@
-"""Public labeling guard (docs/PREPUB_AUDIT_2026-09-24.md § P1 B3/B4/B5).
+"""Public labeling guard (Sep-2026 pre-publication audit (internal) § P1 B3/B4/B5).
 
 The live site must not tag a real company or person as an offender without
 evidence. Three rules, one module, every router routes through it:
@@ -107,7 +107,7 @@ PATTERN_LABELS: dict[str, tuple[str, str]] = {
     "P4": ("Co-award pattern", "Patrón de coadjudicación"),
     "P5": ("Systematic overpricing", "Sobreprecio sistemático"),
     "P6": ("Single-buyer dependence", "Dependencia de un solo comprador"),
-    "P7": ("Linked to a documented case", "Vinculado a un caso documentado"),
+    "P7": ("Linked to a labelled case", "Vinculado a un caso etiquetado"),
 }
 
 
@@ -257,7 +257,7 @@ def ranking_safe(conn: sqlite3.Connection, rows: list[dict], **label_kw) -> list
 # B5 — amount flags
 # ---------------------------------------------------------------------------
 
-REVIEW_THRESHOLD = 10_000_000_000   # .claude/rules/data-validation.md: > 10B → flag
+REVIEW_THRESHOLD = 10_000_000_000   # docs/DATA.md: > 10B → flag
 SPIKE_FLOOR = 1_000_000_000         # only spikes above 1B matter for rankings
 SPIKE_X_MEDIAN = 1000               # > 1000× the vendor's median contract
 SPIKE_X_NEXT = 100                  # and > 100× its next-largest contract (isolated)

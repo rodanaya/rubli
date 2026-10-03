@@ -46,7 +46,7 @@ router = APIRouter(prefix="/intersection", tags=["intersection"])
 
 _intersection_lock = threading.Lock()
 
-# Risk thresholds aligned with the active model (see docs/RISK_METHODOLOGY_v6.md):
+# Risk thresholds aligned with the active model (see docs/RISK_METHODOLOGY.md):
 # Critical >= 0.60, High >= 0.40, Medium >= 0.25, Low < 0.25.
 # High+ = "RUBLI flags"; < Medium = "RUBLI doesn't flag."
 _RUBLI_FLAGS_THRESHOLD = 0.40   # High+ (Critical + High)

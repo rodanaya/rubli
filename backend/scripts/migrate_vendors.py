@@ -1,5 +1,5 @@
 """
-migrate_vendors.py — canonical vendor identity (PREPUB_AUDIT entity resolution).
+migrate_vendors.py — canonical vendor identity (entity resolution, Sep-2026 pre-publication audit).
 
 The ETL minted one vendor id per name spelling / CompraNet era, so one company
 can be 2+ ids. This migration records identity WITHOUT rewriting contracts:
@@ -13,7 +13,7 @@ can be 2+ ids. This migration records identity WITHOUT rewriting contracts:
   vendors.rfc              filled ONLY for personas morales with a grade-A recovered
                            RFC whose current rfc is empty or junk (grade D)
 
-Rules on top of _entity_res/method (FINDINGS_method.md):
+Rules on top of the entity-resolution method notes (unpublished _entity_res working dir):
   * AUTO edges touching GT / sanctioned / ETL-mixed vendors were already moved to
     REVIEW_guarded by 04_tiers.py; re-checked here against the live DB.
   * Blind review (FINDINGS_blind.md): an AUTO_name pair whose name has <= 1

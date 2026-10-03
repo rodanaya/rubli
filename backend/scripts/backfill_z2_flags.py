@@ -1,7 +1,7 @@
 """
 backfill_z2_flags.py — make the Z2 vendor-pool flags exist AT REST.
 
-El Mapa Day 5 (spec: .claude/designs/elmapa-2026-06-12-spec.md § A.1).
+El Mapa Day 5 (spec: internal design note elmapa-2026-06-12-spec (not published) § A.1).
 
 The /institutions/{id}/vendor-pool endpoint's cold path serves NULL
 high-risk / direct-award / single-bid flags because the institution-scoped

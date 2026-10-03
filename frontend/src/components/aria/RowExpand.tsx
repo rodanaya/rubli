@@ -171,12 +171,12 @@ export function RowExpand({ item, isEs, onClose, onNext }: RowExpandProps) {
                     {gtCaseType ? <span className="text-text-muted"> · {gtCaseType}</span> : null}
                   </span>
                 ) : (
-                  <span>{isEs ? 'caso documentado de corrupción' : 'documented corruption case'}</span>
+                  <span>{isEs ? 'caso etiquetado' : 'labelled case'}</span>
                 )}
               </p>
             ) : (
               <p className="text-text-muted">
-                {isEs ? 'Señalado por el modelo · sin caso documentado' : 'Model-flagged · no documented case'}
+                {isEs ? 'Señalado por el modelo · sin caso etiquetado' : 'Model-flagged · no labelled case'}
               </p>
             )}
             {item.is_efos_definitivo ? (

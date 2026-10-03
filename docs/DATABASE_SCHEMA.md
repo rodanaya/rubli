@@ -1,140 +1,53 @@
-# Database Schema Documentation
+# Database schema
 
-> Complete reference for the RUBLI_NORMALIZED.db SQLite database.
+RUBLI runs on a single SQLite database (WAL mode). The source database is `backend/RUBLI_NORMALIZED.db`. Production serves a slimmed copy, `RUBLI_DEPLOY.db`, built by [`backend/scripts/create_deploy_db.py`](../backend/scripts/create_deploy_db.py), which drops staging, backup and private tables. **Neither file is in the repository.** See [DEVELOPMENT.md](DEVELOPMENT.md#getting-a-database) for how to build one.
 
----
-
-## Overview
-
-| Property | Value |
-|----------|-------|
-| **Database** | `backend/RUBLI_NORMALIZED.db` |
-| **Engine** | SQLite 3.x |
-| **Records** | ~3.1M contracts (2002-2025) |
-| **Size** | ~1.5 GB |
+This page documents the tables a contributor or data user actually touches. The database also holds about 100 auxiliary tables (precomputes, caches, migration backups prefixed `_`). Use `sqlite3 RUBLI_NORMALIZED.db .tables` for the full list.
 
 ---
 
-## Entity Relationship Diagram
+## Core entities
 
-```
-                    ┌─────────────┐
-                    │   sectors   │
-                    ├─────────────┤
-                    │ id (PK)     │
-                    │ code        │
-                    │ name_es     │
-                    └──────┬──────┘
-                           │
-                           │ 1:N
-                           ▼
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   vendors   │     │  contracts  │     │institutions │
-├─────────────┤     ├─────────────┤     ├─────────────┤
-│ id (PK)     │◄────│ vendor_id   │────►│ id (PK)     │
-│ name        │     │ institution │     │ name        │
-│ rfc         │     │ sector_id   │     │ abbreviation│
-│ ...         │     │ amount_mxn  │     │ inst_type   │
-└─────────────┘     │ risk_score  │     └─────────────┘
-                    │ ...         │
-                    └─────────────┘
-```
+### `contracts` — one row per CompraNet contract (≈3.06M)
 
----
+| Column group | Columns |
+|---|---|
+| Identity | `id` (NOT NULL, unique), `source_structure` (A–D), `source_year`, `contract_number`, `procedure_number`, `expedient_code` |
+| Links | `vendor_id` → `vendors`, `institution_id` → `institutions`, `contracting_unit_id`, `sector_id` → `sectors`, `sub_sector_id`, `category_id` → `categories`, `ramo_id` → `ramos` |
+| Description | `title`, `description`, `partida_especifica`, `cucop_capitulo`, `spending_class` |
+| Procedure | `procedure_type`, `procedure_type_normalized`, `contract_type(_normalized)`, `procedure_character`, `participation_form`, `exception_article`, `caso_fortuito` |
+| Dates | `contract_date`, `start_date`, `end_date`, `award_date`, `publication_date`, `opening_date`, `contract_year`, `contract_month`, `sexenio_year` |
+| Money | `amount_mxn` (validated; > 100B rejected to 0), `amount_original`, `currency`, `is_foreign_currency`, `is_high_value` |
+| Flags | `is_direct_award`, `is_single_bid`, `is_framework`, `is_consolidated`, `is_multiannual`, `is_year_end`, `has_amendment`, `is_election_year`, `publication_delay_days` |
+| Risk (active) | `risk_score`, `risk_level` (`critical`/`high`/`medium`/`low`), `risk_score_v8`, `risk_model_version` |
+| Risk (archived) | `risk_score_v5`, `risk_score_v6`, `risk_level_v6`, `risk_score_v7`, `risk_level_v7`, `risk_confidence_lower/upper` (empty for v0.8.5) |
+| Other signals | `mahalanobis_distance`, `ensemble_anomaly_score`, `data_quality_score`, `data_quality_grade` |
 
-## Tables
+`contract_year` is derived from `contract_date` (corrected 2026-09-30 for the 2010 source file).
 
-### contracts
+### `vendors` — one row per raw supplier record (≈320K)
 
-Primary table containing all procurement contracts.
+`id`, `rfc`, `name`, `name_normalized`, `is_individual` (persona física), `vendor_kind`, `size_stratification`, `country_code`, `first_contract_date`, `last_contract_date`, `total_contracts`, `total_amount_mxn`.
 
-| Column | Type | Description | Indexed |
-|--------|------|-------------|---------|
-| `id` | INTEGER | Primary key | Yes (PK) |
-| `contract_number` | TEXT | Official contract identifier | Yes |
-| `procedure_number` | TEXT | Tender procedure identifier | Yes |
-| `title` | TEXT | Contract title/description | No |
-| `description` | TEXT | Full description | No |
-| `amount_mxn` | REAL | Contract value in MXN | Yes |
-| `currency` | TEXT | Original currency (MXN, USD, EUR) | No |
-| `contract_date` | DATE | Date of contract signing | Yes |
-| `contract_year` | INTEGER | Extracted year for filtering | Yes |
-| `start_date` | DATE | Contract start date | No |
-| `end_date` | DATE | Contract end date | No |
-| `sector_id` | INTEGER | FK to sectors | Yes |
-| `vendor_id` | INTEGER | FK to vendors | Yes |
-| `institution_id` | INTEGER | FK to institutions | Yes |
-| `procedure_type` | TEXT | Type of procurement procedure | No |
-| `contract_type` | TEXT | Type of contract | No |
-| `is_direct_award` | INTEGER | 1 if direct award, 0 otherwise | Yes |
-| `is_single_bid` | INTEGER | 1 if only one bidder | Yes |
-| `risk_score` | REAL | Calculated risk score (0-1) | Yes |
-| `risk_level` | TEXT | low/medium/high/critical | Yes |
-| `risk_factors` | TEXT | JSON array of triggered factors | No |
-| `data_structure` | TEXT | Source structure (A/B/C/D) | No |
+**Never publish `rfc` for rows where `is_individual = 1`.** The API masks it server-side. `group_id` and `vendors.avg_risk_score` are legacy fields: use `vendor_canonical` and `vendor_stats` instead.
 
-**Indexes:**
-```sql
-CREATE INDEX idx_contracts_sector ON contracts(sector_id);
-CREATE INDEX idx_contracts_vendor ON contracts(vendor_id);
-CREATE INDEX idx_contracts_institution ON contracts(institution_id);
-CREATE INDEX idx_contracts_year ON contracts(contract_year);
-CREATE INDEX idx_contracts_risk ON contracts(risk_level);
-CREATE INDEX idx_contracts_amount ON contracts(amount_mxn);
-```
+### `institutions` — one row per raw buyer record
 
-### vendors
+`id`, `siglas`, `name`, `name_normalized`, `ramo_id`, `sector_id`, `institution_type(_id)`, `size_tier(_id)`, `autonomy_level(_id)`, `gobierno_nivel`, `is_federal`, `state_code`.
 
-All vendors/suppliers who have received government contracts.
+### Taxonomy
 
-| Column | Type | Description | Indexed |
-|--------|------|-------------|---------|
-| `id` | INTEGER | Primary key | Yes (PK) |
-| `name` | TEXT | Original vendor name | Yes |
-| `name_normalized` | TEXT | Normalized/cleaned name | Yes |
-| `rfc` | TEXT | Mexican tax ID (RFC) | Yes |
-| `industry_id` | INTEGER | FK to industries | No |
-| `is_verified` | INTEGER | Manual verification flag | No |
-| `phonetic_code` | TEXT | Soundex/metaphone code | Yes |
-| `first_token` | TEXT | First word of name | Yes |
+| Table | Content |
+|---|---|
+| `sectors` | 12 sectors (`id`, `code`, `name_es`, `name_en`, `color`) |
+| `ramos` | Budget branches (`clave`) → `sector_id` |
+| `sub_sectors`, `categories` | Spending categories under each sector (`partida_pattern`, keywords) |
+| `institution_types`, `size_tiers`, `autonomy_levels` | Institution classification ([INSTITUTION_TYPES_REFERENCE.md](INSTITUTION_TYPES_REFERENCE.md)) |
 
-**Indexes:**
-```sql
-CREATE INDEX idx_vendors_name ON vendors(name);
-CREATE INDEX idx_vendors_normalized ON vendors(name_normalized);
-CREATE INDEX idx_vendors_rfc ON vendors(rfc);
-CREATE INDEX idx_vendors_phonetic ON vendors(phonetic_code);
-```
+The 12 sectors map from budget *ramo*:
 
-### institutions
-
-Government institutions that award contracts.
-
-| Column | Type | Description | Indexed |
-|--------|------|-------------|---------|
-| `id` | INTEGER | Primary key | Yes (PK) |
-| `name` | TEXT | Full institution name | Yes |
-| `abbreviation` | TEXT | Common abbreviation (IMSS, CFE) | Yes |
-| `institution_type` | TEXT | Type from 19-type taxonomy | Yes |
-| `ramo_code` | INTEGER | Budget classification code | No |
-| `is_federal` | INTEGER | 1 if federal, 0 if state/local | No |
-
-### sectors
-
-12-sector taxonomy for contract classification.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INTEGER | Primary key (1-12) |
-| `code` | TEXT | Sector code (salud, educacion, etc.) |
-| `name_es` | TEXT | Spanish name |
-| `name_en` | TEXT | English name |
-| `ramo_codes` | TEXT | JSON array of mapped ramo codes |
-
-**Sector Mapping:**
-
-| ID | Code | Ramo Codes |
-|----|------|------------|
+| ID | Code | Ramos |
+|---|---|---|
 | 1 | salud | 12, 50, 51 |
 | 2 | educacion | 11, 25, 48 |
 | 3 | infraestructura | 09, 15, 21 |
@@ -142,104 +55,73 @@ Government institutions that award contracts.
 | 5 | defensa | 07, 13 |
 | 6 | tecnologia | 38, 42 |
 | 7 | hacienda | 06, 23, 24 |
-| 8 | gobernacion | 01-05, 17, 22, 27, 35, 36, 43 |
+| 8 | gobernacion | 01–05, 17, 22, 27, 35, 36, 43 |
 | 9 | agricultura | 08 |
 | 10 | ambiente | 16 |
 | 11 | trabajo | 14, 19, 40 |
-| 12 | otros | (default fallback) |
+| 12 | otros | everything else |
 
-### vendor_stats
+## Entity resolution
 
-Pre-computed vendor statistics for dashboard performance.
+| Table | Grain | Purpose |
+|---|---|---|
+| `vendor_canonical` | vendor | `vendor_id` → `canonical_id`, `group_size`, `match_basis` (316,967 canonical vendors) |
+| `vendor_rfc_quality` | vendor | RFC grade (A–D), recovered RFC, `is_persona_fisica`, `display_ok` |
+| `vendor_match_judgements` | vendor pair | `same` / `different` / `unsure`, with source, rule version and reviewer. Components over `same` edges define entities |
+| `vendor_match_candidates` | vendor pair | Link-only fuzzy candidates (`tier`, `score`). Never used as labels |
+| `institution_canonical` | institution | `canonical_id`, `level`, `body_type`, `match_basis` (3,462 canonical institutions) |
+| `institution_successor` | institution | Renamed or merged agencies, with `effective_date` and source |
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `vendor_id` | INTEGER | FK to vendors (PK) |
-| `total_contracts` | INTEGER | Lifetime contract count |
-| `total_value_mxn` | REAL | Lifetime contract value |
-| `avg_risk_score` | REAL | Average risk across contracts |
-| `first_contract_year` | INTEGER | Earliest contract year |
-| `last_contract_year` | INTEGER | Most recent contract year |
-| `primary_sector_id` | INTEGER | Most common sector |
-| `institution_count` | INTEGER | Distinct institutions served |
+Method: [DATA.md §4](DATA.md#4-entity-resolution).
 
----
+## Aggregates (read these, not raw columns)
 
-## Data Quality Notes
+Precomputed by [`_refresh_stats_tables.py`](../backend/scripts/_refresh_stats_tables.py) and [`precompute_stats.py`](../backend/scripts/precompute_stats.py). The API reads these tables, so rebuild them after any scoring or data change.
 
-### Amount Validation
+| Table | Key | Notable columns |
+|---|---|---|
+| `vendor_stats` | `vendor_id` | `total_contracts`, `total_value_mxn`, `avg_risk_score`, `high_risk_pct`, `direct_award_pct`, `single_bid_pct`, `institution_count`, `primary_sector_id` |
+| `institution_stats` | `institution_id` | totals, `high_risk_pct`, `direct_award_pct`, `single_bid_pct`, `vendor_count`, `high_critical_value_mxn` |
+| `category_stats` | `category_id` | totals, `avg_risk`, `high_risk_pct`, top vendor and buyer |
+| `precomputed_stats` | `stat_key` | JSON blobs for dashboards (`stat_value`) |
 
-| Value Range | Action |
-|-------------|--------|
-| > 100B MXN | REJECT - Data error |
-| > 10B MXN | FLAG - Manual review |
-| <= 10B MXN | Accept normally |
+## Model
 
-### Data Structures by Year
+| Table | Content |
+|---|---|
+| `model_calibration` | One row per model run: `model_version`, `run_id`, `intercept`, `coefficients` (`{"names":[…],"values":[…]}` for v0.8.5), `pu_correction_factor`, `hyperparameters`, `calibration_curve`. The v0.8.5 row uses `sector_id = 0` |
+| `factor_baselines` | Sector × year mean / std per feature |
+| `contract_z_features`, `contract_z_features_v2` | Per-contract z-scores (16 original + 5 v2 features) |
+| `vendor_shap_v52` | Per-vendor linear SHAP values and top factors |
+| `drift_report` | Distribution-drift checks |
 
-| Structure | Years | RFC Coverage | Key Limitation |
-|-----------|-------|--------------|----------------|
-| A | 2002-2010 | 0.1% | Lowest quality |
-| B | 2010-2017 | 15.7% | UPPERCASE text |
-| C | 2018-2022 | 30.3% | Mixed case |
-| D | 2023-2025 | 47.4% | Best quality |
+## Ground truth
 
----
+`ground_truth_cases`, `ground_truth_vendors`, `ground_truth_contracts`, `ground_truth_institutions`, `ground_truth_sources`. See [GROUND_TRUTH.md](GROUND_TRUTH.md).
 
-## Common Queries
+## ARIA investigation queue
 
-### Count contracts by sector
-```sql
-SELECT s.name_es, COUNT(*) as count
-FROM contracts c
-JOIN sectors s ON c.sector_id = s.id
-GROUP BY s.id
-ORDER BY count DESC;
-```
+| Table | Content |
+|---|---|
+| `aria_queue` | One row per vendor: `ips_final`, `ips_tier` (1–4), `primary_pattern`, external flags (`is_efos_definitivo`, `is_sfp_sanctioned`), `in_ground_truth`, false-positive screens, review status |
+| `aria_runs` | Pipeline run log |
+| `aria_memos`, `aria_web_evidence` | Analyst / LLM working notes. **Internal; not published** |
 
-### Top vendors by value
-```sql
-SELECT v.name, SUM(c.amount_mxn) as total_value
-FROM contracts c
-JOIN vendors v ON c.vendor_id = v.id
-WHERE c.amount_mxn <= 100000000000  -- Exclude data errors
-GROUP BY v.id
-ORDER BY total_value DESC
-LIMIT 20;
-```
+See [ARIA_SPEC.md](ARIA_SPEC.md).
 
-### High-risk contracts
-```sql
-SELECT *
-FROM contracts
-WHERE risk_level IN ('high', 'critical')
-AND amount_mxn > 1000000000  -- > 1B MXN
-ORDER BY risk_score DESC;
-```
+## External registries
 
-### Single-bid rate by year
-```sql
-SELECT
-    contract_year,
-    COUNT(*) as total,
-    SUM(CASE WHEN is_single_bid = 1 THEN 1 ELSE 0 END) as single_bids,
-    ROUND(SUM(CASE WHEN is_single_bid = 1 THEN 1.0 ELSE 0 END) / COUNT(*) * 100, 2) as pct
-FROM contracts
-WHERE is_direct_award = 0  -- Only competitive procedures
-GROUP BY contract_year
-ORDER BY contract_year;
-```
+| Table | Source |
+|---|---|
+| `sat_efos_vendors` | SAT Art. 69-B list (`rfc`, `company_name`, `stage`, `dof_date`) |
+| `sfp_sanctions` | SFP sanctioned suppliers (`company_name`, `rfc` when given, `sanction_type`, dates, `authority`) |
+| `rupc_vendors` | Supplier registry |
+| `asf_cases`, `asf_institution_crosswalk` | ASF audit findings and the reviewed buyer crosswalk |
 
----
+## Post-CompraNet awards
 
-## Migration History
+`gap_contracts`: ComprasMX procedures from 2025-09-28 onward (`uuid_procedimiento` unique). It holds procedure metadata, `amount_mxn_recovered` (OCR), `currency`, six `flag_*` columns, and `gap_risk_score` / `gap_risk_level` from the structural indicator. **Kept separate from `contracts`.** See [DATA.md §2](DATA.md#2-after-compranet-the-comprasmx-gap-2025-09-28--2026-09-30).
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2024-01 | Initial schema |
-| 1.1.0 | 2024-06 | Added risk_score, risk_level |
-| 2.0.0 | 2025-01 | Added vendor_stats, institution types |
+## Application tables (never exported)
 
----
-
-*Last updated: January 2026*
+`users`, `watchlist_items`, `investigation_folders`, `investigation_folder_items`, `user_issues`, `risk_feedback`.

@@ -1,7 +1,7 @@
 /**
  * AtlasShell — two-pane shell for the investigator console (M-OBS Phase 2).
  *
- * Plan: docs/ATLAS_C_CONSOLE_PLAN.md § 1.1, § 2.5
+ * Plan: internal planning note ATLAS_C_CONSOLE_PLAN (not published) § 1.1, § 2.5
  * Build: atlas-C-P1 (layout), atlas-C-P2 (ESC handler),
  *        M-OBS-P2 (right rail removed, keyboard handler extended)
  *

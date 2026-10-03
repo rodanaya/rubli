@@ -549,7 +549,7 @@ function PhiGradePanel({ data }: { data: PhiDetailData }) {
   const avgBidders = data.indicators?.avg_bidders?.value ?? null
   const singleBidRate = data.indicators?.single_bid_rate?.value ?? null
 
-  // Map backend letter grade to canonical 5-tier label (CLAUDE.md hard rule §7)
+  // Map backend letter grade to canonical 5-tier label (src/lib/tiers.ts)
   const tierKey = grade !== '—' ? gradeToTierKey(grade) : null
   const tierStyle = tierKey ? TIER_STYLES[tierKey] : null
   const tierColor = tierStyle?.color ?? 'var(--color-text-muted)'
@@ -581,7 +581,7 @@ function PhiGradePanel({ data }: { data: PhiDetailData }) {
       aria-label="Procurement Health Index governance grade"
     >
       <div className="flex items-start gap-5">
-        {/* Tier label + score — 5-tier canonical (CLAUDE.md §7: Excelente/Satisfactorio/Regular/Deficiente/Crítico) */}
+        {/* Tier label + score — 5-tier canonical (src/lib/tiers.ts: Excelente/Satisfactorio/Regular/Deficiente/Crítico) */}
         <div className="flex flex-col items-start flex-shrink-0 min-w-[96px]">
           {tierKey ? (
             <span
@@ -1809,7 +1809,7 @@ export function SectorProfile() {
               p4_kickback:     { code: 'P4', label_es: 'Patrón de coadjudicación',           label_en: 'Co-award pattern' },
               p5_bid_rotation: { code: 'P5', label_es: 'Sobreprecio sistemático',            label_en: 'Systematic overpricing' },
               p6_capture:      { code: 'P6', label_es: 'Dependencia de un solo comprador',   label_en: 'Single-buyer dependence' },
-              p7_budget_dump:  { code: 'P7', label_es: 'Vinculado a un caso documentado',    label_en: 'Linked to a documented case' },
+              p7_budget_dump:  { code: 'P7', label_es: 'Vinculado a un caso etiquetado',    label_en: 'Linked to a labelled case' },
             }
             const counts: Record<string, number> = {}
             for (const item of items) {

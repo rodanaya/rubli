@@ -8,7 +8,7 @@
  * Extracted from VendorEvidenceTab (was inline there) so both VendorEvidenceTab
  * and SectorProfile Risk tab can share the primitive.
  *
- * sp-P3 · docs/SECTOR_PROFILE_REDESIGN_PLAN.md
+ * sp-P3 · internal planning note SECTOR_PROFILE_REDESIGN_PLAN (not published)
  */
 
 export interface BenchmarkRowProps {

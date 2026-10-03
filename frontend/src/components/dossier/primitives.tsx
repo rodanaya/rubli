@@ -254,7 +254,7 @@ export function ScaleBlock({
         {lang === 'es' ? 'Pesos mexicanos' : 'Mexican pesos'}
       </div>
       {/* Spanish reads MXN natively — the USD companion is for the EN
-          reader's sense of scale only (CLAUDE.md currency table). */}
+          reader's sense of scale only (docs/DESIGN_SYSTEM.md currency rules). */}
       {lang !== 'es' && (
         <div
           className="font-mono tabular-nums"

@@ -1,7 +1,7 @@
 /**
  * SenaladosBand — "LOS SEÑALADOS / THE FLAGGED": the editorial band that leads
  * /contracts (El Archivo). Shows the most-concerning contracts matching the
- * CURRENT filter — documented corruption cases first, then high+critical risk —
+ * CURRENT filter — labelled cases first, then high+critical risk —
  * named, sourced, each linking to its full dossier.
  *
  * Honesty rules (folio): a non-accusatory framing line; an explicit calm state
@@ -50,13 +50,13 @@ export function CaseSeal({
       style={{ color: RISK_TEXT_COLORS.critical }}
       title={
         lang === 'es'
-          ? 'Aparece en un caso de corrupción documentado — un vínculo, no prueba de delito.'
-          : 'Appears in a documented corruption case — a link, not proof of a crime.'
+          ? 'Aparece en un caso etiquetado — un vínculo, no prueba de delito.'
+          : 'Appears in a labelled case — a link, not proof of a crime.'
       }
     >
       <ScrollText className="h-3 w-3 shrink-0" aria-hidden="true" />
       <span className="whitespace-nowrap">
-        {lang === 'es' ? 'Caso documentado' : 'Documented case'}
+        {lang === 'es' ? 'Caso etiquetado' : 'Labelled case'}
       </span>
       {name && (
         <>
@@ -301,7 +301,7 @@ export function SenaladosBand({
           </h2>
         </div>
         <p className="hidden text-[12px] leading-tight text-text-muted sm:block">
-          {t('senalados.honesty', 'Flagged by the model and documented cases — not an accusation.')}
+          {t('senalados.honesty', 'Flagged by the model and labelled cases — not an accusation.')}
         </p>
       </header>
 

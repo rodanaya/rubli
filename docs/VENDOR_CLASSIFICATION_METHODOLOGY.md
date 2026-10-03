@@ -14,7 +14,7 @@ Enable industry-aware risk scoring and cross-sector analysis by classifying vend
 ### Coverage Statistics
 | Metric | Value |
 |--------|-------|
-| Total vendors in database | 320,429 |
+| Raw vendor records (before entity resolution) | 320,429 |
 | Verified classifications | 45,603 (14.23%) |
 | Verified patterns | 5,000 |
 | Industry categories | 35 |
@@ -283,36 +283,12 @@ SET industry_id = NULL, industry_code = NULL,
 WHERE industry_id = XXXX;
 
 -- Full rollback to backup
--- Restore from: backend/RUBLI_NORMALIZED.db.backup_20260113_143919
+-- Restore from a database backup taken before the change
 ```
 
 ---
 
-## 7. Major Verified Companies
-
-### Global Market Leaders by Industry
-
-| Industry | Top Companies | Total Market |
-|----------|---------------|--------------|
-| Oil & Gas Services | Schlumberger, Halliburton, Baker Hughes | $150B+ |
-| Industrial Automation | Siemens, ABB, Rockwell, Fanuc | $200B+ |
-| Power Generation | GE Vernova (34%), Siemens Energy (24%), Mitsubishi (27%) | $75B |
-| Material Handling | Toyota Industries ($16.8B), KION ($9.2B), Jungheinrich | $178B |
-| Industrial Compressors | Atlas Copco (18-22%), Ingersoll Rand (15-20%) | $40B |
-| Commercial Refrigeration | Hussmann/Panasonic, Carrier/Haier, Daikin | $45B |
-
-### Mexican Companies
-
-| Company | Industry | Corporate Group |
-|---------|----------|-----------------|
-| CICSA | Construction | Grupo Carso |
-| Condumex | Industrial Cables | Grupo Carso |
-| Laboratorios PiSA | Pharmaceuticals | Independent |
-| COTEMAR | Offshore Services | Independent |
-
----
-
-## 8. Version History
+## 7. Version History
 
 | Version | Date | Changes |
 |---------|------|---------|

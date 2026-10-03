@@ -63,8 +63,6 @@ import esProcurementCalendar from './locales/es/procurementCalendar.json'
 import enProcurementCalendar from './locales/en/procurementCalendar.json'
 import esAuth from './locales/es/auth.json'
 import enAuth from './locales/en/auth.json'
-import esStoryCharts from './locales/es/storyCharts.json'
-import enStoryCharts from './locales/en/storyCharts.json'
 
 i18n
   .use(LanguageDetector)
@@ -93,7 +91,6 @@ i18n
         redThread: esRedThread,
         procurementCalendar: esProcurementCalendar,
         auth: esAuth,
-        storyCharts: esStoryCharts,
       },
       en: {
         common: enCommon, sectors: enSectors, nav: enNav, dashboard: enDashboard,
@@ -117,7 +114,6 @@ i18n
         redThread: enRedThread,
         procurementCalendar: enProcurementCalendar,
         auth: enAuth,
-        storyCharts: enStoryCharts,
       },
     },
     // Do NOT set lng here — let LanguageDetector determine the language from

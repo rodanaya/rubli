@@ -111,7 +111,7 @@
     "subtitleDynamic": "Systemic risk analysis by sector in federal public procurement. {{count}} sectors analyzed. Results based on {{contracts}} contracts.",
     "subtitleFallback": "Systemic risk analysis by sector in federal public procurement. 12 sectors analyzed. Results based on 3.05 million contracts.",
     "hallazgoLabel": "Key Finding",
-    "hallazgoText": "The <strong>Health</strong> sector carries the highest absolute risk: ghost-company networks in IMSS, ISSSTE, and COVID-19 emergency purchases represent over $200B MXN in high-risk contracts.",
+    "hallazgoText": "The <strong>Health</strong> sector carries the highest absolute risk: IMSS, ISSSTE and COVID-19 emergency purchases account for over MXN 200B in contracts with a high risk indicator.",
     "signosVitales": "VITAL SIGNS",
     "matrizRiesgo": "RISK MATRIX",
     "paisajeInstitucional": "INSTITUTIONAL LANDSCAPE",

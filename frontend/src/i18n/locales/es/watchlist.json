@@ -92,7 +92,7 @@
   },
   "workspaceEmpty": {
     "title": "Tu investigación comienza aquí.",
-    "description": "Guarda proveedores, instituciones y contratos para rastrear cambios en el puntaje de riesgo a lo largo del tiempo. Empieza por vigilar un proveedor de alta prioridad, explorar los datos de contratación o abrir un caso documentado.",
+    "description": "Guarda proveedores, instituciones y contratos para rastrear cambios en el puntaje de riesgo a lo largo del tiempo. Empieza por vigilar un proveedor de alta prioridad, explorar los datos de contratación o abrir un caso etiquetado.",
     "hint": "Usa el ícono de ojo en cualquier perfil de proveedor o institución para comenzar a rastrear.",
     "watchVendorTitle": "Vigilar un proveedor",
     "watchVendorDesc": "Sigue los cambios de riesgo en proveedores prioritarios de la cola ARIA.",
@@ -100,8 +100,8 @@
     "exploreTitle": "Explorar contratos",
     "exploreDesc": "Encuentra proveedores o instituciones y usa el ícono de ojo para empezar a seguirlos.",
     "exploreCta": "Buscar proveedores",
-    "caseTitle": "Abrir un caso documentado",
-    "caseDesc": "Explora {{n}} casos documentados y agrega a los involucrados a tu espacio.",
+    "caseTitle": "Abrir un caso etiquetado",
+    "caseDesc": "Explora {{n}} casos etiquetados y agrega a los involucrados a tu espacio.",
     "caseCta": "Ver casos"
   },
   "dossierEmpty": {

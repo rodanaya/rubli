@@ -1,357 +1,72 @@
-# Deployment Guide
+# Deployment
 
-This guide covers deploying RUBLI in various environments.
-
-## Table of Contents
-
-1. [Prerequisites](#prerequisites)
-2. [Local Development](#local-development)
-3. [Docker Deployment](#docker-deployment)
-4. [Production Deployment](#production-deployment)
-5. [Configuration](#configuration)
-6. [Database Setup](#database-setup)
-7. [Troubleshooting](#troubleshooting)
+Production ([rubli.xyz](https://rubli.xyz)) runs on a single Linux host with Docker Compose. This page describes that setup so you can run your own instance.
 
 ---
 
-## Prerequisites
+## Topology
 
-### Required Software
+```mermaid
+flowchart LR
+  user(("Browser")) -->|"HTTPS 443"| caddy["Caddy<br/>TLS + security headers"]
+  caddy --> fe["frontend<br/>nginx + built SPA"]
+  fe -->|"/api"| be["backend<br/>FastAPI · gunicorn"]
+  be --> db[("RUBLI_DEPLOY.db<br/>SQLite, read-mostly")]
+  aria["aria-cron"] -->|"daily POST · X-Rubli-Key"| be
+  bk["backup-cron"] -->|"daily copy · 7-day rotation"| db
+```
 
-| Software | Minimum Version | Purpose |
-|----------|-----------------|---------|
-| Python | 3.10+ | Backend runtime |
-| Node.js | 18+ | Frontend build |
-| SQLite | 3 | Database |
-| Git | 2.0+ | Version control |
+| Service | Image | Notes |
+|---|---|---|
+| `backend` | `backend/Dockerfile` (Python 3.11 slim, `requirements-api.txt`) | Mounts the deploy DB. Health check on `/health`, with a 120 s start period for the startup scan |
+| `frontend` | `frontend/Dockerfile` | Static build behind nginx. The write key is injected at container start, never baked into the bundle |
+| `caddy` | `caddy:2-alpine` | Automatic Let's Encrypt certificates, HSTS, frame and content-type headers. See [`Caddyfile`](../Caddyfile) |
+| `aria-cron` | `alpine` | Triggers the ARIA pipeline daily at 03:00 UTC over the internal network. No Docker socket |
+| `backup-cron` | `sqlite3` | Daily DB copy at 02:00 UTC into a named volume, keeping 7 days |
 
-### Optional
+Configuration lives in [`docker-compose.prod.yml`](../docker-compose.prod.yml). [`docker-compose.yml`](../docker-compose.yml) and [`docker-compose.dev.yml`](../docker-compose.dev.yml) are local variants without TLS.
 
-- Docker & Docker Compose (for containerized deployment)
-- nginx (for production reverse proxy)
+## 1. Build the deploy database
 
----
-
-## Local Development
-
-### 1. Clone Repository
+Production serves a slimmed copy of the source database. Staging, backup and private tables are dropped.
 
 ```bash
-git clone https://github.com/rodanaya/rubli.git
-cd rubli
+python backend/scripts/create_deploy_db.py     # writes backend/RUBLI_DEPLOY.db
 ```
 
-### 2. Backend Setup
+Run a WAL checkpoint on the source first (`backend/scripts/_wal_checkpoint.py`) so the copy is complete.
+
+## 2. Configure
 
 ```bash
-cd backend
-
-# Create virtual environment
-python -m venv venv
-
-# Activate (Linux/Mac)
-source venv/bin/activate
-
-# Activate (Windows)
-venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Copy environment file
-cp .env.example .env
-# Edit .env as needed
+cp .env.prod.example .env.prod
 ```
 
-### 3. Frontend Setup
+| Variable | Required | Purpose |
+|---|---|---|
+| `CORS_ORIGINS` | yes | Your public origin(s), comma-separated. `*` is rejected |
+| `RUBLI_WRITE_KEY` | yes | Shared secret for write and pipeline endpoints |
+| `RUBLI_JWT_SECRET` | yes | Signs user tokens. The stack refuses to start without it |
+| `ACME_EMAIL` | recommended | Let's Encrypt contact |
+
+`docker-compose.prod.yml` sets `RUBLI_ENV=production` on the backend. Keep it: with `RUBLI_ENV` unset or `dev`, write endpoints accept requests when `RUBLI_WRITE_KEY` is empty, and a missing JWT secret is replaced by a random one instead of stopping startup. If you run the backend outside this compose file, set `RUBLI_ENV=production` yourself.
+
+Change the domain in `Caddyfile` to your own, and point its DNS A record at the host before the first start: Caddy needs the domain to resolve to obtain a certificate.
+
+## 3. Start
 
 ```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Copy environment file
-cp .env.example .env
-# Edit .env as needed
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+docker compose -f docker-compose.prod.yml ps
+curl -fsS https://<your-domain>/health
 ```
 
-### 4. Database Setup
-
-The database file (`RUBLI_NORMALIZED.db`) is not included in the repository due to size. You have two options:
-
-**Option A: Download Pre-built Database**
-```bash
-# Download from release assets (when available)
-wget https://github.com/yourusername/rubli/releases/download/v1.0/RUBLI_NORMALIZED.db
-mv RUBLI_NORMALIZED.db backend/
-```
-
-**Option B: Build from COMPRANET Data**
-```bash
-# Download COMPRANET data
-# Place CSV files in original_data/
-
-# Run ETL pipeline
-cd backend
-python scripts/etl_pipeline.py
-```
-
-### 5. Run Development Servers
-
-```bash
-# Terminal 1: Backend
-cd backend
-uvicorn api.main:app --reload --port 8001
-
-# Terminal 2: Frontend
-cd frontend
-npm run dev
-```
-
-Access the application at http://localhost:3009
-
----
-
-## Docker Deployment
-
-### Using Docker Compose (Recommended)
-
-```bash
-# Build and start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop services
-docker-compose down
-```
-
-### Manual Docker Build
-
-```bash
-# Build backend
-docker build -t rubli-backend ./backend
-
-# Build frontend
-docker build -t rubli-frontend ./frontend
-
-# Run backend
-docker run -d -p 8001:8001 \
-  -v $(pwd)/backend/RUBLI_NORMALIZED.db:/app/RUBLI_NORMALIZED.db \
-  rubli-backend
-
-# Run frontend
-docker run -d -p 3009:80 rubli-frontend
-```
-
----
-
-## Production Deployment
-
-### Architecture
-
-```
-                    ┌─────────────┐
-                    │   nginx     │
-                    │ (reverse    │
-                    │  proxy)     │
-                    └─────┬───────┘
-                          │
-            ┌─────────────┴─────────────┐
-            │                           │
-       ┌────▼────┐                 ┌────▼────┐
-       │Frontend │                 │ Backend │
-       │ (React) │                 │(FastAPI)│
-       │ :3009   │                 │ :8001   │
-       └─────────┘                 └────┬────┘
-                                        │
-                                   ┌────▼────┐
-                                   │ SQLite  │
-                                   │   DB    │
-                                   └─────────┘
-```
-
-### nginx Configuration
-
-```nginx
-server {
-    listen 80;
-    server_name yourdomain.com;
-
-    # Frontend
-    location / {
-        proxy_pass http://localhost:3009;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-
-    # Backend API
-    location /api {
-        proxy_pass http://localhost:8001;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-```
-
-### Production Checklist
-
-- [ ] Set `DEBUG=false` in backend .env
-- [ ] Configure proper CORS origins
-- [ ] Enable rate limiting
-- [ ] Set up SSL/TLS certificates
-- [ ] Configure database backups
-- [ ] Set up monitoring/logging
-- [ ] Review security settings
-
----
-
-## Configuration
-
-### Backend Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DATABASE_PATH` | `RUBLI_NORMALIZED.db` | Path to SQLite database |
-| `API_HOST` | `0.0.0.0` | Server bind address |
-| `API_PORT` | `8001` | Server port |
-| `DEBUG` | `false` | Enable debug mode |
-| `CORS_ORIGINS` | `http://localhost:3009` | Allowed CORS origins |
-| `RATE_LIMIT_EXPENSIVE` | `5` | Rate limit for expensive endpoints |
-| `DB_QUERY_TIMEOUT` | `30` | Query timeout in seconds |
-| `LOG_LEVEL` | `INFO` | Logging level |
-
-### Frontend Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `VITE_API_URL` | `http://localhost:8001` | Backend API URL |
-| `VITE_APP_NAME` | `RUBLI` | Application name |
-| `VITE_ENABLE_EXPORTS` | `true` | Enable export features |
-
----
-
-## Database Setup
-
-### Database Schema
-
-The database contains the following main tables:
-
-| Table | Records | Description |
-|-------|---------|-------------|
-| `contracts` | ~3.1M | Procurement contracts |
-| `vendors` | ~320K | Vendor entities |
-| `institutions` | ~4.5K | Government institutions |
-| `sectors` | 12 | Sector taxonomy |
-
-### Running ETL
-
-```bash
-cd backend
-
-# Full ETL pipeline
-python scripts/etl_pipeline.py
-
-# Individual steps
-python scripts/etl_create_schema.py
-python scripts/etl_classify.py
-python scripts/calculate_risk_scores.py
-```
-
-### Database Backups
-
-```bash
-# Create backup
-cp backend/RUBLI_NORMALIZED.db backend/RUBLI_NORMALIZED.db.backup_$(date +%Y%m%d)
-
-# Restore from backup
-cp backend/RUBLI_NORMALIZED.db.backup_20240115 backend/RUBLI_NORMALIZED.db
-```
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-#### Backend won't start
-
-```
-Error: Database not found
-```
-**Solution:** Ensure `RUBLI_NORMALIZED.db` exists in the backend directory.
-
-#### CORS errors in browser
-
-```
-Access to fetch blocked by CORS policy
-```
-**Solution:** Update `CORS_ORIGINS` in backend .env to include your frontend URL.
-
-#### Slow queries
-
-```
-Query timeout exceeded
-```
-**Solution:**
-- Increase `DB_QUERY_TIMEOUT`
-- Add database indexes
-- Reduce page size in requests
-
-#### Frontend build fails
-
-```
-npm ERR! Could not resolve dependency
-```
-**Solution:**
-```bash
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### Getting Help
-
-1. Check logs: `docker-compose logs -f`
-2. Review configuration files
-3. Search existing issues on GitHub
-4. Open a new issue with details
-
----
-
-## Performance Optimization
-
-### Database Indexes
-
-Ensure these indexes exist for optimal performance:
-
-```sql
-CREATE INDEX IF NOT EXISTS idx_contracts_sector ON contracts(sector_id);
-CREATE INDEX IF NOT EXISTS idx_contracts_year ON contracts(year);
-CREATE INDEX IF NOT EXISTS idx_contracts_vendor ON contracts(vendor_id);
-CREATE INDEX IF NOT EXISTS idx_contracts_institution ON contracts(institution_id);
-CREATE INDEX IF NOT EXISTS idx_contracts_risk ON contracts(risk_score);
-```
-
-### Caching
-
-Consider adding Redis for caching frequently accessed data:
-
-```bash
-# Install Redis
-apt-get install redis-server
-
-# Configure in backend
-REDIS_URL=redis://localhost:6379
-```
-
----
-
-*"The most important thing is not to win, but to understand."* - RUBLI
+[`scripts/deploy-safe.sh`](../scripts/deploy-safe.sh) wraps this for the project's own host: it fetches `origin/main`, clears stale containers, rebuilds the frontend without cache, and brings the stack up.
+
+## Operating notes
+
+- **Bring the stack up as a whole.** Restarting only the frontend with `--no-deps` can leave it outside the compose network, and the site then returns 502.
+- **SQLite bind mount and WAL.** The DB is a single bind-mounted file. When you change data on the host, checkpoint with `wal_checkpoint(TRUNCATE)` before copying it in; otherwise the container can read a partial table. Run heavy precompute scripts inside the container against the mounted file.
+- **Resources.** Backend limit 1.5 GB RAM; the first request after a restart is slow while caches warm.
+- **Security headers** are set in Caddy. Write endpoints require `X-Rubli-Key`, all public endpoints are rate-limited, and errors return generic messages.
+- **Backups** sit in the `rubli_backups` volume on the same host. Copy them off-host as well (`scripts/offsite-backup.sh` is a starting point).

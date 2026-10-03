@@ -65,7 +65,7 @@
     },
     "unverifiedLead": {
       "headline": "Listed in an unverified lead",
-      "detail": "This vendor appears only in a case lead that has not been sourced or verified. It is not a documented case."
+      "detail": "This vendor appears only in a case lead that has not been sourced or verified. It is not a labelled case."
     },
     "efosDefinitivo": {
       "headline": "SAT-confirmed ghost company (EFOS Definitivo)",
@@ -91,10 +91,10 @@
       "detail": "Primary pattern: {{pattern}}"
     },
     "riskCritical": {
-      "headline": "Critical risk score ({{pct}}/100) — strongest similarity to documented corruption patterns"
+      "headline": "Critical risk score ({{pct}}/100) — strongest similarity to patterns from labelled cases"
     },
     "riskHigh": {
-      "headline": "High risk score ({{pct}}/100) — strong similarity to documented corruption patterns"
+      "headline": "High risk score ({{pct}}/100) — strong similarity to patterns from labelled cases"
     },
     "highDirectAward": {
       "headline": "{{pct}}% direct awards — bypasses competitive tendering"

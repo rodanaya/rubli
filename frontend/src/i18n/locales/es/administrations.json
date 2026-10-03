@@ -3,7 +3,7 @@
     "sectionLabel": "Resumen de Administración",
     "politicalContext": "Contexto Político",
     "procurementFingerprint": "Huella de Contratación",
-    "knownScandals": "Casos de Corrupción Documentados",
+    "knownScandals": "Casos Etiquetados",
     "topSectors": "Sectores con Mayor Gasto",
     "noScandals": "Sin casos para este período en la base de casos etiquetados de RUBLI.",
     "linkToCases": "Ver en Casos",
@@ -35,11 +35,9 @@
     "scandals": {
       "casa_blanca": "Casa Blanca — Conflicto de interés: familiares del presidente vinculados al contratista Grupo Higa (EPN, 2014)",
       "estafa_maestra": "La Estafa Maestra — 7,600 MDP desviados mediante empresas fantasma a través de universidades públicas (EPN, 2017)",
-      "imss_ghost": "Red de Empresas Fantasma del IMSS — proveedores ficticios recibieron miles de millones en contratos de salud (exposición era EPN, 2015)",
       "odebrecht": "Odebrecht-PEMEX — empresa brasileña pagó sobornos por contratos de infraestructura (Calderón/EPN, 2010–2016)",
-      "pemexgate": "PEMEXGATE — desvío de fondos sindicales mediante contratos de mantenimiento en Pemex (Fox, 2004)",
-      "segalmex": "Segalmex — fraude de 9,400 MDP en contratos de distribución de alimentos subsidiados (AMLO, 2021)",
-      "covid_procurement": "Compras de Emergencia COVID-19 — ventiladores y medicamentos adjudicados sin licitación; irregularidades con Bruluart y DIMM (AMLO, 2020)",
+      "pemexgate": "PEMEXGATE — recursos de PEMEX canalizados vía el sindicato petrolero a la campaña presidencial del PRI en 2000; el IFE multó al PRI en 2003 (sexenio de Fox)",
+      "segalmex": "Segalmex — la SFP reporta 2,700 MDP desviados; la ASF observó 8,636 MDP en la Cuenta Pública 2020 (observaciones de auditoría, no determinaciones finales) (AMLO, 2021)",
       "tren_maya": "Tren Maya — FONATUR adjudicó directamente 180 MDP al Ejército sin licitación civil (AMLO, 2023)",
       "efos_sat": "SAT EFOS Definitivo — 38 proveedores de COMPRANET confirmados como empresas fantasma por el SAT (AMLO, 2022)",
       "grupo_higa": "Grupo Higa / Casa Blanca — contratista de infraestructura con conflicto de interés directo con la familia presidencial (EPN, 2014)"
@@ -59,7 +57,7 @@
   "sectorProfile": "Perfil de Riesgo Sectorial — {{admin}}",
   "transitionImpact": "Impacto de Transición",
   "keyEvents": "Eventos Clave — {{admin}} ({{start}}–{{end}})",
-  "documentedCases": "Casos de Corrupción Documentados",
+  "documentedCases": "Casos Etiquetados",
   "documentedCasesNote": "Casos de la base etiquetada de RUBLI — reportajes de prensa, registros oficiales y documentación de analistas. La mayoría no son resoluciones.",
   "noData": "Sin datos anuales disponibles para esta administración",
   "insufficientData": "Datos insuficientes para el análisis de transición",
@@ -89,7 +87,7 @@
   "sectorCorrelationsNote": "Pares de sectores con trayectorias de riesgo correlacionadas (|r| ≥ 0.70) durante esta administración",
   "heatmapSubtitle": "Métricas de riesgo por sector durante la administración seleccionada — ordenadas por porcentaje de contratos de alto riesgo.",
   "transitionSubtitle": "Cambios en indicadores clave entre administraciones consecutivas. Los valores marcados con ! o !! son estadísticamente inusuales (≥1.8σ del promedio histórico).",
-  "keyEventsSubtitle": "Reformas legislativas, escándalos documentados y crisis que afectaron los patrones de contratación pública durante esta administración.",
+  "keyEventsSubtitle": "Reformas legislativas, escándalos reportados y crisis que afectaron los patrones de contratación pública durante esta administración.",
   "heatmap": {
     "sector": "Sector",
     "directAward": "Adj. Directa",
@@ -137,7 +135,7 @@
     },
     "amlo": {
       "headline": "AMLO: 78.9% de adjudicaciones directas — el máximo histórico en el registro moderno",
-      "findings": "La administración de AMLO (2018–2024) generó el mayor volumen de contratación de cualquier presidencia: aproximadamente 1.24 millones de contratos por 3.2 billones de pesos. La tasa de adjudicaciones directas alcanzó el 78.9%, la más alta registrada en todas las administraciones y ocho veces la línea de adjudicación directa del 10% que el Tablero del Mercado Único de la UE considera insatisfactoria. La contratación de emergencia por COVID-19 en 2020–2021 presentó irregularidades significativas en contratos del sector salud, con proveedores como Bruluart y DIMM recibiendo adjudicaciones de miles de millones de pesos mediante procesos expeditos con mínimo escrutinio competitivo. El riesgo promedio llegó a 0.31.",
+      "findings": "La administración de AMLO (2018–2024) generó el mayor volumen de contratación de cualquier presidencia: aproximadamente 1.24 millones de contratos por 3.2 billones de pesos. La tasa de adjudicaciones directas alcanzó el 78.9%, la más alta registrada en todas las administraciones y ocho veces la línea de adjudicación directa del 10% que el Tablero del Mercado Único de la UE considera insatisfactoria. La contratación de emergencia por COVID-19 en 2020–2021 canalizó grandes adjudicaciones del sector salud mediante procesos expeditos con poca competencia. El riesgo promedio llegó a 0.31.",
       "keyRisk": "La elusión sistemática de la licitación competitiva —justificada alternativamente como poderes de emergencia, austeridad o anticorrupción— creó paradójicamente las condiciones que los marcos de la OCDE identifican como patrones de contratación de mayor riesgo.",
       "legacy": "Con 1.24 millones de contratos, el sexenio de AMLO representa aproximadamente el 40% de todos los registros de contratación en la base de datos RUBLI; la tasa excepcionalmente alta de adjudicaciones directas implica que una proporción desproporcionada de esos contratos carece de documentación competitiva suficiente para reconstruir la lógica de precios o detectar sobreprecio con posterioridad."
     },

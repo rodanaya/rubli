@@ -61,7 +61,7 @@
       "v40Title": "Marco Estadístico",
       "v40Desc": "Normalización z-score, calibración bayesiana, 9 casos de corrupción, 12 características.",
       "v50Title": "Modelos por Sector",
-      "v50Desc": "12 submodelos por sector, 15 casos documentados, división temporal de entrenamiento/prueba.",
+      "v50Desc": "12 submodelos por sector, 15 casos etiquetados, división temporal de entrenamiento/prueba.",
       "v51Title": "Integración EFOS",
       "v51Desc": "22 casos incluyendo el Caso 22 EFOS SAT: 38 empresas fantasma confirmadas por RFC.",
       "v60Title": "Clasificador de Anomalías Honesto",
@@ -69,14 +69,14 @@
       "v52Title": "Capa Analítica (En Vivo)",
       "v52Desc": "Valores SHAP por proveedor (456K proveedores) + ensemble PyOD de validación cruzada (9.3M puntuaciones) + monitoreo de deriva KS. Ver Perfil de Proveedor → Pestaña Riesgo, Detalle de contrato → Confirmado por IA, Panel → Validación Cruzada.",
       "v85Title": "Modelo de Producción Recalibrado",
-      "v85Desc": "Entrenado con la base de casos de mayo de 2026 (1,401 casos; 1,427 hoy). Un solo ElasticNet global, 18 variables activas, c_pu=0.32. HR=11.0% (dentro de la meta de calibración de 2–15%). Corrida: CAL-v8-202605020212."
+      "v85Desc": "Entrenado con la base de casos de mayo de 2026 (1,401 casos; 1,417 hoy). Un solo ElasticNet global, 18 variables activas, c_pu=0.32. HR=11.0% (dentro de la meta de calibración de 2–15%). Corrida: CAL-v8-202605020212."
     },
     "axisNow": "AHORA"
   },
   "kpiBadges": {
     "contracts": "3.05M Contratos",
     "auc": "AUC fuera de muestra 0.656",
-    "cases": "1,427 Casos Etiquetados",
+    "cases": "1,417 Casos Etiquetados",
     "sectors": "12 Sectores"
   },
   "body": {
@@ -88,7 +88,7 @@
       "formulaExpr": "S(z) = sigma(beta_0 + beta^T z) / c",
       "formulaDescStart": "Donde z = características z-score, beta = coeficientes aprendidos, sigma = sigmoide logística, c = corrección PU (0.32). S(z) es un ",
       "formulaDescStrong": "indicador de similitud de riesgo",
-      "formulaDescEnd": " — mide qué tan estrechamente las características de contratación de un contrato se asemejan a las de casos documentados de corrupción. La puntuación es una señal de similitud de patrones, no una estimación de probabilidad de corrupción.",
+      "formulaDescEnd": " — mide qué tan estrechamente las características de contratación de un contrato se asemejan a las de casos etiquetados. La puntuación es una señal de similitud de patrones, no una estimación de probabilidad de corrupción.",
       "riskThresholdsLabel": "UMBRALES DE NIVEL DE RIESGO",
       "tableColLevel": "Nivel",
       "tableColThreshold": "Umbral",
@@ -138,7 +138,7 @@
     },
     "validation": {
       "p1Start": "El modelo se entrenó con la base de casos de RUBLI: ",
-      "p1Strong": "1,427 casos etiquetados (363 de reportajes de prensa, 25 de registros oficiales, 1 de auditoría, 989 pistas que el modelo o ARIA detectó y un analista documentó, 49 de otro origen)",
+      "p1Strong": "1,417 casos etiquetados (361 de reportajes de prensa, 25 de registros oficiales, 1 de auditoría, 989 pistas que el modelo o ARIA detectó y un analista documentó, 41 de otro origen)",
       "p1End": ". La mayoría de los casos son documentación de analistas sobre pistas que surgieron del propio modelo, no resoluciones, y los contratos sin etiqueta se tratan como negativos aunque algunos seguramente sean corruptos. Los proveedores de cada caso se vinculan con sus contratos dentro de la ventana del caso.",
       "tableAriaLabel": "Validación de casos de corrupción",
       "tableColCase": "Caso",
@@ -159,7 +159,7 @@
       "zScoreTitle": "Normalización Z-Score",
       "zScoreP1": "Cada característica se normaliza respecto a su línea base de sector y año. Una adjudicación directa en Defensa (donde el 80% son directas) es menos sospechosa que en Educacion (donde el 50% son directas).",
       "zScoreFormula": "z_i = (x_i - mu_i(sector, año)) / máx(sigma_i(sector, año), 0.001)",
-      "zScoreNote": "3,372 líneas base calculadas en 12 sectores, ~24 años y 16 características. Jerarquía de respaldo: sector+año (si n >= 30), solo sector (si n >= 100), global.",
+      "zScoreNote": "3,372 líneas base calculadas en 12 sectores, ~24 años y las 16 características originales (las cinco del v2 se calculan aparte; 21 en total). Jerarquía de respaldo: sector+año (si n >= 30), solo sector (si n >= 100), global.",
       "mahalanobisTitle": "Distancia de Mahalanobis",
       "mahalanobisP1": "Captura anomalías multivariadas — contratos inusuales en múltiples dimensiones simultáneamente. Esto reemplaza los 5 pares de interacción codificados del v3.3 con un enfoque basado en covarianza completa.",
       "mahalanobisFormula": "D^2(z) = z^T Sigma^(-1) z ~ chi^2(16)",
@@ -186,7 +186,7 @@
       "pyodBody": "Detección de anomalías por conjunto Isolation Forest + COPOD ejecutada independientemente en los 3.05M contratos. Una puntuación de ensemble alta significa que el contrato es un valor atípico estadístico incluso sin conocer la etiqueta de verdad fundamental.",
       "pyodWhere": "Detalle de contrato → Insignia Confirmado por IA · Panel → Validación Cruzada · Explorar → Filtro Confirmado por IA",
       "driftTitle": "Monitoreo de Deriva",
-      "driftBadge": "16 características",
+      "driftBadge": "16 características originales",
       "driftBody": "Las pruebas de Kolmogorov-Smirnov comparan la distribución de características 2024–2025 contra la línea base de entrenamiento 2002–2020. Detecta cuando los nuevos datos de contratación desarrollan patrones distintos al período de entrenamiento.",
       "driftWhere": "Transparencia del Modelo → Sección Monitor de Deriva",
       "whereToFind": "Dónde encontrarlo:",
@@ -204,7 +204,7 @@
     },
     "limitations": {
       "item1Title": "Concentración de verdad fundamental",
-      "item1Text": "v0.8.5 se entrenó con los 1,401 casos que existían el 2 de mayo de 2026 (1,427 hoy), con un tope por proveedor. 989 de los casos actuales son pistas que el modelo o ARIA detectó y un analista documentó, así que las etiquetas reflejan en parte la visión del propio modelo. Salud y Agricultura contribuyen desproporcionadamente datos de entrenamiento positivos debido a los ecosistemas IMSS, Segalmex y DICONSA/LICONSA.",
+      "item1Text": "v0.8.5 se entrenó con los 1,401 casos que existían el 2 de mayo de 2026 (1,417 hoy), con un tope por proveedor. 989 de los casos actuales son pistas que el modelo o ARIA detectó y un analista documentó, así que las etiquetas reflejan en parte la visión del propio modelo. Salud y Agricultura contribuyen desproporcionadamente datos de entrenamiento positivos debido a los ecosistemas IMSS, Segalmex y DICONSA/LICONSA.",
       "item2Title": "La detección de casos pequeños es más débil",
       "item2Text": "Los casos con pocos contratos (La Estafa Maestra: 10, Grupo Higa: 3, Oceanografía: 2) tienen tasas de detección más bajas. El modelo requiere suficiente volumen de contratos para detectar patrones de forma confiable.",
       "item3Title": "La calidad de datos varía por período",
@@ -214,7 +214,7 @@
       "item5Title": "La co-licitación no provee señal",
       "item5Text": "El coeficiente co_bid_rate fue regularizado a exactamente 0.0 en el modelo global. Los patrones de co-licitación no discriminan en nuestra verdad fundamental actual.",
       "item6Title": "Sin afirmaciones causales",
-      "item6Text": "Una puntuación de riesgo alta indica una anomalía estadística consistente con patrones de corrupción documentados. No constituye prueba de irregularidad. Las puntuaciones de riesgo están destinadas a priorizar investigaciones, no a determinar culpabilidad."
+      "item6Text": "Una puntuación de riesgo alta indica una anomalía estadística consistente con patrones de casos etiquetados. No constituye prueba de irregularidad. Las puntuaciones de riesgo están destinadas a priorizar investigaciones, no a determinar culpabilidad."
     },
     "v33section": {
       "p1Start": "El modelo v3.3 era una ",
@@ -303,7 +303,7 @@
     "sourcesLabel": "Fuentes en RUBLI",
     "tierISource1": "· Lista SAT EFOS Definitivo (13,960 proveedores)",
     "tierISource2": "· Registro de sanciones SFP (544 proveedores)",
-    "tierISource3": "· Casos de registros oficiales (25 de 1,427; el resto son de prensa o etiquetados por analistas)",
+    "tierISource3": "· Casos de registros oficiales (25 de 1,417; el resto son de prensa o etiquetados por analistas)",
     "sayLabel": "Di",
     "tierISay": "\"confirmado\" · \"documentado\" · \"establecido formalmente\"",
     "tierIILabel": "NIVEL II",
@@ -324,7 +324,7 @@
     "tierIIIEx3": "· Detecciones de redes de colusión (heurística de co-licitación)",
     "tierIIISay": "\"patrón estadístico consistente con\" · \"señalado para investigación\" · \"anomalía conductual\"",
     "criticalRuleLabel": "Regla crítica:",
-    "criticalRuleBody": " Nunca uses lenguaje de Nivel I (\"confirmado\", \"probado\") para hallazgos de Nivel III. El puntaje de RUBLI no es un veredicto — es una señal de triaje. Un puntaje de 0.90 significa fuerte semejanza a patrones documentados de corrupción, no una probabilidad de culpabilidad del 90%. Las alertas conductuales de empresa fantasma (patrón P2) tienen una tasa de confirmación SAT del 0.7% — el otro 99.3% son detecciones algorítmicas no confirmadas."
+    "criticalRuleBody": " Nunca uses lenguaje de Nivel I (\"confirmado\", \"probado\") para hallazgos de Nivel III. El puntaje de RUBLI no es un veredicto — es una señal de triaje. Un puntaje de 0.90 significa fuerte semejanza a patrones de casos etiquetados, no una probabilidad de culpabilidad del 90%. Las alertas conductuales de empresa fantasma (patrón P2) tienen una tasa de confirmación SAT del 0.7% — el otro 99.3% son detecciones algorítmicas no confirmadas."
   },
   "limitations": {
     "intro": "Estas limitaciones son inherentes a las fuentes de datos, el enfoque de modelado y las restricciones legales de la plataforma. Comprenderlas es esencial para interpretar correctamente los puntajes de riesgo.",
@@ -336,7 +336,7 @@
     "colImpact": "Impacto",
     "colPath": "Camino a la solución",
     "interpretationLabel": "Guía de interpretación:",
-    "interpretationBody": " Los puntajes de riesgo son indicadores estadísticos — no veredictos. Un puntaje alto significa fuerte semejanza con patrones de corrupción documentados. Un puntaje bajo no certifica que un contrato esté limpio. Usa los puntajes solo para triaje de investigación; haz seguimiento con fuentes primarias para establecer hechos."
+    "interpretationBody": " Los puntajes de riesgo son indicadores estadísticos — no veredictos. Un puntaje alto significa fuerte semejanza con patrones de casos etiquetados. Un puntaje bajo no certifica que un contrato esté limpio. Usa los puntajes solo para triaje de investigación; haz seguimiento con fuentes primarias para establecer hechos."
   },
   "dataLabels": {
     "levelCritical": "Crítico",

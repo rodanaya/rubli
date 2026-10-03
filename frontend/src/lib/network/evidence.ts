@@ -88,7 +88,7 @@ export function buildEvidenceMarks(graph: CommunityGraphResponse): EvidenceEntry
     })
   }
 
-  // E4 — documented case: highest-pagerank node with gt_case_count > 0
+  // E4 — labelled case: highest-pagerank node with gt_case_count > 0
   const documentedNodes = nodes.filter((n) => n.gt_case_count > 0)
   if (documentedNodes.length > 0) {
     const topDocumented = documentedNodes.reduce((best, n) => (n.pagerank > best.pagerank ? n : best), documentedNodes[0])
@@ -97,8 +97,8 @@ export function buildEvidenceMarks(graph: CommunityGraphResponse): EvidenceEntry
       id: 'E4',
       vendorId: topDocumented.vendor_id,
       focusVendorId: topDocumented.vendor_id,
-      clause_es: `Caso documentado — ${name}: vinculado a ${topDocumented.gt_case_count} caso(s) documentado(s).`,
-      clause_en: `Documented case — ${name}: linked to ${topDocumented.gt_case_count} documented case(s).`,
+      clause_es: `Caso etiquetado — ${name}: vinculado a ${topDocumented.gt_case_count} caso(s) documentado(s).`,
+      clause_en: `Labelled case — ${name}: linked to ${topDocumented.gt_case_count} labelled case(s).`,
     })
   }
 

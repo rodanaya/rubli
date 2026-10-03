@@ -449,7 +449,7 @@ def get_related_vendors(
             # 2. Shared RFC root
             # Company RFCs only: for personas físicas the root is initials + birth
             # date and links unrelated people. Fuzzy/phonetic name matching was
-            # removed (≤22% precision on RFC gold, docs/PREPUB_AUDIT_2026-09-24.md).
+            # removed (≤22% precision on RFC gold, Sep-2026 pre-publication audit (internal)).
             if public_rfc(vendor["rfc"]):
                 rfc_root = vendor["rfc"][:10]
                 cursor.execute(f"""

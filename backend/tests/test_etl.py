@@ -7,13 +7,13 @@ import pytest
 from pathlib import Path
 
 
-# Amount validation constants from CLAUDE.md
+# Amount validation constants (see docs/DATA.md)
 MAX_CONTRACT_VALUE = 100_000_000_000  # 100B MXN - reject above this
 FLAG_THRESHOLD = 10_000_000_000       # 10B MXN - flag for review
 
 
 class TestAmountValidation:
-    """Test amount validation rules per CLAUDE.md data validation requirements."""
+    """Test amount validation rules per docs/DATA.md amount validation."""
 
     def test_normal_amount_accepted(self):
         """Amounts <= 10B MXN should be accepted normally."""

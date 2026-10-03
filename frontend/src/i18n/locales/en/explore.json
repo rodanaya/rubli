@@ -140,7 +140,7 @@
     "high": "High",
     "medium": "Medium",
     "low": "Low",
-    "criticalHint": "Strongest match to documented corruption patterns",
+    "criticalHint": "Strongest match to patterns from labelled cases",
     "highHint": "Strong similarity to corruption patterns",
     "mediumHint": "Moderate similarity — watch list",
     "lowHint": "Low similarity — standard monitoring"

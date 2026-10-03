@@ -98,7 +98,7 @@ def list_cases(
     whose `ground_truth_case_id` appears in `ground_truth_vendors` for the
     given vendor. (Audit fix C, 2026-05-07: param was previously
     silently ignored, returning the global list — see
-    docs/RUBLI_v1.0_HONEST_AUDIT.md.)
+    internal planning note RUBLI_v1.0_HONEST_AUDIT (not published).)
     """
     cache_key = f"list:{fraud_type}:{administration}:{sector_id}:{legal_status}:{severity_min}:{compranet_visibility}:{search}:{vendor_id}"
     cached = _get(cache_key)
@@ -192,7 +192,7 @@ def list_cases(
 
 @router.get("/stats", response_model=ScandalStats)
 def get_stats():
-    """Aggregate statistics across all verified cases."""
+    """Aggregate statistics across all labelled cases."""
     cached = _get("stats")
     if cached is not None:
         return cached

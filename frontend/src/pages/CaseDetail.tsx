@@ -889,7 +889,7 @@ function ModelProvenancePanel({
 // ─────────────────────────────────────────────────────────────────────────────
 // VISUAL — Similar patterns teaser
 // Queries /aria/queue for vendors with the same primary_pattern as this
-// case's mapped ARIA code. Closes the data-flow loop: documented case
+// case's mapped ARIA code. Closes the data-flow loop: labelled case
 // → pattern label → model trained → vendors NOW flagged. Top 3 by IPS,
 // each linkable to /vendors.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1887,7 +1887,7 @@ function CaseBody({
                   Across {riskDist.totalVendors} {riskDist.totalVendors === 1 ? 'vendor' : 'vendors'}{' '}
                   with COMPRANET contracts. The v0.8.5 model uses 18 features — price volatility,
                   vendor concentration, institution diversity — calibrated against{' '}
-                  {gtCount.cases.toLocaleString()} confirmed corruption cases.
+                  {gtCount.cases.toLocaleString()} labelled cases.
                   {avgRiskScore < 0.3 && (
                     <span style={{ color: AMBER, display: 'block', marginTop: 6, fontSize: 13 }}>
                       Low score flag: this pattern is structurally different from the training set.
@@ -2418,7 +2418,7 @@ function CaseBody({
             }}
           >
             <span style={{ color: TEXT_FAINT, fontWeight: 700, letterSpacing: '0.15em' }}>NOTE · </span>
-            RUBLI risk scores are statistical indicators of similarity to documented corruption patterns —
+            RUBLI risk scores are statistical indicators of similarity to patterns from labelled cases —
             not probabilities of guilt. A high score means a contract's procurement characteristics
             resemble those from known corruption cases. Use for investigation triage only.
           </div>
@@ -2489,7 +2489,7 @@ function CaseBody({
             index="06"
             label="See also"
             title={`Similar ${fraudLabel.toLowerCase()} cases`}
-            subtitle="Other documented cases of the same fraud pattern."
+            subtitle="Other labelled cases of the same fraud pattern."
           >
             <div
               style={{

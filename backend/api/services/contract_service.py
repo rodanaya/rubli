@@ -290,7 +290,7 @@ class ContractService(BaseService):
             if risk_factor is not None and risk_factor not in (r["risk_factors"] or []):
                 return False
             # category_id is not carried on the mapped row → not applied here
-            # (a rare band filter; the documented case still surfaces).
+            # (a rare band filter; the labelled case still surfaces).
             return True
 
         doc_matched = [r for r in self._documented_rows(conn) if _match(r)][:limit]

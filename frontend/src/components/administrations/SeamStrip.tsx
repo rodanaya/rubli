@@ -17,8 +17,7 @@
  * formula behind every chip and the computed headline).
  *
  * Pure presentational — series/admins/seams all arrive via props, no
- * fetch, no API import. See docs § .claude/designus/administrations-
- * 2026-07-02/proposals/geometry-first.md § 0 for the full geometry spec.
+ * fetch, no API import. See internal design note geometry-first (not published) § 0 for the full geometry spec.
  */
 
 import { useRef, useState } from 'react'

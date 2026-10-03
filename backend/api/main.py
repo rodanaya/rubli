@@ -400,14 +400,14 @@ Red Unificada de Busqueda de Licitaciones Irregulares
 
 ## Overview
 
-REST API for the RUBLI platform — AI-powered corruption detection
+REST API for the RUBLI platform — statistical corruption-risk indicators
 for Mexican federal government procurement (2002-2025).
 
 ### Key Statistics
 - **3.1M** contracts analyzed
 - **320,000+** vendors profiled
 - **12** federal sectors
-- **v0.8.5** risk model (test AUC 0.785, vendor-stratified)
+- **v0.8.5** risk model (forward-holdout AUC 0.656; risk indicators, not proof)
 
 ### Core Endpoints
 

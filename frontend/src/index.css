@@ -6,7 +6,7 @@
 
 /* RUBLI Editorial Design System — Investigative Journalism Platform */
 @theme {
-  /* Sector Colors — CLAUDE.md spec (canonical source of truth) */
+  /* Sector Colors — mirror SECTOR_COLORS in src/lib/constants.ts */
   --color-sector-salud: #dc2626;
   --color-sector-educacion: #3b82f6;
   --color-sector-infraestructura: #ea580c;
@@ -1066,7 +1066,7 @@ main figure :where(p, figcaption, li, dd) {
 }
 
 /* Chapter anchors clear the sticky story bar (PARALLAX
-   docs/parallax/DAY-03-redaccion-story-template.md § Change 5, 2026-09-18).
+   internal planning note DAY-03-redaccion-story-template (not published) § Change 5, 2026-09-18).
    ChapterNav links jump to #chapter-*, which without this lands the chapter
    banner underneath the sticky reading-progress header. */
 main :where([id^="chapter-"]) {

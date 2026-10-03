@@ -10,7 +10,7 @@
  *
  * Named precedent: FT Visual Vocabulary slope chart + NYT Upshot named-
  * outlier discipline (names printed ON the chart, not in a legend).
- * See docs § .claude/designus/administrations-2026-07-02/proposals/data-first.md §6.
+ * See internal design note data-first (not published) §6.
  */
 
 import { useRef, useState } from 'react'

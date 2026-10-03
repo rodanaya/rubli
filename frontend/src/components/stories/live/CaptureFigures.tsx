@@ -726,14 +726,14 @@ function Estafa({
       anchor={{
         value: `${multiple >= 10 ? Math.round(multiple) : multiple.toFixed(1)}×`,
         label: es
-          ? `el tamaño del caso documentado, en la contratación de la cohorte P3 que hoy repite su estructura`
-          : `the documented case’s size, in the contracting of the P3 cohort that repeats its structure today`,
+          ? `el tamaño del caso etiquetado, en la contratación de la cohorte P3 que hoy repite su estructura`
+          : `the labelled case’s size, in the contracting of the P3 cohort that repeats its structure today`,
         color: EMPHASIS,
       }}
       annotation={
         es
-          ? `El expediente es el que RUBLI tiene verificado en su biblioteca de casos: ${caseName}, ${scandal.contract_year_start}–${scandal.contract_year_end}, ${formatCompactMXN(low)}${high ? ` a ${formatCompactMXN(high)}` : ''}, estado legal «${statusText}»${note ? ` — ${note}` : ''}. La comparación es de estructura, no de culpa: los ${formatNumber(cohort.total_vendors)} proveedores P3 comparten la forma —ganar el contrato y subcontratar la entrega— no una sentencia. ${formatNumber(cohort.in_ground_truth)} de ellos ya figuran como casos documentados.`
-          : `The file is the one RUBLI holds verified in its case library: ${caseName}, ${scandal.contract_year_start}–${scandal.contract_year_end}, ${formatCompactMXN(low)}${high ? ` to ${formatCompactMXN(high)}` : ''}, legal status “${statusText}”${note ? ` — ${note}` : ''}. The comparison is of structure, not of guilt: the ${formatNumber(cohort.total_vendors)} P3 vendors share the shape — win the contract, subcontract the delivery — not a verdict. ${formatNumber(cohort.in_ground_truth)} of them already appear as documented cases.`
+          ? `El expediente es el que RUBLI tiene verificado en su biblioteca de casos: ${caseName}, ${scandal.contract_year_start}–${scandal.contract_year_end}, ${formatCompactMXN(low)}${high ? ` a ${formatCompactMXN(high)}` : ''}, estado legal «${statusText}»${note ? ` — ${note}` : ''}. La comparación es de estructura, no de culpa: los ${formatNumber(cohort.total_vendors)} proveedores P3 comparten la forma —ganar el contrato y subcontratar la entrega— no una sentencia. ${formatNumber(cohort.in_ground_truth)} de ellos ya figuran como casos etiquetados.`
+          : `The file is the one RUBLI holds verified in its case library: ${caseName}, ${scandal.contract_year_start}–${scandal.contract_year_end}, ${formatCompactMXN(low)}${high ? ` to ${formatCompactMXN(high)}` : ''}, legal status “${statusText}”${note ? ` — ${note}` : ''}. The comparison is of structure, not of guilt: the ${formatNumber(cohort.total_vendors)} P3 vendors share the shape — win the contract, subcontract the delivery — not a verdict. ${formatNumber(cohort.in_ground_truth)} of them already appear as labelled cases.`
       }
     >
       <div className="px-2 pb-2">
@@ -832,8 +832,8 @@ function Queue({
             },
             {
               count: inGt,
-              labelEn: `Already documented corruption cases in RUBLI's ground truth.`,
-              labelEs: `Ya son casos de corrupción documentados en la verdad-base de RUBLI.`,
+              labelEn: `Already labelled cases in RUBLI's ground truth.`,
+              labelEs: `Ya son casos etiquetados en la verdad-base de RUBLI.`,
               color: PARTIAL,
             },
             {

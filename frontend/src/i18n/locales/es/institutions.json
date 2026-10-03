@@ -14,7 +14,7 @@
     "compareButton": "Comparar",
     "editorialSection": "PERFIL INSTITUCIONAL",
     "partOf": "Parte de",
-    "documentedCase": "Caso documentado: {{caseName}}",
+    "documentedCase": "Caso etiquetado: {{caseName}}",
     "tabs": {
       "overview": "Panorama",
       "risk": "Riesgo",

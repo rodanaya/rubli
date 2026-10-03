@@ -111,7 +111,7 @@
     "subtitleDynamic": "Análisis sistémico de riesgo por sector en contratación pública federal. {{count}} sectores bajo vigilancia. Resultados basados en {{contracts}} contratos.",
     "subtitleFallback": "Análisis sistémico de riesgo por sector en contratación pública federal. 12 sectores bajo vigilancia. Resultados basados en 3.05 millones de contratos.",
     "hallazgoLabel": "Hallazgo Principal",
-    "hallazgoText": "El sector <strong>Salud</strong> concentra el mayor riesgo absoluto: redes de empresas fantasma en IMSS, ISSSTE y compras de emergencia COVID-19 representan más de $200B MXN en contratos de alto riesgo.",
+    "hallazgoText": "El sector <strong>Salud</strong> concentra el mayor riesgo absoluto: IMSS, ISSSTE y las compras de emergencia por COVID-19 suman más de 200 mil millones de pesos en contratos con indicador de riesgo alto.",
     "signosVitales": "SIGNOS VITALES",
     "matrizRiesgo": "MATRIZ DE RIESGO",
     "paisajeInstitucional": "PAISAJE INSTITUCIONAL",

@@ -1,4 +1,4 @@
-"""public_labels (docs/PREPUB_AUDIT_2026-09-24.md § P1 B3/B4/B5) — GET-only."""
+"""public_labels (Sep-2026 pre-publication audit (internal) § P1 B3/B4/B5) — GET-only."""
 import sqlite3
 
 import pytest

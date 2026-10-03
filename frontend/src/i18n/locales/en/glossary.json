@@ -1,7 +1,7 @@
 {
   "riskScore": {
     "title": "Risk Score",
-    "description": "A statistical indicator (0-1) measuring similarity to documented corruption patterns. Based on 16 features compared against known corruption cases. Higher = more similar to known-bad contracts."
+    "description": "A statistical indicator (0-1) measuring similarity to patterns from labelled cases. Based on 21 features (18 with non-zero weight in v0.8.5) compared against known corruption cases. Higher = more similar to known-bad contracts."
   },
   "riskScoreDisclaimer": {
     "title": "How to interpret this score",
@@ -9,7 +9,7 @@
   },
   "riskLevel": {
     "title": "Risk Level",
-    "description": "Categorization based on risk score: Critical (>=0.60), High (>=0.40), Medium (>=0.25), Low (<0.25). These thresholds are RUBLI's own, set in calibration (docs/RISK_METHODOLOGY_v6.md)."
+    "description": "Categorization based on risk score: Critical (>=0.60), High (>=0.40), Medium (>=0.25), Low (<0.25). These thresholds are RUBLI's own, set in calibration (docs/RISK_METHODOLOGY.md)."
   },
   "singleBid": {
     "title": "Single Bid",
@@ -77,7 +77,7 @@
   },
   "calibratedProbability": {
     "title": "Risk Score",
-    "description": "A statistical risk indicator measuring similarity to documented corruption patterns. The score is derived from logistic regression and should be interpreted as a pattern-similarity signal, not a corruption probability estimate."
+    "description": "A statistical risk indicator measuring similarity to patterns from labelled cases. The score is derived from logistic regression and should be interpreted as a pattern-similarity signal, not a corruption probability estimate."
   },
   "perSectorModel": {
     "title": "Sector Normalization",
@@ -85,7 +85,7 @@
   },
   "groundTruth": {
     "title": "Ground Truth",
-    "description": "RUBLI's labelled case set, used to train and evaluate the model: 1,427 cases today. 363 come from press reports, 25 from official records and 1 from an audit report; 989 are leads the model or ARIA surfaced and analysts wrote up. Most are not adjudicated findings, and not every linked vendor has been confirmed as a wrongdoer."
+    "description": "RUBLI's labelled case set, used to train and evaluate the model: 1,417 cases today. 361 come from press reports, 25 from official records and 1 from an audit report; 989 are leads the model or ARIA surfaced and analysts wrote up. Most are not adjudicated findings, and not every linked vendor has been confirmed as a wrongdoer."
   },
   "adPeriod": {
     "title": "Ad Period",

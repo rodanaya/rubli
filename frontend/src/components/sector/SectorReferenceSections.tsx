@@ -7,7 +7,7 @@
  * rendered only a hero, a stat strip, a 2×2 diagnostic grid and an institution
  * table. These sections surface the prosecutorial material that was already
  * computed and instant — top vendors, the category baskets, the sexenio
- * trajectory, concentration, the model's own weights, documented cases, and the
+ * trajectory, concentration, the model's own weights, labelled cases, and the
  * ARIA queue — all in the shared folio register (mono labels, EB Garamond
  * italics, RISK_COLORS fills, dot-strip primitives, no green for low risk).
  *
@@ -581,7 +581,7 @@ export function SectorAnomalyStrip({
   )
 }
 
-// ─── 7 · Documented cases ────────────────────────────────────────────────────
+// ─── 7 · Labelled cases ────────────────────────────────────────────────────
 
 const LEGAL_STATUS: Record<string, [string, string]> = {
   investigation: ['En investigación', 'Under investigation'],
@@ -632,7 +632,7 @@ export function SectorCaseRoll({
   lang: 'en' | 'es'
 }) {
   if (cases.length === 0) {
-    return <EmptyNote text={t(lang, 'Sin casos documentados ligados al sector.', 'No documented cases linked to the sector.')} />
+    return <EmptyNote text={t(lang, 'Sin casos etiquetados ligados al sector.', 'No labelled cases linked to the sector.')} />
   }
   const rows = [...cases].sort((a, b) => (b.severity ?? 0) - (a.severity ?? 0))
   const maxAmount = Math.max(1, ...rows.map((c) => c.amount_mxn_high ?? c.amount_mxn_low ?? 0))

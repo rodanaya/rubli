@@ -12,7 +12,7 @@ high_risk_rate mirrors the all-time /atlas/cluster-stats predicate exactly:
 fraction of cohort vendors with aria_queue.avg_risk_score >= 0.40 (lifetime
 indicator — the model is not re-run per period). total_value_mxn sums
 amount_mxn for the period's contracts with the same 100B reject ceiling as
-the rest of the platform (see CLAUDE.md Critical Data Rules).
+the rest of the platform (see docs/DATA.md amount validation).
 
 House pattern (see scripts/_precompute_category_cohort_counts.py): cheap
 per-period GROUP BYs in SQL, cohort membership + distinct counting in

@@ -10,7 +10,7 @@
  * v0.8.5 · Run CAL-v8-202605020212 · C=0.2243, l1_ratio=0.7545, c_pu=0.32 —
  * values load-bearing; do not round or reorder signs.
  *
- * Design spec: .claude/designs/methodology-fable-2026-07-02-spec.md §4.1
+ * Design spec: internal design note methodology-fable-2026-07-02-spec (not published) §4.1
  */
 
 import { useId } from 'react'

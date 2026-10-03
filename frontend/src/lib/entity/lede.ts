@@ -1,7 +1,7 @@
 /**
  * Entity lede — synthesized 80-word summary per entity type.
  *
- * Per docs/VENDOR_DOSSIER_SCHEME.md § 1: every entity dossier opens with
+ * Per internal planning note VENDOR_DOSSIER_SCHEME (not published) § 1: every entity dossier opens with
  * an 80-word paragraph that fuses the most editorially loaded facts.
  * For vendors with `aria_queue.memo_text`, that 5,800-char dossier is
  * truncated to ~80 words. Otherwise a template substitutes the salient

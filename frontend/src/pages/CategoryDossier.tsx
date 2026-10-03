@@ -2,7 +2,7 @@
  * CategoryDossier — canonical category dossier at /categories/:id.
  *
  * 2026-06-03 (DESIGNUS — operational rebuild, P0 propagation from
- * docs/WEBSITE_STANDARDS.md). Reclassified from a four-chapter narrative
+ * docs/DESIGN_SYSTEM.md). Reclassified from a four-chapter narrative
  * (Subject / Timeline·TimelineHourglass / Vendors / Risk — ChapterShells with
  * Roman numerals) into a dense OPERATIONAL dossier, matching the vendor and
  * institution dossiers:

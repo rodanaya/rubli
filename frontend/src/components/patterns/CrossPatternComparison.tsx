@@ -8,7 +8,7 @@
  * dossier; the dossier currently being viewed is highlighted.
  *
  * Pattern names are canonical (match docs/ARIA_SPEC.md + PatternDossier):
- * P4 = Co-award pattern, P5 = Overpricing, P7 = Linked to a documented case.
+ * P4 = Co-award pattern, P5 = Overpricing, P7 = Linked to a labelled case.
  */
 import { Link } from 'react-router-dom'
 import type { PatternSpotlight } from '@/api/client'
@@ -22,7 +22,7 @@ const PATTERN_NAMES: Record<string, { en: string; es: string }> = {
   P4: { en: 'Co-award pattern', es: 'Patrón de coadjudicación' },
   P5: { en: 'Overpricing', es: 'Sobreprecio' },
   P6: { en: 'Single-buyer dependence', es: 'Dependencia de un solo comprador' },
-  P7: { en: 'Linked to a documented case', es: 'Vinculado a un caso documentado' },
+  P7: { en: 'Linked to a labelled case', es: 'Vinculado a un caso etiquetado' },
 }
 
 export function CrossPatternComparison({

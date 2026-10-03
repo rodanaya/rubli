@@ -699,7 +699,7 @@ def get_vendor(
                     vc.industry_id, vc.industry_code, vc.industry_confidence,
                     vi.name_es as industry_name, vi.sector_affinity,
                     -- vendor_groups/vendor_aliases retired from display: 19% precision
-                    -- on RFC gold (docs/PREPUB_AUDIT_2026-09-24.md § Entity resolution).
+                    -- on RFC gold (Sep-2026 pre-publication audit (internal) § Entity resolution).
                     NULL as group_name,
                     COALESCE(vs.institution_count, 0) as total_institutions,
                     vs.avg_mahalanobis, vs.max_mahalanobis,
@@ -1743,7 +1743,7 @@ class GroundTruthStatusResponse(BaseModel):
 def get_vendor_ground_truth_status(
     vendor_id: int = Path(..., description="Vendor ID"),
 ):
-    """Returns whether a vendor appears in documented corruption cases."""
+    """Returns whether a vendor appears in labelled cases."""
     cache_key = f"gt_status:{vendor_id}"
     cached = _get_vendor_cache(cache_key)
     if cached is not None:
@@ -1757,7 +1757,7 @@ def get_vendor_ground_truth_status(
             raise HTTPException(status_code=404, detail=f"Vendor {vendor_id} not found")
 
         # FP and scandal_actor links are never shown; the rest split into
-        # documented vs unverified lead (docs/PREPUB_AUDIT_2026-09-24.md § B3).
+        # documented vs unverified lead (Sep-2026 pre-publication audit (internal) § B3).
         rows = cursor.execute(f"""
             SELECT gtc.id as case_id, gtc.case_name, gtc.case_type,
                    gtv.role, gtv.evidence_strength,
@@ -2185,7 +2185,7 @@ class LinkedScandalsResponse(BaseModel):
 def get_vendor_linked_scandals(
     vendor_id: int = Path(..., description="Vendor ID"),
 ):
-    """Returns documented scandals connected to this vendor with contract details."""
+    """Returns reported scandals connected to this vendor with contract details."""
     cache_key = f"scandals:{vendor_id}"
     cached = _get_vendor_cache(cache_key)
     if cached is not None:

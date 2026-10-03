@@ -173,10 +173,10 @@ class TestCaseLibrary:
 
     def test_get_case_by_slug(self, client, base_url):
         """GET /cases/{slug} returns full detail."""
-        response = client.get(f"{base_url}/cases/imss-ghost-company-network")
+        response = client.get(f"{base_url}/cases/estafa-maestra")
         assert response.status_code == 200
         data = response.json()
-        assert data["slug"] == "imss-ghost-company-network"
+        assert data["slug"] == "estafa-maestra"
         assert data["ground_truth_case_id"] is not None  # GT data grows; don't pin to a specific ID
         assert isinstance(data["key_actors"], list)
         assert isinstance(data["sources"], list)

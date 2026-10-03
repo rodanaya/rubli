@@ -157,8 +157,8 @@ export default function Terms() {
               {isEs ? '— reflejan patrones estadísticos en los datos, no hallazgos fácticos de mala conducta.' : '— they reflect statistical patterns in procurement data, not factual findings of misconduct.'}
             </li>
             <li>
-              <strong className="text-text-primary">{isEs ? 'Entrenadas con casos documentados' : 'Trained on documented cases'}</strong>{' '}
-              {isEs ? '— el modelo se calibró con casos públicamente documentados de corrupción y puede no capturar todas las formas de irregularidad.' : '— the model was calibrated against publicly documented corruption cases and may not capture all forms of procurement irregularity.'}
+              <strong className="text-text-primary">{isEs ? 'Entrenadas con casos etiquetados' : 'Trained on labelled cases'}</strong>{' '}
+              {isEs ? '— el modelo se calibró con casos de corrupción reportados públicamente y puede no capturar todas las formas de irregularidad.' : '— the model was calibrated against labelled cases (mostly publicly reported) and may not capture all forms of procurement irregularity.'}
             </li>
             <li>
               <strong className="text-text-primary">{isEs ? 'Sujetas a limitaciones conocidas' : 'Subject to known limitations'}</strong>{' '}

@@ -141,8 +141,8 @@ function appendAnchors(
   if (gtCaseCount != null && gtCaseCount > 0) {
     segments.push({
       text: isEs
-        ? ` ${gtCaseCount} casos documentados de corrupción vinculados a este periodo.`
-        : ` ${gtCaseCount} documented corruption cases linked to this period.`,
+        ? ` ${gtCaseCount} casos etiquetados vinculados a este periodo.`
+        : ` ${gtCaseCount} labelled cases linked to this period.`,
     })
   }
   if (decSpikePct != null && decSpikePct > 10) {

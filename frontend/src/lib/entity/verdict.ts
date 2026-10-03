@@ -1,7 +1,7 @@
 /**
  * Entity verdict — 4-bucket classification per entity type.
  *
- * Per docs/VENDOR_DOSSIER_SCHEME.md § 8: every dossier ends with an
+ * Per internal planning note VENDOR_DOSSIER_SCHEME (not published) § 8: every dossier ends with an
  * honest classification that distinguishes structural-but-legitimate
  * concentration (BAXTER, FRESENIUS) from documented capture (GRUFESA)
  * from ghost companies. This is the false-positive guard the audit
@@ -61,11 +61,11 @@ export function getVerdictForVendor(ctx: VendorVerdictInput): Verdict {
       label_es: 'Posible fraude',
       label_en: 'Possible fraud',
       rationale_es:
-        'Vendor en caso documentado de corrupción con indicador de riesgo crítico. ' +
+        'Vendor en caso etiquetado con indicador de riesgo crítico. ' +
         (ctx.case_name ? `Caso: ${ctx.case_name}. ` : '') +
         'Investigación recomendada.',
       rationale_en:
-        'Vendor in documented corruption case with critical risk indicator. ' +
+        'Vendor in labelled case with critical risk indicator. ' +
         (ctx.case_name ? `Case: ${ctx.case_name}. ` : '') +
         'Investigation recommended.',
     }
@@ -94,10 +94,10 @@ export function getVerdictForVendor(ctx: VendorVerdictInput): Verdict {
     label_es: 'Patrón anómalo, sin caso',
     label_en: 'Anomalous, uncased',
     rationale_es:
-      'Vendor con indicador de riesgo elevado pero sin caso documentado todavía. ' +
+      'Vendor con indicador de riesgo elevado pero sin caso etiquetado todavía. ' +
       'Candidato a investigación.',
     rationale_en:
-      'Vendor with elevated risk indicator but no documented case yet. ' +
+      'Vendor with elevated risk indicator but no labelled case yet. ' +
       'Investigation candidate.',
   }
 }
@@ -183,8 +183,8 @@ export function getVerdictForInstitution(ctx: InstitutionVerdictInput): Verdict 
       bucket: 'critical',
       label_es: 'Gobernanza en escándalo',
       label_en: 'Scandal-tier governance',
-      rationale_es: 'Indicadores de capture institucional severo o casos documentados.',
-      rationale_en: 'Indicators of severe institutional capture or documented cases.',
+      rationale_es: 'Indicadores de capture institucional severo o casos etiquetados.',
+      rationale_en: 'Indicators of severe institutional capture or labelled cases.',
     }
   }
   if (grade === 'deficiente' || grade === 'poor' || risk >= 0.35) {

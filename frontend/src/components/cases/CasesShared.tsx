@@ -210,11 +210,11 @@ export function SeverityScale({
   const sentence =
     lang === 'es'
       ? graver === 0
-        ? `Gravedad ${severity} de ${SEVERITY_MAX} — entre los más graves de ${total} casos documentados.`
-        : `Gravedad ${severity} de ${SEVERITY_MAX} — ${graver} de ${total} casos documentados son más graves.`
+        ? `Gravedad ${severity} de ${SEVERITY_MAX} — entre los más graves de ${total} casos etiquetados.`
+        : `Gravedad ${severity} de ${SEVERITY_MAX} — ${graver} de ${total} casos etiquetados son más graves.`
       : graver === 0
-        ? `Severity ${severity} of ${SEVERITY_MAX} — among the gravest of ${total} documented cases.`
-        : `Severity ${severity} of ${SEVERITY_MAX} — ${graver} of ${total} documented cases are graver.`
+        ? `Severity ${severity} of ${SEVERITY_MAX} — among the gravest of ${total} labelled cases.`
+        : `Severity ${severity} of ${SEVERITY_MAX} — ${graver} of ${total} labelled cases are graver.`
 
   const levels = [1, 2, 3, 4].filter((lvl) => (distribution[lvl] ?? 0) > 0)
 

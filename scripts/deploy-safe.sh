@@ -16,10 +16,10 @@
 # ─────────────────────────────────────────────────────────────────────────────
 set -uo pipefail
 
-REPO=/opt/rubli
+REPO="${RUBLI_REPO:-/opt/rubli}"
 LOCK="$REPO/.deploy.lock"
 COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env.prod"
-HEALTH_URL="https://rubli.xyz/api/v1/health"
+HEALTH_URL="${RUBLI_HEALTH_URL:-https://rubli.xyz/api/v1/health}"
 
 cd "$REPO" || { echo "[deploy] cannot cd $REPO"; exit 1; }
 

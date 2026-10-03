@@ -6,7 +6,7 @@
 
 ## Overview
 
-The database contains ~3.1 million contracts. Without proper optimization, queries can take 10+ seconds. This guide covers our optimization strategies.
+The database contains ~3.06 million contracts. Without proper optimization, queries can take 10+ seconds. This guide covers our optimization strategies.
 
 ---
 
@@ -193,7 +193,7 @@ SELECT * FROM vendor_stats WHERE vendor_id = ?;
 
 ```bash
 # Run after ETL
-python scripts/migrate_vendor_stats.py
+python -m scripts._refresh_stats_tables   # vendor_stats + institution_stats
 ```
 
 ---

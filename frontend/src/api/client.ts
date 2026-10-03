@@ -383,7 +383,7 @@ export const sectorApi = {
   },
 
   /**
-   * P2 #47: Get per-sector model coefficients
+   * P2 #47: Get model coefficients for a sector (v0.8.5 is one global model)
    */
   async getModelCoefficients(sectorId: number): Promise<{
     sector_id: number
@@ -447,7 +447,7 @@ export const sectorApi = {
     return data
   },
 
-  /** Ground-truth linkage for a sector (documented cases + GT vendors operating in it). */
+  /** Ground-truth linkage for a sector (labelled cases + GT vendors operating in it). */
   async getGtLinkage(sectorId: number): Promise<{
     sector_id: number
     sector_name: string
@@ -483,7 +483,7 @@ export const contractApi = {
 
   /**
    * Get the "Los Señalados" highlights for the current filter — the top
-   * flagged contracts (documented cases first, then high+critical risk).
+   * flagged contracts (labelled cases first, then high+critical risk).
    * Accepts the same filter params as getAll (search/sort/page are ignored).
    */
   async getHighlights(params: Partial<ContractFilterParams> = {}, limit = 8): Promise<ContractListItem[]> {
@@ -1619,7 +1619,7 @@ export const analysisApi = {
 
   /**
    * Get SHAP-based global feature importance (v5.2)
-   * Optional sector_id for per-sector model breakdown
+   * Optional sector_id to restrict SHAP values to one sector
    */
   async getFeatureImportanceV52(sectorId?: number): Promise<FeatureImportanceResponse> {
     const { data } = await api.get<FeatureImportanceResponse>(

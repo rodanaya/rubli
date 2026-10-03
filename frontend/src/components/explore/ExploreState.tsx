@@ -5,7 +5,7 @@
  * canvas can iterate without the legacy modal / multi-writer URL state /
  * lens-indicator desync that bit the /atlas?z1=true prototype.
  *
- * Zoom hierarchy (docs/SPATIAL_NAV_PLAN.md):
+ * Zoom hierarchy (internal planning note SPATIAL_NAV_PLAN (not published)):
  *   Z0  System view      — 12 sectors as bodies in space
  *   Z1  Sector view      — institutions inside one sector
  *   Z2  Institution view — vendors of one institution

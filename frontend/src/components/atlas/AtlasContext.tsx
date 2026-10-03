@@ -1,7 +1,7 @@
 /**
  * AtlasContext — state machine + provider for the three-pane investigator console.
  *
- * Plan: docs/ATLAS_C_CONSOLE_PLAN.md § 1.4 + § 1.5
+ * Plan: internal planning note ATLAS_C_CONSOLE_PLAN (not published) § 1.4 + § 1.5
  * Build: atlas-C-P1
  *
  * Splits into AtlasStateContext + AtlasDispatchContext (Bloomberg Terminal
@@ -20,7 +20,7 @@ import type { ConstellationMode } from '@/components/charts/ConcentrationConstel
 // State shape
 // ─────────────────────────────────────────────────────────────────────────────
 
-// 2026-05-09: extended for spatial-nav rebuild (docs/SPATIAL_NAV_PLAN.md).
+// 2026-05-09: extended for spatial-nav rebuild (internal planning note SPATIAL_NAV_PLAN (not published)).
 // The Atlas now supports multiple zoom levels (Z0 system → Z1 sector →
 // Z2 institution → Z3 vendor). The legacy `zoomed-cluster` state is the
 // Z0→Z1 transition for the patterns/sectors/categories/sexenios lenses

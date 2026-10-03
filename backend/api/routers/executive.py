@@ -16,6 +16,7 @@ from typing import Any, Dict, Optional
 from fastapi import APIRouter, HTTPException, Response as FastAPIResponse
 from pydantic import BaseModel
 
+from ..config.constants import MODEL_AUC_FORWARD_HOLDOUT
 from ..dependencies import get_db
 from ..public_labels import capture_pair_excluded
 
@@ -368,7 +369,7 @@ def _build_summary(conn) -> dict:
         "contracts": gt_contracts,
         "detection_rate": detection_rate,
         "high_plus_rate": high_plus_rate,
-        "auc": 0.785,
+        "auc": MODEL_AUC_FORWARD_HOLDOUT,
         "train_auc": 0.797,
         "case_details": case_details,
     }
@@ -419,8 +420,9 @@ def _build_summary(conn) -> dict:
         model = {
             "version": version_str,
             "features": 18 if is_v8 else 9,
-            "sub_models": 13,
-            "auc": round(test_auc_val, 3) if test_auc_val else 0.785,
+            "sub_models": 1 if is_v8 else 13,
+            # v0.8.5's stored test_auc (0.785) is not reproducible; report forward holdout
+            "auc": MODEL_AUC_FORWARD_HOLDOUT if is_v8 else (round(test_auc_val, 3) if test_auc_val else None),
             "train_auc": round(train_auc, 3) if train_auc else 0.797,
             "brier": round(cal_row["brier_score"], 3) if cal_row["brier_score"] else None,
             "pu_correction": round(cal_row["pu_correction_factor"], 3) if cal_row["pu_correction_factor"] else None,
@@ -429,8 +431,8 @@ def _build_summary(conn) -> dict:
         model = {
             "version": "v0.8.5",
             "features": 18,
-            "sub_models": 13,
-            "auc": 0.785,
+            "sub_models": 1,
+            "auc": MODEL_AUC_FORWARD_HOLDOUT,
             "train_auc": 0.797,
             "brier": 0.090,
             "pu_correction": 0.320,

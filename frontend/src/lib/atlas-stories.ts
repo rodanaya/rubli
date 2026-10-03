@@ -79,7 +79,7 @@ export interface Story {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// THE INVISIBLE MONOPOLY — 6 chapters, ~50s
+// CONCENTRATION IN IMSS MEDICINE PURCHASING — 6 chapters, ~50s
 // (Brand-aligned with the /stories/el-monopolio-invisible long-form. Atlas
 //  tour is the visual trailer; long-form is the deep dive. April 2026
 //  rename — was "The Pharmaceutical Cartel" / "El Cártel Farmacéutico".)
@@ -87,16 +87,16 @@ export interface Story {
 const PHARMA_CARTEL: Story = {
   id: 'pharma_cartel',
   title: {
-    en: 'The Invisible Monopoly',
-    es: 'El Monopolio Invisible',
+    en: 'Concentration in IMSS Medicine Purchasing',
+    es: 'Concentración en las compras de medicamentos del IMSS',
   },
   subtitle: {
-    en: 'How three distributors captured Mexico\'s public drug supply — and how the data saw them years before COFECE did.',
-    es: 'Cómo tres distribuidores capturaron el suministro público de medicamentos — y cómo los datos los vieron años antes que la COFECE.',
+    en: 'How four suppliers came to hold a growing share of Mexico\'s largest public drug buyer, and what the register showed before the 2019 veto.',
+    es: 'Cómo cuatro proveedores llegaron a concentrar una parte creciente del mayor comprador público de medicamentos de México, y lo que el registro mostraba antes del veto de 2019.',
   },
   blurb: {
-    en: '6 chapters · 2010s consolidation → COFECE 2018 → AMLO veto → COVID continuity',
-    es: '6 capítulos · consolidación década 2010 → COFECE 2018 → veto AMLO → continuidad COVID',
+    en: '6 chapters · 2010s consolidation → 2018 peak → 2019 veto → COVID → what persists',
+    es: '6 capítulos · consolidación década 2010 → pico de 2018 → veto de 2019 → COVID → lo que persiste',
   },
   duration: '~55s',
   accent: '#dc2626',
@@ -107,8 +107,8 @@ const PHARMA_CARTEL: Story = {
       yearLabel: { en: '2010–2013', es: '2010–2013' },
       title: { en: 'A Captive Market', es: 'Un Mercado Cautivo' },
       body: {
-        en: 'Mexican federal pharmaceutical procurement is, by structure, a captive market. IMSS, ISSSTE, and the federal health ministry account for roughly 60% of all public drug spending. In the early 2010s, dozens of distributors competed for these contracts. By 2014, that picture would change.',
-        es: 'La contratación farmacéutica federal mexicana es, por estructura, un mercado cautivo. IMSS, ISSSTE y la Secretaría de Salud concentran aproximadamente el 60% de todo el gasto público en medicamentos. A inicios de la década de 2010, decenas de distribuidores competían por estos contratos. Para 2014, el panorama cambiaría.',
+        en: 'Mexican federal pharmaceutical procurement is, by structure, a captive market. IMSS, ISSSTE, and the federal health ministry buy most of it, and IMSS is the largest buyer in the whole register. In the early 2010s, dozens of distributors competed for these contracts. By 2014, that picture would change.',
+        es: 'La contratación farmacéutica federal mexicana es, por estructura, un mercado cautivo. IMSS, ISSSTE y la Secretaría de Salud compran la mayor parte, y el IMSS es el mayor comprador de todo el registro. A inicios de la década de 2010, decenas de distribuidores competían por estos contratos. Para 2014, el panorama cambiaría.',
       },
       state: { mode: 'categories', year: 2012, pinnedCode: 'medicamentos' },
       dwellMs: 9000,
@@ -119,14 +119,14 @@ const PHARMA_CARTEL: Story = {
       yearLabel: { en: '2014–2017', es: '2014–2017' },
       title: { en: 'The Consolidation', es: 'La Consolidación' },
       body: {
-        en: 'Across four years, three distributors — Grupo Fármacos Especializados, Distribuidora Internacional de Medicamentos, and Grupo Fármacos Mexicanos — concentrate IMSS allocation. Smaller suppliers exit. Pattern P5 in the data — Systematic Overpricing — begins to glow as the cluster\'s critical-risk share climbs each year.',
-        es: 'En cuatro años, tres distribuidores — Grupo Fármacos Especializados, Distribuidora Internacional de Medicamentos y Grupo Fármacos Mexicanos — concentran la asignación del IMSS. Los proveedores menores salen del mercado. El patrón P5 — Sobreprecio Sistemático — comienza a iluminarse mientras la proporción crítica del cúmulo trepa año tras año.',
+        en: 'Four suppliers, Grupo Fármacos Especializados, Farmacéuticos Maypo, Laboratorios PISA and Distribuidora Internacional de Medicamentos y Equipo Médico, are IMSS\'s largest. Between 2014 and 2017 they received about one peso in five of everything IMSS recorded. The chart pins RUBLI\'s pattern P5, a risk indicator, not a finding.',
+        es: 'Cuatro proveedores, Grupo Fármacos Especializados, Farmacéuticos Maypo, Laboratorios PISA y Distribuidora Internacional de Medicamentos y Equipo Médico, son los mayores del IMSS. Entre 2014 y 2017 recibieron cerca de uno de cada cinco pesos de todo lo que registró el IMSS. La carta fija el patrón P5 de RUBLI, un indicador de riesgo, no un hallazgo.',
       },
       pull: {
-        value: { en: '60%', es: '60%' },
+        value: { en: '19.7%', es: '19.7%' },
         caption: {
-          en: 'of IMSS pharmacy spending captured by 3 distributors',
-          es: 'del gasto farmacéutico IMSS capturado por 3 distribuidores',
+          en: 'of IMSS recorded spending went to these 4 suppliers, 2014–2017',
+          es: 'del gasto registrado del IMSS fue a estos 4 proveedores, 2014–2017',
         },
       },
       state: { mode: 'patterns', year: 2016, pinnedCode: 'P5' },
@@ -136,16 +136,16 @@ const PHARMA_CARTEL: Story = {
       id: 'cofece',
       number: 3,
       yearLabel: { en: '2018', es: '2018' },
-      title: { en: 'COFECE Investigates', es: 'La COFECE Investiga' },
+      title: { en: 'The Peak', es: 'El Pico' },
       body: {
-        en: 'In 2018, Mexico\'s antitrust regulator opens a cartel investigation against the three distributors. The proceedings reveal what the data has been showing for four years: coordinated pricing, divided territories, ghost competitive bids. The pattern was the cartel signature.',
-        es: 'En 2018, el regulador antimonopolios de México abre una investigación de cártel contra los tres distribuidores. El procedimiento revela lo que los datos venían mostrando desde hacía cuatro años: precios coordinados, territorios divididos, licitaciones competitivas fantasma. El patrón era la firma del cártel.',
+        en: 'By 2018, the last year of the Peña Nieto term, the same four suppliers hold more than a quarter of everything IMSS recorded that year. Concentration is not proof of wrongdoing; it is the measurable shape the register shows.',
+        es: 'Para 2018, último año del sexenio de Peña Nieto, los mismos cuatro proveedores concentran más de una cuarta parte de todo lo que registró el IMSS ese año. La concentración no prueba una irregularidad; es la forma medible que muestra el registro.',
       },
       pull: {
-        value: { en: '4 yrs', es: '4 años' },
+        value: { en: '26.3%', es: '26.3%' },
         caption: {
-          en: 'lead-time from data signal to regulatory action',
-          es: 'desde la señal en los datos hasta la acción regulatoria',
+          en: 'of IMSS recorded spending in 2018 went to these 4 suppliers',
+          es: 'del gasto registrado del IMSS en 2018 fue a estos 4 proveedores',
         },
       },
       state: { mode: 'patterns', year: 2018, pinnedCode: 'P5' },
@@ -157,8 +157,8 @@ const PHARMA_CARTEL: Story = {
       yearLabel: { en: '2019', es: '2019' },
       title: { en: 'The Veto', es: 'El Veto' },
       body: {
-        en: 'AMLO publicly vetoes the cartel from his morning press conferences. New rules require unbundled drug bidding — each medicine its own contract. The cluster, briefly, recedes. New entrants briefly appear in the data. The remedy looks like it might work.',
-        es: 'AMLO veta públicamente al cártel desde sus conferencias matutinas. Las nuevas reglas exigen licitación desagregada — cada medicamento, contrato propio. El cúmulo, brevemente, retrocede. Aparecen nuevos participantes en los datos. El remedio parece funcionar.',
+        en: 'In April 2019 the new government announces it will bar three distributors, Grupo Fármacos Especializados, Dimesa and Maypo, from federal drug purchases, citing "alleged monopolistic practices" (as reported by Infobae, 10 April 2019). It also changes how the consolidated purchase is run.',
+        es: 'En abril de 2019 el nuevo gobierno anuncia que vetará a tres distribuidoras, Grupo Fármacos Especializados, Dimesa y Maypo, de las compras federales de medicamentos, por "presuntas prácticas monopólicas" (según reportó Infobae, 10 de abril de 2019). También cambia la forma de hacer la compra consolidada.',
       },
       state: { mode: 'patterns', year: 2019, pinnedCode: 'P5' },
       dwellMs: 8500,
@@ -169,8 +169,8 @@ const PHARMA_CARTEL: Story = {
       yearLabel: { en: '2020', es: '2020' },
       title: { en: 'The Emergency Window', es: 'La Ventana de la Emergencia' },
       body: {
-        en: 'COVID arrives. Federal agencies invoke emergency procurement provisions — direct-award is permitted again. The distributors return through the open channel. The pharmaceutical cluster intensifies sharply. The veto, in practice, is suspended for the duration of the emergency. The emergency lasts.',
-        es: 'Llega COVID. Las agencias federales invocan disposiciones de emergencia — la adjudicación directa vuelve a permitirse. Los distribuidores regresan por el canal abierto. El cúmulo farmacéutico se intensifica abruptamente. El veto, en la práctica, queda suspendido durante la emergencia. La emergencia dura.',
+        en: 'COVID arrives and federal agencies invoke the emergency provisions of the procurement law. Across the whole register, the share of contracts awarded without competition barely moves: it was already near four in five. Grupo Fármacos Especializados records its last IMSS contract in 2020.',
+        es: 'Llega COVID y las dependencias federales invocan las disposiciones de emergencia de la ley de adquisiciones. En todo el registro, la proporción de contratos adjudicados sin competencia apenas se mueve: ya rondaba cuatro de cada cinco. Grupo Fármacos Especializados registra su último contrato con el IMSS en 2020.',
       },
       pull: {
         value: { en: '78.1%', es: '78.1%' },
@@ -188,8 +188,8 @@ const PHARMA_CARTEL: Story = {
       yearLabel: { en: '2023–2025', es: '2023–2025' },
       title: { en: 'What Persists', es: 'Lo Que Persiste' },
       body: {
-        en: 'Three years past the veto, the cluster persists. RUBLI flags pharmaceutical contracts as critical risk in 2023; few are referred to public investigation. The cartel, as a thing in the data, continues. The question for the next administration is no longer whether the pattern exists — it is whether anyone will act on what is already plainly visible.',
-        es: 'Tres años después del veto, el cúmulo persiste. RUBLI marca contratos farmacéuticos como riesgo crítico en 2023; pocos se remiten a investigación pública. El cártel, como cosa en los datos, continúa. La pregunta para la próxima administración ya no es si el patrón existe — es si alguien actuará sobre lo que ya está plenamente visible.',
+        en: 'Years past the veto, the pharmaceutical cluster is still on the chart. RUBLI\'s risk indicator still marks pharmaceutical contracts as critical in 2023, and few are referred to public investigation. The question is no longer whether the concentration exists. It is whether anyone will look at what is already visible.',
+        es: 'Años después del veto, el cúmulo farmacéutico sigue en la carta. El indicador de riesgo de RUBLI todavía marca contratos farmacéuticos como críticos en 2023, y pocos se remiten a investigación pública. La pregunta ya no es si la concentración existe. Es si alguien mirará lo que ya está a la vista.',
       },
       state: { mode: 'patterns', year: 2024, pinnedCode: 'P5' },
       dwellMs: 11000,
@@ -198,8 +198,8 @@ const PHARMA_CARTEL: Story = {
   closing: {
     headline: { en: 'The data was always there.', es: 'Los datos siempre estuvieron ahí.' },
     body: {
-      en: 'The pharmaceutical cartel was visible in federal procurement data from 2014. COFECE acted in 2018. AMLO vetoed in 2019. The pattern persists into 2025. RUBLI exists so the next pattern doesn\'t require four years of suffering before someone acts.',
-      es: 'El cártel farmacéutico fue visible en los datos de contratación federal desde 2014. La COFECE actuó en 2018. AMLO vetó en 2019. El patrón persiste en 2025. RUBLI existe para que el próximo patrón no requiera cuatro años de sufrimiento antes de que alguien actúe.',
+      en: 'The concentration was visible in federal procurement data from 2014. The government vetoed three distributors in 2019. The cluster is still on the chart in 2025. RUBLI exists so the next pattern does not need years before someone looks.',
+      es: 'La concentración fue visible en los datos de contratación federal desde 2014. El gobierno vetó a tres distribuidoras en 2019. El cúmulo sigue en la carta en 2025. RUBLI existe para que el próximo patrón no necesite años antes de que alguien mire.',
     },
   },
   longformSlug: 'el-monopolio-invisible',
@@ -215,8 +215,8 @@ const ESTAFA_MAESTRA: Story = {
     es: 'La Estafa Maestra',
   },
   subtitle: {
-    en: 'The largest documented procurement fraud in Mexican history. Eleven universities. Eight federal agencies. Seven and a half billion pesos. And a pattern.',
-    es: 'El mayor fraude de contratación documentado en la historia de México. Once universidades. Ocho agencias federales. Siete mil quinientos millones de pesos. Y un patrón.',
+    en: 'One of the largest diversions reported by the ASF and MCCI. Eleven federal agencies. Eight public universities. 7,670 million pesos. And a pattern.',
+    es: 'Uno de los mayores desvíos reportados por la ASF y MCCI. Once dependencias federales. Ocho universidades públicas. 7,670 millones de pesos. Y un patrón.',
   },
   blurb: {
     en: '6 chapters · 2010 loophole → 2013–15 mechanism → 2017 publication → outcome',
@@ -255,8 +255,8 @@ const ESTAFA_MAESTRA: Story = {
       yearLabel: { en: '2013–2014', es: '2013–2014' },
       title: { en: 'The Scale', es: 'La Escala' },
       body: {
-        en: 'The audit trail, when it is reconstructed, names eleven universities and eight federal agencies. The total is somewhere between 7.6 and 11 billion pesos depending on which contracts are counted. Most of the money cannot be traced to any deliverable.',
-        es: 'El rastro de auditoría, cuando se reconstruye, nombra once universidades y ocho agencias federales. El total ronda entre 7,600 y 11,000 millones de pesos según qué contratos se cuenten. La mayor parte del dinero no puede rastrearse a ninguna entrega.',
+        en: 'The audit trail, when it is reconstructed, names eight public universities and eleven federal agencies. The total is somewhere between 7.6 and 11 billion pesos depending on which contracts are counted. Most of the money cannot be traced to any deliverable.',
+        es: 'El rastro de auditoría, cuando se reconstruye, nombra ocho universidades públicas y once dependencias federales. El total ronda entre 7,600 y 11,000 millones de pesos según qué contratos se cuenten. La mayor parte del dinero no puede rastrearse a ninguna entrega.',
       },
       pull: {
         value: { en: '11 / 8 / 7.6 bn', es: '11 / 8 / 7,600 M' },

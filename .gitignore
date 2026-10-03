@@ -1,231 +1,66 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-!frontend/src/lib/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual environments
-venv/
-ENV/
-env/
-.venv/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# Database
+# ── Data (never commit: multi-GB, rebuildable, may contain raw source dumps) ──
 *.db
 *.db-wal
 *.db-shm
-
-# Original data (large files)
+*.db.*
+*.sqlite
+*.sqlite3
 original_data/
+backend/backups/
+backend/data/raw/
+.etl_checkpoints/
+backend/scripts/asf_scraped_*.jsonl
+*.csv.gz
+*.zip
 
-# Logs
-*.log
-logs/
-
-# Environment
+# ── Secrets / local environment (only *.example templates are tracked) ──
 .env
-.env.local
-.env.prod
+.env.*
+!.env.example
+!.env*.example
+*.pem
+*.key
+credentials*.json
 
-# Node
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ── Node / frontend ──
 node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/test-results/
+frontend/playwright-report/
+.vite/
 npm-debug.log*
 
-# Build outputs
-frontend/dist/
-frontend/build/
-
-# OS
+# ── Editors / OS ──
+.idea/
+.vscode/
+*.swp
+*~
 .DS_Store
 Thumbs.db
 
-# Temp
-*.tmp
-*.temp
-# Per-user Claude state (settings.local.json, scheduled_tasks.lock, agent
-# scratch, etc.) — the entire .claude/ tree is internal tooling/runbooks and
-# stays OUT of the public repo (it carried infra + local-path details).
+# ── Local tooling / scratch ──
 .claude/
-tmpclaude-*/
-backend/tmpclaude-*/
-nul
-
-# ETL checkpoints (transient)
-.etl_checkpoints/
-
-# Database backups (keep in separate location)
-*.db.backup_*
-*.db.currency_backup_*
-*.db.corrupt_*
-*.db.bak
-*.db.prev
-*.db.pre_v*
-*.backup_*
-backend/*.backup_*
-
-# Analysis output files (regeneratable)
-*_output.txt
-structure_analysis.json
-
-# Local environment files — ignore every variant; keep only *.example templates
-.env
-.env.*
-backend/.env
-backend/.env.*
-frontend/.env
-frontend/.env.*
-!.env.example
-!.env*.example
-!backend/.env.example
-!frontend/.env.example
-
-# Claude configuration (private)
-CLAUDE.md
-CLAUDE.local.md
-.claude/settings.local.json
-
-# Strategic planning docs (out of scope for Mexico project)
-docs/EXPANSION_FEASIBILITY.md
-
-# Temporary/debug files
-backend/DEBUG_LOG.txt
-frontend/npm-cache/
-npm-cache/
-=0.45.0
-
-# Vite cache
-.vite/
-
-# Database backup directories
-backend/backups/
-
-# Audit/investigation reports (local only)
-AUDIT_API_FINDINGS.md
-audit_report_task3.md
-
-# Rollback/recovery scripts (local only)
-backend/scripts/rollback_v5_scores.py
-
-# Claude Code / IDE config (internal dev tooling)
-CLAUDE.md
-CLAUDE.local.md
-CLAUDE.local.md.template
 .mcp.json
-.cursorignore
+CLAUDE.md
+CLAUDE.local.md
 .cursorrules
-
-# Internal analysis & investigation scripts
-analyze_structures.py
-audit_queries.py
-check_if_problem_exists.py
-column_mapping.csv
-column_mapping.py
-investigate_structure_c.py
-investigate_structure_c_v2.py
+.cursorignore
+.playwright-mcp/
+*.log
+logs/
 tmp_*.py
-
-# Internal audit / working documents
-AUDIT_*.md
-CLASSIFICATION_REPORT*.md
-COMPRANET_DATA_QUALITY_REPORT.md
-COMPRANET_DEEP_ANALYSIS_REPORT.txt
-CRITICAL_FINDINGS.md
-DATA_QUALITY_*.md
-DATA_QUALITY_REPORT.md
-DATA_STRUCTURE_REPORT.md
-INVESTIGATION_REPORT_*.md
-PATTERN_FIX_GUIDE.md
-PROJECT_STATUS.md
-RUBLI_TECHNICAL_SPEC.md
-RUBLI_ROADMAP.md
-RUBLI_LITERATURE_REVIEW.md
-VENDOR_DEDUPLICATION_RESULTS.md
-VENDOR_DUPLICATES_REPORT.md
-.lighthouserc.json
-
-# Internal docs
-docs/AGENTS.md
-docs/CLAUDE_CODE_GUIDE.md
-docs/CONFIGURATION_REFERENCE.md
-docs/WORKFLOW_PATTERNS.md
-docs/FRONTEND_RENOVATION_PLAN.md
-docs/LAUNCH_CONTENT.md
-docs/POST_ASF_CLEANUP_RUNBOOK.md
-docs/RESEARCH_SUMMARY.md
-docs/VALIDATION_REPORT.md
-docs/PATTERNS_DETECTED.md
-docs/RISK_METHODOLOGY_v5.1_EXPLORATION.md
-scripts/headless-pipeline.sh
-backend/scripts/_subcategory_results.json
-backend/DUPLICATE_INVESTIGATION_REPORT.md
-
-# Screenshots and visual artifacts (root-level)
-*.png
-*.pdf
-*.b64
-.audit_report.txt
-.playwright-mcp/
-
-# Temp GT batch generation helpers (not insertion scripts)
-backend/scripts/_gen_batch*.py
-backend/scripts/_write_batch_*.py
-backend/scripts/_build_batch_*.py
-backend/scripts/_check_*.py
-backend/scripts/_tmp_*.py
-backend/scripts/_tmp_*.txt
-backend/scripts/_write_batch*_helper.py
-backend/precompute_log*.txt
-backend/precompute_err*.txt
-fix_accents.py
-
-# ComprasMX bulk data files (large CSVs)
-backend/data/comprasmx/*.csv
-
-# Auto-memory (user-specific)
-memory/
-scripts/resumable_upload.py
-
-# Audit artifacts — Playwright screenshots, session captures
-audit/
-.playwright-mcp/
-
-# Local audit + harness runs (large image dirs, JSONL transcripts)
-data/audit_runs/
-data/explore_runs/
-*.db.gz
-
-# Upstream public-registry dumps (download via the loader scripts; contain personal data)
-backend/data/efos_*.csv
-backend/data/proveedores_sancionados.csv
-backend/capture_results.sql
-backend/reports/
-
-# Unreviewed allegations about named firms — never publish (2026-09-30)
-backend/memos/
-backend/_admin_intel*
-backend/data/INVESTIGATION_LEADS_FOR_REVIEW.md
-backend/siger_investigation_*
+_scratch/
+nul

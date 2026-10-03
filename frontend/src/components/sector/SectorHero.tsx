@@ -426,7 +426,7 @@ function ExposureLedger({
         }}
       >
         {lang === 'es' ? 'Gasto total del sector' : 'Total sector spend'}
-        {/* USD for the EN reader only; ES surfaces are MXN-only (CLAUDE.md currency table). */}
+        {/* USD for the EN reader only; ES surfaces are MXN-only (docs/DESIGN_SYSTEM.md currency rules). */}
         {lang === 'en' && (
           <>
             <span className="mx-1.5" aria-hidden="true" style={{ opacity: 0.5 }}>·</span>

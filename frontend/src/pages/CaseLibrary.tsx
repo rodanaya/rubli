@@ -312,7 +312,7 @@ export default function CaseLibrary() {
               {lang === 'es' ? 'El Padrón' : 'The Docket'}
             </span>
             <span className="mx-2 opacity-50" aria-hidden="true">·</span>
-            {lang === 'es' ? 'Casos documentados · 2002–2025' : 'Documented cases · 2002–2025'}
+            {lang === 'es' ? 'Casos etiquetados · 2002–2025' : 'Labelled cases · 2002–2025'}
           </p>
 
           <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-5">
@@ -349,7 +349,7 @@ export default function CaseLibrary() {
                 value={totalLoss ? formatCompactMXN(totalLoss) : '—'}
                 caption={lang === 'es' ? 'Daño documentado' : 'Documented harm'}
                 /* USD scale as a sub-line, EN only — the Spanish docket reads
-                   MXN natively (CLAUDE.md currency table). */
+                   MXN natively (docs/DESIGN_SYSTEM.md currency rules). */
                 sub={totalLoss > 0 && lang === 'en' ? `≈${formatCompactUSD(totalLoss)}` : undefined}
                 ink="var(--color-text-primary)"
               />

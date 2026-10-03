@@ -16,7 +16,7 @@
     "contract": "Contract — one awarded procurement record (vendor · institution · amount · date).",
     "directAward": "Direct award (adjudicación directa) — awarded without a competitive tender.",
     "singleBid": "Single bid — a competitive procedure that drew only one bidder.",
-    "risk": "Risk indicator, of 100 — model similarity to documented corruption patterns. An investigation signal, not proof of irregularity.",
+    "risk": "Risk indicator, of 100 — model similarity to patterns from labelled cases. An investigation signal, not proof of irregularity.",
     "category": "Category (partida) — the CUCoP spending classification of the goods/services."
   },
   "searchPlaceholder": "Search by title or contract number...",
@@ -127,7 +127,7 @@
     "viewFullDetails": "View full details",
     "fullDetails": "Full details",
     "riskScoreTooltipTitle": "About the risk score",
-    "riskScoreTooltipBody": "The risk indicator, of 100, measures similarity to documented corruption patterns. It is not proof of irregularity — it is an investigation signal.",
+    "riskScoreTooltipBody": "The risk indicator, of 100, measures similarity to patterns from labelled cases. It is not proof of irregularity — it is an investigation signal.",
     "peek": "Quick look",
     "scrollHint": "scroll →"
   },
@@ -189,7 +189,7 @@
   },
   "senalados": {
     "kicker": "THE FLAGGED",
-    "honesty": "Flagged by the model and documented cases — not an accusation.",
+    "honesty": "Flagged by the model and labelled cases — not an accusation.",
     "empty": "No standout flags in this filter."
   },
   "filterTags": {

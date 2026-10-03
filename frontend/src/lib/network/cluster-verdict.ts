@@ -46,8 +46,8 @@ export function getClusterVerdict(c: ClusterVerdictInput, meshMedianRisk: number
       color: RISK_COLORS.critical,
       label_es: 'Nudo documentado',
       label_en: 'Documented knot',
-      rationale_es: `${gt} proveedor(es) de este nudo figuran en casos documentados y el indicador de riesgo promedio (${r}%) cae en banda ${bandWord_es}. El nudo — no la firma aislada — es la unidad de investigación.`,
-      rationale_en: `${gt} vendor(s) in this knot appear in documented cases and the average risk indicator (${r}%) falls in the ${bandWord_en} band. The knot — not the isolated firm — is the unit of investigation.`,
+      rationale_es: `${gt} proveedor(es) de este nudo figuran en casos etiquetados y el indicador de riesgo promedio (${r}%) cae en banda ${bandWord_es}. El nudo — no la firma aislada — es la unidad de investigación.`,
+      rationale_en: `${gt} vendor(s) in this knot appear in labelled cases and the average risk indicator (${r}%) falls in the ${bandWord_en} band. The knot — not the isolated firm — is the unit of investigation.`,
     }
   }
 
@@ -57,8 +57,8 @@ export function getClusterVerdict(c: ClusterVerdictInput, meshMedianRisk: number
       color: RISK_TEXT_COLORS.high,
       label_es: 'Nudo caliente',
       label_en: 'Hot knot',
-      rationale_es: `Indicador de riesgo promedio de ${r}% — ${x}× la mediana de la trama — sin caso documentado todavía. Candidato a investigación.`,
-      rationale_en: `Average risk indicator of ${r}% — ${x}× the mesh median — no documented case yet. Investigation candidate.`,
+      rationale_es: `Indicador de riesgo promedio de ${r}% — ${x}× la mediana de la trama — sin caso etiquetado todavía. Candidato a investigación.`,
+      rationale_en: `Average risk indicator of ${r}% — ${x}× the mesh median — no labelled case yet. Investigation candidate.`,
     }
   }
 

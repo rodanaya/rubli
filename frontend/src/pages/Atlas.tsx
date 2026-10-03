@@ -10,7 +10,7 @@
  *
  * Lens (patterns · sectors · categories) and sexenio (a global time filter,
  * never a lens) live in the URL with scope/code/vendor/pin/story — one writer.
- * Plan: .claude/plans/twinkling-spinning-cerf.md. The zoomable canvas engines
+ * Plan: internal design note twinkling-spinning-cerf (not published). The zoomable canvas engines
  * that used to sit behind ?legacy=1 were removed 2026-09; see git history.
  *
  * (Internal symbol names — Atlas component, ATLAS_STORIES — keep the "atlas"

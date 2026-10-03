@@ -4,7 +4,7 @@
 
 **Version:** 2.0.0
 **Last Updated:** January 16, 2026
-**Total Institutions:** 4,456
+**Scope:** the classification was run on the raw institution records (4,456 at the time). Since 2026-09 these resolve to **3,462 canonical institutions** (see [DATA.md](DATA.md#4-entity-resolution)); the counts below refer to the raw records.
 
 ---
 
@@ -296,10 +296,8 @@ Classification confidence is stored in `classification_confidence` field:
 ## References
 
 1. **Mexican Administrative Law**: Ley Orgánica de la Administración Pública Federal
-2. **OECD**: Public Procurement in Mexico (2018)
-3. **IMF**: Corruption Risk Index Methodology
-4. **ASF**: Auditoría Superior de la Federación Annual Reports
-5. **IMCO**: Instituto Mexicano para la Competitividad Studies
+2. **ASF**: Auditoría Superior de la Federación Annual Reports
+3. **IMCO**: Instituto Mexicano para la Competitividad Studies
 
 ---
 

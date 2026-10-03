@@ -49,8 +49,8 @@ export function CartaColofon({ lang, totalContracts }: CartaColofonProps) {
     },
     {
       roman: '(vi)',
-      en: 'The itineraries are editorial: they cite documented cases (COFECE, ASF, the press), but the pacing and the camera are staging, not evidence.',
-      es: 'Los itinerarios son editoriales: citan casos documentados (COFECE, ASF, prensa), pero el ritmo y la cámara son puesta en escena, no evidencia.',
+      en: 'The itineraries are editorial: they cite labelled cases (COFECE, ASF, the press), but the pacing and the camera are staging, not evidence.',
+      es: 'Los itinerarios son editoriales: citan casos etiquetados (COFECE, ASF, prensa), pero el ritmo y la cámara son puesta en escena, no evidencia.',
     },
     {
       roman: '(vii)',

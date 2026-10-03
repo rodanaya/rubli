@@ -1769,7 +1769,7 @@ export function InlineDivergingBar({
 
 // ---------------------------------------------------------------------------
 // 7. InlineMultiLine — multiple time series on one axis. The "relay race"
-// chart for the Invisible Monopoly (Apr 2026): four pharma vendors each
+// chart for the IMSS medicine-purchasing story (Apr 2026): four pharma vendors each
 // peak at a different moment, hand off the spend over 23 years.
 // ---------------------------------------------------------------------------
 
@@ -2027,7 +2027,7 @@ export function InlineMultiLine({
 
 // ---------------------------------------------------------------------------
 // 8. InlineNetwork — node-link diagram with edge thickness scaled by weight.
-// Built for the cobidding-cartel lattice in Invisible Monopoly: 4 vendors
+// Built for the cobidding-cartel lattice in the IMSS medicine-purchasing story: 4 vendors
 // arranged on a diamond, edges sized by shared-procedure count.
 // ---------------------------------------------------------------------------
 
@@ -2091,7 +2091,7 @@ export function InlineNetwork({
             Place each label at 35% of the way from one endpoint to the
             other (alternating per edge index) instead of the dead center.
             This prevents label collision on diametrically-opposite edges
-            (e.g. on a 4-node diamond, Grupo F.↔PISA and Maypo↔DIMM both
+            (e.g. on a 4-node diamond, Grupo F.↔PISA and Maypo↔Dimesa both
             cross at the center; if we used midpoints the second label
             would render under the first). */}
         {edges.map((e, i) => {
@@ -2512,7 +2512,7 @@ export function ThresholdDistribution({
 // ---------------------------------------------------------------------------
 
 // Currency-unit multipliers this chart knows how to convert to raw pesos for
-// the canonical formatCompactMXN() table-cell formatter (see CLAUDE.md's
+// the canonical formatCompactMXN() table-cell formatter (see docs/DESIGN_SYSTEM.md's
 // currency-helper table). Units outside this map fall back to the previous
 // literal `value + unit` print — the chart stays generic beyond its one
 // current caller.

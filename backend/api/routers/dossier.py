@@ -65,7 +65,7 @@ def _dossier_html(ctx: dict) -> str:
     if ctx.get("is_sfp_sanctioned"):
         registry_flags.append('<span class="flag flag-high">SFP sanción firmada</span>')
     if ctx.get("in_ground_truth"):
-        registry_flags.append('<span class="flag flag-amber">Documented corruption case (sourced)</span>')
+        registry_flags.append('<span class="flag flag-amber">Labelled case (sourced)</span>')
     registry_html = (
         " ".join(registry_flags) if registry_flags
         else '<span class="mono" style="color:#888">No external registry hits</span>'
@@ -118,7 +118,7 @@ def _dossier_html(ctx: dict) -> str:
 <div class="dateline">Built by RUBLI · Data: COMPRANET {e(ctx.get("year_range") or "2002-2025")} · Generated {e(ctx.get("generated_at") or "")} · Model v0.8.5 · STATISTICAL INDICATOR, NOT A FINDING OF WRONGDOING</div>
 
 <div class="disclaimer">
-  <strong>Reader note:</strong> This dossier compiles COMPRANET public records and RUBLI model output. Risk scores are statistical indicators of similarity to documented corruption patterns — not calibrated probabilities, and not findings of wrongdoing. Every contract listed is a public record you can verify via COMPRANET folio. A high "pattern match" score warrants investigation, not accusation.
+  <strong>Reader note:</strong> This dossier compiles COMPRANET public records and RUBLI model output. Risk scores are statistical indicators of similarity to patterns from labelled cases — not calibrated probabilities, and not findings of wrongdoing. Every contract listed is a public record you can verify via COMPRANET folio. A high "pattern match" score warrants investigation, not accusation.
 </div>
 
 <div class="narrative">{ctx.get("narrative_html") or ""}</div>
@@ -137,7 +137,7 @@ def _dossier_html(ctx: dict) -> str:
 
 <h2>Methodology</h2>
 <p style="font-size: 9.5pt; line-height: 1.6;">
-RUBLI v0.8.5 — ElasticNet logistic regression with Positive-Unlabeled correction (Elkan and Noto 2008, c_pu=0.32), trained on 1,424 documented corruption cases. Test AUC 0.785 (vendor-stratified hold-out). OECD-compliant high-risk rate 11.0%. External registries cross-referenced: SAT EFOS Art. 69-B (13,960 RFCs), SFP sanctions (544), RUBLI ground-truth corpus (1,424 cases). Full methodology: <span class="mono">https://rubli.xyz/methodology</span>.
+RUBLI v0.8.5 — ElasticNet logistic regression with Positive-Unlabeled correction (Elkan and Noto 2008, c_pu=0.32), trained on RUBLI's labelled case set (1,401 cases at training time). Out-of-sample AUC 0.656 on vendors added after training; the originally reported test AUC of 0.785 could not be reproduced. High-risk rate 11.0%. Scores are risk indicators, not proof of wrongdoing. External registries cross-referenced: SAT EFOS Art. 69-B (13,960 RFCs), SFP sanctions (544), RUBLI labelled case set (1,427 cases). Full methodology: <span class="mono">https://rubli.xyz/methodology</span>.
 </p>
 
 <footer>

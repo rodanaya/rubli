@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 from datetime import datetime, timedelta
 
 from ..dependencies import get_db, require_write_key
-from ..config.constants import MAX_CONTRACT_VALUE
+from ..config.constants import MAX_CONTRACT_VALUE, MODEL_AUC_FORWARD_HOLDOUT
 from ..administrations import ADMINISTRATIONS
 from ..services.active_model import normalize_coefficients
 from ..cache import SimpleCache
@@ -343,13 +343,13 @@ _V085_METADATA = {
     "version": "v0.8.5",
     "trained_at": "2026-05-02T02:12:02",
     "n_contracts": 3_051_294,
-    "auc_test": 0.785,
+    "auc_test": MODEL_AUC_FORWARD_HOLDOUT,
     "auc_train": 0.797,
     "pu_correction": 0.320,
     "updated_at": "2026-05-02T02:12:02",
 }
 
-# Averaged global coefficients from 13 per-sector v0.8.5 calibration rows
+# Global v0.8.5 coefficients (the run wrote one identical row per sector_id)
 _V085_COEFFICIENTS = [
     {"factor": "price_volatility",    "beta": 0.5576,  "ci_lower": None, "ci_upper": None},
     {"factor": "institution_diversity","beta": -0.3881, "ci_lower": None, "ci_upper": None},
@@ -378,7 +378,7 @@ _V085_CALIBRATION = {
     "global_intercept": -2.6157,
     "coefficients": _V085_COEFFICIENTS,
     "auc_train": 0.7973,
-    "auc_test": 0.7851,
+    "auc_test": MODEL_AUC_FORWARD_HOLDOUT,
     "pu_correction_c": 0.320,
     "n_positive": None,
     "n_negative": None,
@@ -427,18 +427,12 @@ def get_model_metadata():
                     pass
                 return meta
             train_auc = None
-            test_auc_val = None
             if row["temporal_metrics"]:
                 try:
                     tm = json.loads(row["temporal_metrics"])
                     train_auc = tm.get("train_auc")
-                    # temporal_metrics may also carry test_auc for older schemas
-                    if not has_test_auc:
-                        test_auc_val = tm.get("test_auc")
                 except (json.JSONDecodeError, TypeError):
                     pass
-            if has_test_auc:
-                test_auc_val = row["test_auc"]
             # Get total contract count from precomputed_stats (fast lookup)
             n_contracts = None
             try:
@@ -454,7 +448,8 @@ def get_model_metadata():
                 "version": row["model_version"],
                 "trained_at": row["created_at"],
                 "n_contracts": n_contracts,
-                "auc_test": test_auc_val or row["auc_roc"],
+                # stored test_auc (0.785) is not reproducible; report forward holdout
+                "auc_test": MODEL_AUC_FORWARD_HOLDOUT,
                 "auc_train": round(train_auc, 3) if train_auc else None,
                 "pu_correction": row["pu_correction_factor"],
                 "updated_at": row["created_at"],
@@ -470,7 +465,7 @@ def get_model_metadata():
 @router.get("/model/calibration", response_model=ModelCalibrationResponse)
 def get_model_calibration():
     """
-    Return the most recent global model calibration row with full coefficients and CIs.
+    Return the most recent global model calibration row with full coefficients (CI fields are null: no bootstrap CIs were published for v0.8.5).
 
     Pulls live data from model_calibration (sector_id IS NULL, most recent row).
     Coefficients and bootstrap_ci are stored as JSON; this endpoint parses and
@@ -515,14 +510,11 @@ def get_model_calibration():
             # Sort descending by absolute beta so the frontend can render in importance order
             coefficient_items.sort(key=lambda x: abs(x["beta"]), reverse=True)
 
-            test_auc_val = row["test_auc"] if has_test_auc else None
             auc_train = None
             if row["temporal_metrics"]:
                 try:
                     tm = json.loads(row["temporal_metrics"])
                     auc_train = tm.get("train_auc")
-                    if not has_test_auc:
-                        test_auc_val = tm.get("test_auc")
                 except (json.JSONDecodeError, TypeError):
                     pass
 
@@ -540,7 +532,8 @@ def get_model_calibration():
                 "global_intercept": row["intercept"],
                 "coefficients": coefficient_items,
                 "auc_train": round(auc_train, 4) if auc_train else row["auc_roc"],
-                "auc_test": test_auc_val or row["auc_roc"],
+                # stored test_auc (0.785) is not reproducible; report forward holdout
+                "auc_test": MODEL_AUC_FORWARD_HOLDOUT,
                 "pu_correction_c": row["pu_correction_factor"],
                 "n_positive": row["n_positive"],
                 "n_negative": row["n_negative"],
@@ -1730,7 +1723,7 @@ def get_per_case_detection():
             if not table_exists(cursor, "ground_truth_cases"):
                 raise HTTPException(
                     status_code=404,
-                    detail="Ground truth tables not found. Run migrate_ground_truth_schema.py first."
+                    detail="Ground truth tables not found. Run scripts/etl_create_schema.py first."
                 )
 
             rows = cursor.execute("""
@@ -1799,7 +1792,7 @@ def get_validation_summary():
             if not table_exists(cursor, "ground_truth_cases"):
                 raise HTTPException(
                     status_code=404,
-                    detail="Ground truth tables not found. Run migrate_ground_truth_schema.py first."
+                    detail="Ground truth tables not found. Run scripts/etl_create_schema.py first."
                 )
 
             # Get case summary
@@ -3418,7 +3411,7 @@ def get_threshold_gaming():
 # ASF sector-level findings
 # ---------------------------------------------------------------------------
 
-# Sector-to-ramo mapping (from CLAUDE.md taxonomy)
+# Sector-to-ramo mapping (see docs/DATABASE_SCHEMA.md)
 _SECTOR_RAMOS: dict[int, list[int]] = {
     1: [12, 50, 51],              # salud
     2: [11, 25, 48],              # educacion
@@ -3541,7 +3534,7 @@ def get_asf_institution_summary():
             """
             -- Aggregate per ASF entity first, then attach institutions via the
             -- exact-key crosswalk (the old 40-char prefix LIKE join was ~2% correct
-            -- and multiplied finding counts). docs/PREPUB_AUDIT_2026-09-24.md.
+            -- and multiplied finding counts). Sep-2026 pre-publication audit (internal).
             WITH ent AS (
                 SELECT TRIM(LOWER(entity_name)) AS entity_key,
                        MIN(entity_name)         AS entity_name,
@@ -3947,7 +3940,7 @@ class FactorBaselineListResponse(BaseModel):
 
 
 class FactorBaselineSectorYearResponse(BaseModel):
-    """All 16 features for a specific sector+year combination."""
+    """Baselines for the 16 original z-score features for a specific sector+year combination."""
     sector_id: int
     sector_name: str
     year: int

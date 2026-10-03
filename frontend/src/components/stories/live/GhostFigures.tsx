@@ -1002,7 +1002,7 @@ function Roster({
                     <>
                       {formatNumber(v.total_contracts)} {contractsWord(v.total_contracts, lang)}
                     </>,
-                    v.in_ground_truth ? <span>{es ? 'caso documentado' : 'documented case'}</span> : null,
+                    v.in_ground_truth ? <span>{es ? 'caso etiquetado' : 'labelled case'}</span> : null,
                     listed ? (
                       <span style={{ color: AGREE }}>{es ? 'listado por el SAT' : 'listed by SAT'}</span>
                     ) : null,
@@ -1023,8 +1023,8 @@ function Roster({
 
         <Footline>
           {es
-            ? `${formatNumber(rows.filter(({ v }) => efos.ids.has(v.vendor_id)).length)} de estos ${rows.length} llevan el listado definitivo del SAT; ${formatNumber(rows.filter(({ v }) => v.in_ground_truth).length)} ya son casos documentados en RUBLI.`
-            : `${formatNumber(rows.filter(({ v }) => efos.ids.has(v.vendor_id)).length)} of these ${rows.length} carry SAT's definitive listing; ${formatNumber(rows.filter(({ v }) => v.in_ground_truth).length)} are already documented cases in RUBLI.`}
+            ? `${formatNumber(rows.filter(({ v }) => efos.ids.has(v.vendor_id)).length)} de estos ${rows.length} llevan el listado definitivo del SAT; ${formatNumber(rows.filter(({ v }) => v.in_ground_truth).length)} ya son casos etiquetados en RUBLI.`
+            : `${formatNumber(rows.filter(({ v }) => efos.ids.has(v.vendor_id)).length)} of these ${rows.length} carry SAT's definitive listing; ${formatNumber(rows.filter(({ v }) => v.in_ground_truth).length)} are already labelled cases in RUBLI.`}
         </Footline>
       </div>
     </ChartCard>

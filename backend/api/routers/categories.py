@@ -222,7 +222,7 @@ def get_category_contracts(
 # State-level types here have ~3,000+ rows total; federal-tier types
 # total ~325. Without this filter, any "top institutions" ranking is
 # mathematically dominated by state institutions despite tiny per-
-# institution contract counts. See docs/RUBLI_v1.0_HONEST_AUDIT.md §4.
+# institution contract counts. See internal planning note RUBLI_v1.0_HONEST_AUDIT (not published) §4.
 NON_FEDERAL_INSTITUTION_TYPES = (
     "state_agency",
     "state_government",

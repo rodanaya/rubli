@@ -73,11 +73,11 @@ const ADMIN_ERAS: { x1: number; x2: number; label: string; tone: 'admin' | 'cris
 ]
 
 // 2013–2018 collapsed into a single "Peña Nieto-era scandals" marker to
-// reduce vertical-rule density; original 3 events listed in the callout.
+// reduce vertical-rule density; original events listed in the callout.
 const SCANDAL_ANNOTATIONS: ScandalAnnotation[] = [
   {
     year: 2015,
-    label: 'Peña Nieto-era scandals (Estafa Maestra, Odebrecht, Toka)',
+    label: 'Peña Nieto-era scandals (Estafa Maestra, Odebrecht)',
     shortLabel: 'PN scandals',
     color: SCANDAL_COLORS.high,
   },

@@ -9,7 +9,7 @@
  *   what the analysis found — four FINDING cards
  *   pesos at risk (Folio·VI) · where the money goes (Folio·VII)
  *   § 2 La Lente — the Cascade Ledger + GT anchor band (Folio·VIII)
- *   documented cases seismograph (Folio·IX) · recent critical alerts wire
+ *   labelled cases seismograph (Folio·IX) · recent critical alerts wire
  *   «Start Here» CTA · § Adónde ir coda · credibility colophon
  *
  * All data blocks load from one bundled request (useExecutiveData).
@@ -473,20 +473,20 @@ export default function Executive() {
           >
             {lang === 'en'
               ? <>
-                  Every administration the register can score has bypassed competitive procurement at
-                  {' '}<em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>two to three times the OECD recommended ceiling</em>.
+                  Every administration the register can score has bypassed competitive procurement at rates
+                  {' '}<em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>far above the 10% line at which the EU Single Market Scoreboard rates direct awards unsatisfactory</em>.
                   This is not an aberration — it is the structural condition of Mexican federal spending.
                   RUBLI analyzed <em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>{formatNumber(stats.totalContracts)} contracts</em> across 23 years,
-                  trained its risk model on <em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>{gtCaseCount.toLocaleString('en-US')} documented corruption cases</em> — Segalmex, Odebrecht, IMSS Ghost, COVID emergency procurement, and more —
+                  trained its risk model on <em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>{gtCaseCount.toLocaleString('en-US')} labelled cases</em> — Segalmex, Odebrecht, IMSS Ghost, COVID emergency procurement, and more —
                   and now flags <em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>{formatNumber(stats.highCriticalCount)} contracts</em> matching those patterns.
                   {' '}These are investigation signals, not verdicts.
                 </>
               : <>
-                  Cada administración que el registro puede calificar ha evitado la licitación competitiva a
-                  {' '}<em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>dos o tres veces el límite recomendado por la OCDE</em>.
+                  Cada administración que el registro puede calificar ha evitado la licitación competitiva en proporciones
+                  {' '}<em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>muy por encima del 10% a partir del cual el Tablero del Mercado Único de la UE califica la adjudicación directa como insatisfactoria</em>.
                   No es una anomalía — es la condición estructural del gasto federal mexicano.
                   RUBLI analizó <em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>{formatNumber(stats.totalContracts)} contratos</em> en 23 años,
-                  entrenó su modelo de riesgo en <em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>{gtCaseCount.toLocaleString('es-MX')} casos documentados</em> — Segalmex, Odebrecht, Fantasmas IMSS, emergencia COVID y más —
+                  entrenó su modelo de riesgo en <em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>{gtCaseCount.toLocaleString('es-MX')} casos etiquetados</em> — Segalmex, Odebrecht, Fantasmas IMSS, emergencia COVID y más —
                   y ahora señala <em style={{ fontStyle: 'normal', color: 'var(--color-text-primary)' }}>{formatNumber(stats.highCriticalCount)} contratos</em> con esas huellas.
                   {' '}Son señales de investigación, no veredictos.
                 </>
@@ -621,8 +621,8 @@ export default function Executive() {
           </h2>
           <p className="text-[15px] text-text-secondary leading-[1.6] mb-4 text-pretty">
             {lang === 'en'
-              ? <>For each documented corruption case, the gap between when the contracts crossed RUBLI's <strong className="text-text-primary">critical-risk threshold</strong> in the data, and when the scandal became public. The bigger the gap, the longer the platform could have flagged it for investigation.</>
-              : <>Para cada caso documentado, la distancia entre cuándo los contratos cruzaron el <strong className="text-text-primary">umbral de riesgo crítico</strong> en los datos, y cuándo el escándalo se hizo público. Cuanto mayor la brecha, más tiempo la plataforma habría podido señalarlo.</>
+              ? <>For each labelled case, the gap between when the contracts crossed RUBLI's <strong className="text-text-primary">critical-risk threshold</strong> in the data, and when the scandal became public. The bigger the gap, the longer the platform could have flagged it for investigation.</>
+              : <>Para cada caso etiquetado, la distancia entre cuándo los contratos cruzaron el <strong className="text-text-primary">umbral de riesgo crítico</strong> en los datos, y cuándo el escándalo se hizo público. Cuanto mayor la brecha, más tiempo la plataforma habría podido señalarlo.</>
             }
           </p>
           <PlateFrame
@@ -1311,11 +1311,11 @@ export default function Executive() {
         {/* ─── Amber divider ─── */}
         <div className="h-[2px] bg-gradient-to-r from-transparent via-accent to-transparent opacity-40 mb-10" />
 
-        {/* ─── Documented Cases Timeline ─── */}
+        {/* ─── Labelled Cases Timeline ─── */}
         <section className="mb-8" aria-labelledby="timeline-title">
           <h2 id="timeline-title" className="scroll-mt-14 text-[12px] font-mono font-semibold uppercase tracking-[0.15em] text-text-muted mb-2 flex items-center gap-2">
             <Clock className="h-3 w-3" aria-hidden="true" />
-            {lang === 'en' ? 'Documented corruption cases · 2008–2025' : 'Casos documentados de corrupción · 2008–2025'}
+            {lang === 'en' ? 'Labelled cases · 2008–2025' : 'Casos etiquetados · 2008–2025'}
           </h2>
           <p className="text-[15px] text-text-secondary leading-[1.6] mb-4 text-pretty">
             {lang === 'en'
@@ -1549,8 +1549,8 @@ export default function Executive() {
           </p>
           <p className="mt-2 max-w-[68ch]">
             {lang === 'en'
-              ? 'Risk scores are statistical indicators of similarity to documented corruption patterns. A high score does not constitute proof of wrongdoing. All data from COMPRANET 2002–2025 — public records, no FOIA required.'
-              : 'Las puntuaciones de riesgo son indicadores estadísticos de similitud con patrones de corrupción documentados. Una puntuación alta no constituye prueba de irregularidad. Todos los datos provienen de COMPRANET 2002–2025 — registros públicos, sin requerir FOIA.'}
+              ? 'Risk scores are statistical indicators of similarity to patterns from labelled cases. A high score does not constitute proof of wrongdoing. All data from COMPRANET 2002–2025 — public records, no FOIA required.'
+              : 'Las puntuaciones de riesgo son indicadores estadísticos de similitud con patrones de casos etiquetados. Una puntuación alta no constituye prueba de irregularidad. Todos los datos provienen de COMPRANET 2002–2025 — registros públicos, sin requerir FOIA.'}
           </p>
         </div>
         </div>{/* /folio-v1-P1b: end paper-grain content wrapper */}

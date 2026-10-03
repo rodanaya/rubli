@@ -90,7 +90,7 @@ export default function Press() {
         <p>{es ? 'Fórmula recomendada, con la aclaración correspondiente:' : 'Recommended formula, with the appropriate caveat:'}</p>
         <blockquote className="border-l-2 pl-4 italic text-text-primary" style={{ borderColor: RISK_COLORS.critical }}>
           {es
-            ? '«Según el sistema de detección de patrones RUBLI, que analiza datos públicos de CompraNet, este proveedor presenta un indicador de riesgo de [X] — es decir, sus contratos comparten características estadísticas con casos documentados de irregularidades. Esto no constituye prueba de conducta ilícita.»'
+            ? '«Según el sistema de detección de patrones RUBLI, que analiza datos públicos de CompraNet, este proveedor presenta un indicador de riesgo de [X] — es decir, sus contratos comparten características estadísticas con casos etiquetados. Esto no constituye prueba de conducta ilícita.»'
             : '"According to the RUBLI pattern-detection system, which analyzes public CompraNet data, this vendor shows a risk indicator of [X] — meaning its contracts share statistical characteristics with documented irregularity cases. This does not constitute proof of wrongdoing."'}
         </blockquote>
         <p>

@@ -112,7 +112,7 @@ export function RegisterRow({ item, isEs, rank, expanded, onToggle }: RegisterRo
           style={{ color: item.in_ground_truth ? 'var(--color-accent)' : isDisc ? 'var(--color-accent-data)' : 'var(--color-text-muted)' }}
           title={
             item.in_ground_truth
-              ? isEs ? 'Anclado a caso documentado (GT)' : 'Anchored to documented case (GT)'
+              ? isEs ? 'Anclado a caso etiquetado (GT)' : 'Anchored to labelled case (GT)'
               : isDisc
                 ? isEs ? 'Descubrimiento del modelo' : 'Model discovery'
                 : undefined

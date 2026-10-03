@@ -11,7 +11,7 @@
 | Component | Vocabulary | Self-fetches? | Use for |
 |---|---|---|---|
 | `SectorTreemap` | FT/NYT squarified treemap (area = spend, fill saturation = risk) | ✓ | Spend × risk overview at the 12-sector level |
-| `CompetitionSlopeChart` | FT slope chart 2015→2025 with OECD reference line + COVID band | ✓ | Multi-year DA% trajectory across 12 sectors |
+| `CompetitionSlopeChart` | FT slope chart 2015→2025 with a reference line + COVID band | ✓ | Multi-year DA% trajectory across 12 sectors |
 | `RiskSpendBeeswarm` | Pudding-style scatter, log(spend) × risk, PRIORIDAD quadrant | ✓ | Investigation map at the sector level |
 | `CategorySectorSwimlane` | Pudding "Where Slang Comes From" swimlane scatter | ✓ | 72 categories grouped into 12 sector lanes |
 | `CategoryCaptureDumbbell` | FT/Pudding Cleveland dot-pair | ✓ | #1 vs #2 vendor share by category |
@@ -24,7 +24,7 @@
 | `DashboardSledgehammer` | Pudding giant Playfair-Italic-800 number | Page-anchor hero (Dashboard, Administrations) |
 | `EditorialDistribution` | KDE density-ridge with 0.25 / 0.40 / 0.60 risk threshold rules | Risk-score distributions (ARIA, Methodology, Vendor) |
 | `EditorialTimeline` | Vertical NYT-style event timeline with sexenio bands | Vendor histories, case timelines |
-| `BenchmarkRow` | FT bullet row (target / actual / threshold) | Vendor metrics vs OECD limits, per-sector procurement patterns |
+| `BenchmarkRow` | FT bullet row (target / actual / threshold) | Vendor metrics vs benchmark thresholds, per-sector procurement patterns |
 | `FeaturedFinding` | Editorial lede with kicker + headline + meta + accent color | Top-of-page editorial finding (Sectors, Categories) |
 
 ### `frontend/src/components/charts/editorial/` (legacy, still in use)
@@ -65,7 +65,8 @@ import { SECTOR_COLORS, SECTOR_TEXT_COLORS, RISK_COLORS, getRiskLevelFromScore }
 - **§ kickers** in `font-mono uppercase tracking-[0.15em] text-text-muted` above each section. Spanish primary, English fallback via i18n.
 - **Risk model in copy** = `v0.8.5`. Never v0.6.5 or older.
 - **Risk language** — "indicador de riesgo" / "risk indicator". **Never** "X% probability of corruption".
-- **Honest pitch matrix** (CLAUDE.md) — never overclaim "$2.84T fraud" without the GT-link disclaimer (41 cases NULL on this field).
+- **No fraud totals** — never present contract value linked to labelled cases as money stolen or "estimated fraud". Say "value of contracts linked to labelled cases" and name the provenance.
+- **Labelled, not verified** — the case set is "labelled cases" (1,417; 387 independently sourced), never "verified" or "documented corruption".
 - **Spanish currency** — always use `formatCompactMXN`, never English-loaned "B MXN" in Spanish UI. Spanish output is "MDP" / "billones" / "mil millones".
 
 ---
@@ -114,18 +115,6 @@ npm run build                                          # 0 errors
 The token linter catches forbidden patterns re-entering `src/pages` / `src/components` / `src/hooks`: `text-red-400`, `bg-emerald-*`, raw hex outside `SECTOR_COLORS` / `RISK_COLORS` lookups, etc.
 
 ---
-
-## Pending follow-ups
-
-| Phase | Surface | Status |
-|---|---|---|
-| `sp-P2` wire-in | SectorProfile Overview tab | `SectorMoneyFlowSankey` component exists, not yet inserted |
-| `admins-P1.5` wire-in | Administrations top hero | `AdminsSledgehammer` component exists, not yet inserted |
-| `sp-P5` Sexenio timeline | SectorProfile By-Administration tab | Not started |
-| `o-P1 + o-P2` | Atlas/Observatory MONEY + CASES lenses | Not started (prior attempt reverted) |
-| `d-P4` LeadTimeWall redraw | Dashboard | Component still in inline form |
-
-For execution context, the historical plan docs live in `docs/archive/2026-05-04/`.
 
 ---
 

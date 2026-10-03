@@ -443,7 +443,7 @@ export function AdminSummaryCard({
                 {dossier.scandals.length}{' '}
                 {isEs
                   ? `escándalo${dossier.scandals.length === 1 ? '' : 's'} documentado${dossier.scandals.length === 1 ? '' : 's'} · ver expediente ↓`
-                  : `documented scandal${dossier.scandals.length === 1 ? '' : 's'} · view case file ↓`}
+                  : `sourced scandal${dossier.scandals.length === 1 ? '' : 's'} · view case file ↓`}
               </span>
             </a>
           ) : (

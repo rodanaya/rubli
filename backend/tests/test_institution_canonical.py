@@ -1,4 +1,4 @@
-"""Canonical institution identity (scripts/migrate_institutions.py, PREPUB_AUDIT P0-3).
+"""Canonical institution identity (scripts/migrate_institutions.py, Sep-2026 pre-publication audit, P0-3).
 
 Skips unless the DB under test carries institution_canonical (i.e. the migration
 has been applied): an absorbed id must resolve to its canonical dossier, never

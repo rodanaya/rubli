@@ -21,7 +21,7 @@ Literature Sources:
 - IMF Working Paper 2022/094: Price impact of corruption
 - EU OLAF Red Flags: Statistical price anomaly detection
 - Tukey (1977): IQR-based outlier detection
-- OECD Procurement Performance Reports
+- OECD (2023) Public procurement performance: a framework for measuring efficiency, compliance and strategic goals
 - Open Contracting Partnership: Red Flags Guide
 
 Author: RUBLI Project

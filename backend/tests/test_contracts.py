@@ -212,7 +212,7 @@ class TestContractHighlights:
                 assert item["case_slug"]
 
     def test_highlights_documented_lead(self, client, base_url):
-        """Unfiltered, documented cases sort ahead of undocumented fill."""
+        """Unfiltered, labelled cases sort ahead of undocumented fill."""
         response = client.get(f"{base_url}/contracts/highlights?limit=6")
         assert response.status_code == 200
         flags = [bool(i["is_documented_case"]) for i in response.json()]

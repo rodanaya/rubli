@@ -4,7 +4,7 @@
  * Build: 2026-05-04-v2
  */
 
-// Sector Colors - matches CLAUDE.md spec exactly
+// Sector Colors - canonical source (index.css mirrors these)
 export const SECTOR_COLORS: Record<string, string> = {
   salud: '#dc2626',
   educacion: '#3b82f6',
@@ -222,7 +222,7 @@ export const RISK_TEXT_COLORS = {
 
 // Procurement-integrity reference lines — the SINGLE source. Never retype these
 // per section (the 25%/30% same-metric contradiction on /vendors/:id came from
-// doing exactly that). See docs/WEBSITE_STANDARDS.md anti-pattern A7.
+// doing exactly that). See docs/DESIGN_SYSTEM.md anti-pattern A7.
 //
 // Both lines come from the European Commission's Single Market Scoreboard,
 // which publishes them with numbers: a direct-award share at or above 10% and a
@@ -333,7 +333,7 @@ export function riskRampFromPct(pct: number): string {
   return riskRamp(pct / 100)
 }
 
-// Data validation thresholds (CLAUDE.md spec)
+// Data validation thresholds (docs/DATA.md amount validation)
 export const MAX_CONTRACT_VALUE = 100_000_000_000  // 100B MXN - reject above this
 export const FLAG_THRESHOLD = 10_000_000_000       // 10B MXN - flag for review
 

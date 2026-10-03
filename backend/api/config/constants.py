@@ -18,7 +18,7 @@ RISK_THRESHOLDS = {
 }
 
 # Risk level thresholds — statistical risk indicators (NOT probabilities)
-# Scores measure similarity to documented corruption patterns.
+# Scores measure similarity to patterns from labelled cases.
 # A score of 0.60 does NOT mean "60% probability of corruption."
 # v4.0/v5.1 thresholds (preserved for backward compatibility)
 RISK_THRESHOLDS_V4 = {
@@ -30,8 +30,9 @@ RISK_THRESHOLDS_V4 = {
 
 # v0.8.5 thresholds — recalibrated for PU-corrected scores (c_pu=0.32)
 # PU correction: Elkan & Noto floor c=0.32
-# HR=11.0% OECD compliant (within 2-15% benchmark)
-# GT detection: vendor-stratified test AUC=0.785
+# HR=11.0% (inside the 2-15% calibration target)
+# AUC: forward-holdout 0.656 (vendors added after training), in-sample 0.733;
+# the originally reported test AUC 0.785 could not be reproduced
 RISK_THRESHOLDS_V6 = {
     'critical': 0.60,   # Strongest similarity to known corruption patterns
     'high': 0.40,       # Strong similarity
@@ -43,8 +44,13 @@ RISK_THRESHOLDS_V6 = {
 RISK_THRESHOLDS_V5 = RISK_THRESHOLDS_V6
 
 # Active model version
-# v0.8.5: ElasticNet, 18 features, c_pu=0.32, test AUC 0.785, HR=11.0%, trained 2026-05-02
+# v0.8.5: ElasticNet, 18 features, c_pu=0.32, forward-holdout AUC 0.656, HR=11.0%, trained 2026-05-02
 CURRENT_MODEL_VERSION = 'v0.8.5'
+
+# Reported AUC for v0.8.5. model_calibration.test_auc stores 0.785 from a
+# vendor-stratified split that was not saved and cannot be reproduced; the
+# API reports the reproducible forward-holdout figure instead.
+MODEL_AUC_FORWARD_HOLDOUT = 0.656
 
 
 def get_risk_level(score: float, model_version: str = None) -> str:

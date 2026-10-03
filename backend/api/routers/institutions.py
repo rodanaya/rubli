@@ -262,7 +262,7 @@ def get_institution(institution_id: int):
                 ORDER BY contract_year DESC
                 LIMIT 10
             """, (institution_id,)).fetchall()
-        except sqlite3.OperationalError:
+        except _sqlite3.OperationalError:
             hhi_rows = cursor.execute("""
                 WITH vendor_shares AS (
                     SELECT contract_year, vendor_id,

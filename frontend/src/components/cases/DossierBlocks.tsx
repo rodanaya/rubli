@@ -4,7 +4,7 @@
  *   CaseDocketRail           — sticky left identity rail (folio, gap,
  *                              sector spine, COMPRANET reach, § jump links).
  *   CostInArchive             — NYT-Upshot annotated dot field: this case's
- *                              cost placed among all documented cases.
+ *                              cost placed among all labelled cases.
  *   CompranetVisibilityBanner— one-line evidentiary-reach footnote.
  *   LinkedVendorList         — EntityIdentityChip vendor rows (hard rule #1)
  *                              + ghost rows for named-but-unlinked vendors.
@@ -209,7 +209,7 @@ export function CaseDocketRail({
 
 // ─── CostInArchive ──────────────────────────────────────────────────────────
 // NYT-Upshot annotated dot field: this case's cost placed among every
-// documented case, on a square-root value scale. Migrates MoneyBenchmark's
+// labelled case, on a square-root value scale. Migrates MoneyBenchmark's
 // two jobs (threshold reference, multiplier sentence) into the new frame.
 //
 // PARALLAX D5 § Change 6 — "HTML owns glyphs, SVG owns geometry". The viewBox
@@ -297,16 +297,16 @@ export function CostInArchive({
   const total = usable.length
 
   const caption = lang === 'es'
-    ? `Cada punto es uno de ${total} casos documentados, ubicado por su costo estimado (escala de raíz cuadrada).`
-    : `Each dot is one of ${total} documented cases, placed by estimated cost (square-root scale).`
+    ? `Cada punto es uno de ${total} casos etiquetados, ubicado por su costo estimado (escala de raíz cuadrada).`
+    : `Each dot is one of ${total} labelled cases, placed by estimated cost (square-root scale).`
 
   const ariaLabel = degraded
     ? lang === 'es'
       ? `Este caso: ${formatCompactMXN(amount)} frente al umbral de ${formatCompactMXN(threshold)}.`
       : `This case: ${formatCompactMXN(amount)} against the ${formatCompactMXN(threshold)} threshold.`
     : lang === 'es'
-      ? `Costo de este caso entre los ${total} casos documentados: ${formatCompactMXN(amount)}; umbral ${formatCompactMXN(threshold)}; máximo del archivo ${formatCompactMXN(maxV)}.`
-      : `This case's cost among ${total} documented cases: ${formatCompactMXN(amount)}; threshold ${formatCompactMXN(threshold)}; archive max ${formatCompactMXN(maxV)}.`
+      ? `Costo de este caso entre los ${total} casos etiquetados: ${formatCompactMXN(amount)}; umbral ${formatCompactMXN(threshold)}; máximo del archivo ${formatCompactMXN(maxV)}.`
+      : `This case's cost among ${total} labelled cases: ${formatCompactMXN(amount)}; threshold ${formatCompactMXN(threshold)}; archive max ${formatCompactMXN(maxV)}.`
 
   // ── HTML callouts, seated inside the plate box ───────────────────────────
   // Priority order: this case first, then the threshold it is measured

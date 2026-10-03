@@ -319,7 +319,7 @@ def get_aria_queue_vendor(
     d["pattern_confidences"] = _decode_json_field(d.get("pattern_confidences"))
     apply_public_labels(conn, [d])
 
-    # GT case anchor — the documented case this lead traces to (T1 is 299/299
+    # GT case anchor — the labelled case this lead traces to (T1 is 299/299
     # GT-anchored; the queue row only carries the boolean). Indexed PK-path join.
     d["gt_case_name"] = None
     d["gt_case_type"] = None
@@ -1271,7 +1271,7 @@ def get_aria_memo(
     Reads from aria_memos table (canonical, 22 hand-curated rows) and
     falls back to aria_queue.memo_text (1,843 auto-generated dossiers)
     when the canonical table doesn't have a row. The fallback unlocks
-    the broader memo corpus per docs/DATA_INTEGRITY_PLAN.md task S.3.
+    the broader memo corpus per internal planning note DATA_INTEGRITY_PLAN (not published) task S.3.
 
     Provenance metadata (memo_provenance / memo_status from S.3
     classification) is included so the frontend can demote templated

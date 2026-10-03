@@ -170,7 +170,7 @@ export function VendorFile({
               </span>
             )}
             {item.is_gt && (
-              <span className="font-mono" title={es ? 'Vinculado a un caso documentado' : 'Linked to a documented case'}
+              <span className="font-mono" title={es ? 'Vinculado a un caso etiquetado' : 'Linked to a labelled case'}
                 style={{ fontSize: 13, fontWeight: 700, color: 'var(--color-text-primary)', border: '1px solid var(--color-text-primary)', padding: '2px 6px', borderRadius: 3 }}>
                 ⊜ {es ? 'caso' : 'case'}
               </span>
@@ -287,7 +287,7 @@ export function VendorFile({
           )}
         </Band>
 
-        {/* Foot — external registries + documented cases */}
+        {/* Foot — external registries + labelled cases */}
         <Band title={es ? 'Registros' : 'Records'} accent={accent} pad={pad} last>
           {flagsQ.isLoading || (item.is_gt && gtQ.isLoading) ? (
             <Skeleton lines={2} />

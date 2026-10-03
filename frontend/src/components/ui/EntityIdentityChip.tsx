@@ -2,7 +2,7 @@
  * EntityIdentityChip — the unifying primitive that renders ANY entity in the
  * platform with one consistent grammar.
  *
- * Per docs/SITE_SKELETON.md: the platform has 9 entity types (vendor,
+ * Per internal planning note SITE_SKELETON (not published): the platform has 9 entity types (vendor,
  * institution, sector, category, case, pattern, network, investigation,
  * story). Before this primitive, each of 28+ surfaces invented its own
  * vendor/institution/category cell — different name casing, different

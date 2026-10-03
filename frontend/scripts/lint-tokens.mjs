@@ -209,5 +209,5 @@ for (const { name, count, samples } of failures) {
   for (const s of samples) console.error(`    ${s}`)
   if (count > samples.length) console.error(`    ... and ${count - samples.length} more`)
 }
-console.error('\nFix or document each occurrence. See .claude/marathon/SHIP_CHECKLIST.md band B2.')
+console.error('\nFix or document each occurrence. See docs/DESIGN_SYSTEM.md.')
 process.exit(1)

@@ -94,7 +94,7 @@
   },
   "pattern": {
     "heading": "What the Algorithm Found",
-    "description": "Risk scores are built from 16 z-score features normalized against sector baselines. These are the factors that drove this vendor's score.",
+    "description": "Risk scores are built from 21 z-score features (18 with non-zero weight) normalized against sector-year baselines. These are the factors that drove this vendor's score.",
     "raisesRisk": "▲ raises risk",
     "lowersRisk": "▼ lowers risk",
     "raises": "raises",
@@ -179,7 +179,7 @@
   },
   "verdict": {
     "heading": "Investigation Summary",
-    "description": "Statistical signals warrant attention. A high score is not proof of wrongdoing — it means this vendor closely resembles documented corruption patterns.",
+    "description": "Statistical signals warrant attention. A high score is not proof of wrongdoing — it means this vendor closely resembles patterns from labelled cases.",
     "theQuestion": "The Question",
     "theEvidence": "The Evidence",
     "theFinding": "The Finding",
@@ -258,7 +258,7 @@
   },
   "disclosure": {
     "label": "What this thread can't tell you",
-    "body": "The COMPRANET dataset has known structural gaps. RFC (vendor tax ID) coverage is uneven across periods (0.1% in 2002–2010, 47% in 2023+). Beneficial-ownership data is not tracked. Contract documents (the actual scope of work, deliverables, modifications) are not in this dataset. Subcontracting relationships are not exposed. The risk score measures statistical similarity to documented corruption patterns — not proof of wrongdoing. Treat every flag as a hypothesis to verify, not a verdict."
+    "body": "The COMPRANET dataset has known structural gaps. RFC (vendor tax ID) coverage is uneven across periods (0.1% in 2002–2010, 47% in 2023+). Beneficial-ownership data is not tracked. Contract documents (the actual scope of work, deliverables, modifications) are not in this dataset. Subcontracting relationships are not exposed. The risk score measures statistical similarity to patterns from labelled cases — not proof of wrongdoing. Treat every flag as a hypothesis to verify, not a verdict."
   },
   "nav": {
     "back": "Back",

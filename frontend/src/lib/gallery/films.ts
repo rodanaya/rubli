@@ -367,7 +367,7 @@ export const FILMS: Record<string, FilmDef> = {
           es: 'El modelo pondera dieciocho señales de cómo suele esconderse la corrupción, aprendidas de los casos etiquetados de RUBLI, en su mayoría documentados por analistas. No acusa — mide semejanza, y ordena el registro por riesgo.',
         },
         durationMs: 15000,
-        stat: { format: 'text', text: '18', label: { en: 'signals · 1,427 labelled cases · out-of-sample AUC 0.656', es: 'señales · 1,427 casos etiquetados · AUC fuera de muestra 0.656' } },
+        stat: { format: 'text', text: '18', label: { en: 'signals · 1,417 labelled cases · out-of-sample AUC 0.656', es: 'señales · 1,417 casos etiquetados · AUC fuera de muestra 0.656' } },
       },
       // ── ACT III · LOS HALLAZGOS ──
       {
@@ -482,7 +482,7 @@ export const FILMS: Record<string, FilmDef> = {
           es: 'Los patrones se resuelven en casos con nombre. En «La Estafa Maestra», dependencias federales desviaron miles de millones a través de universidades públicas que operaron como fachada, entregando el dinero a empresas que muchas veces no existían.',
         },
         durationMs: 16000,
-        stat: { format: 'text', text: 'LA ESTAFA MAESTRA', label: { en: 'one documented case among many', es: 'un caso documentado entre muchos' } },
+        stat: { format: 'text', text: 'LA ESTAFA MAESTRA', label: { en: 'one labelled case among many', es: 'un caso etiquetado entre muchos' } },
       },
       {
         id: 'scale', chapterLabel: { en: 'III · THE FINDINGS', es: 'III · LOS HALLAZGOS' },
@@ -491,12 +491,12 @@ export const FILMS: Record<string, FilmDef> = {
         ] },
         tag: { en: 'THE SCALE', es: 'LA ESCALA' },
         caption: {
-          en: 'The vendors named in 389 cases sourced to the press or official records hold about a trillion pesos in contracts inside the case windows. That is contract value linked to documented cases, not an estimate of what was diverted.',
-          es: 'Los proveedores nombrados en 389 casos con fuente de prensa o registros oficiales suman cerca de un billón de pesos en contratos dentro de las ventanas de cada caso. Es valor contratado ligado a casos documentados, no una estimación de lo desviado.',
+          en: 'The vendors named in 387 cases sourced to the press or official records hold about a trillion pesos in contracts inside the case windows. That is contract value linked to labelled cases, not an estimate of what was diverted.',
+          es: 'Los proveedores nombrados en 387 casos con fuente de prensa o registros oficiales suman cerca de un billón de pesos en contratos dentro de las ventanas de cada caso. Es valor contratado ligado a casos etiquetados, no una estimación de lo desviado.',
         },
         durationMs: 16000,
-        stat: { format: 'currencyT', target: 1.04, red: true, mxn: 1038994672718, label: { en: 'contract value · vendors in sourced cases', es: 'valor contratado · proveedores en casos con fuente' } },
-        agate: { en: '389 press / official / audit cases · 448 non-false-positive vendors · 115,170 contracts inside case windows · not a fraud estimate', es: '389 casos de prensa / oficiales / auditoría · 448 proveedores sin falso positivo · 115,170 contratos dentro de las ventanas · no es un monto de fraude' },
+        stat: { format: 'currencyT', target: 0.98, red: true, mxn: 976323154595, label: { en: 'contract value · vendors in sourced cases', es: 'valor contratado · proveedores en casos con fuente' } },
+        agate: { en: '387 press / official / audit cases · 446 non-false-positive vendors · 107,956 contracts inside case windows · not a fraud estimate', es: '387 casos de prensa / oficiales / auditoría · 446 proveedores sin falso positivo · 107,956 contratos dentro de las ventanas · no es un monto de fraude' },
       },
       // ── ACT IV · EL APAGÓN ──
       {
@@ -601,10 +601,10 @@ export const FILMS: Record<string, FilmDef> = {
           es: 'Cerca de un billón de pesos en contratos fue a proveedores nombrados en casos de corrupción con fuente — y durante seis meses, el gobierno dejó de publicar todo eso.',
         },
         durationMs: 15000,
-        stat: { format: 'text', text: '$1.04T', red: true, label: { en: 'contract value · sourced cases', es: 'valor contratado · casos con fuente' } },
+        stat: { format: 'text', text: '$0.98T', red: true, label: { en: 'contract value · sourced cases', es: 'valor contratado · casos con fuente' } },
         agate: {
-          en: 'contracts of 448 non-false-positive vendors in 389 press / official / audit cases, inside each case window · not a fraud estimate',
-          es: 'contratos de 448 proveedores sin falso positivo en 389 casos de prensa / oficiales / auditoría, dentro de la ventana de cada caso · no es un monto de fraude',
+          en: 'contracts of 446 non-false-positive vendors in 387 press / official / audit cases, inside each case window · not a fraud estimate',
+          es: 'contratos de 446 proveedores sin falso positivo en 387 casos de prensa / oficiales / auditoría, dentro de la ventana de cada caso · no es un monto de fraude',
         },
       },
       // ── CH.1 · "El Apagón / The Blackout" (Act I) ──

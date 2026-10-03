@@ -35,8 +35,8 @@ export function PlanaColofon({
         : `As of this cut, ${procesadoCount} of the ${total} have reached prosecution.`
 
   const clauseIII = isEs
-    ? 'Las cifras dentro de cada historia provienen del modelo v0.8.5 y de casos documentados. El modelo emite un indicador de riesgo, no una probabilidad de corrupción; una pista de datos señala un patrón, no un culpable.'
-    : 'The figures inside each story come from model v0.8.5 and from documented cases. The model emits a risk indicator, not a probability of corruption; a data lead names a pattern, not a culprit.'
+    ? 'Las cifras dentro de cada historia provienen del modelo v0.8.5 y de casos etiquetados. El modelo emite un indicador de riesgo, no una probabilidad de corrupción; una pista de datos señala un patrón, no un culpable.'
+    : 'The figures inside each story come from model v0.8.5 and from labelled cases. The model emits a risk indicator, not a probability of corruption; a data lead names a pattern, not a culprit.'
 
   const clauseIV = isEs
     ? 'La fuente (COMPRANET) quedó congelada el 28 de septiembre de 2025; 2025 es un año parcial. La cobertura de RFC en 2002–2010 es de 0.1%: los primeros años están subexpuestos.'

@@ -65,7 +65,7 @@
     },
     "unverifiedLead": {
       "headline": "Aparece en una pista no verificada",
-      "detail": "Este proveedor solo aparece en una pista de caso sin fuente ni verificación. No es un caso documentado."
+      "detail": "Este proveedor solo aparece en una pista de caso sin fuente ni verificación. No es un caso etiquetado."
     },
     "efosDefinitivo": {
       "headline": "Empresa fantasma confirmada por el SAT (EFOS Definitivo)",
@@ -91,10 +91,10 @@
       "detail": "Patrón principal: {{pattern}}"
     },
     "riskCritical": {
-      "headline": "Puntaje de riesgo crítico ({{pct}}/100) — mayor similitud con patrones de corrupción documentados"
+      "headline": "Puntaje de riesgo crítico ({{pct}}/100) — mayor similitud con patrones de casos etiquetados"
     },
     "riskHigh": {
-      "headline": "Puntaje de riesgo alto ({{pct}}/100) — fuerte similitud con patrones de corrupción documentados"
+      "headline": "Puntaje de riesgo alto ({{pct}}/100) — fuerte similitud con patrones de casos etiquetados"
     },
     "highDirectAward": {
       "headline": "{{pct}}% adjudicaciones directas — evita la licitación competitiva"

@@ -66,7 +66,7 @@ interface NavSectionDef {
 // (2026-06-09). PORTADA (front page) replaces DESCUBRIR so the top
 // section no longer reads as a synonym of EXPLORAR; the orphan
 // PLATAFORMA section is renamed METODOLOGÍA after its only item.
-// Per docs/PROJECT_LOCKED_V3.md — every nav entry must lead to a
+// Per internal planning note PROJECT_LOCKED_V3 (not published) — every nav entry must lead to a
 // working page. No exceptions.
 const NAV_SECTIONS: NavSectionDef[] = [
   {
@@ -376,7 +376,7 @@ export function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: Side
             </NavSection>
           ))}
           {/* API Explorer link removed — pointed at /api/v1/docs which 404s.
-              Per docs/PROJECT_LOCKED_V3.md "every nav entry must lead to
+              Per internal planning note PROJECT_LOCKED_V3 (not published) "every nav entry must lead to
               a working page". */}
 
         </nav>

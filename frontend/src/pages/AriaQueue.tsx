@@ -2,7 +2,7 @@
  * ARIA — Lista de Vigilancia · «El Registro de Asignación»
  *
  * La máquina propone, el analista dispone. Spec:
- * .claude/designs/aria-cola-2026-06-11-spec.md (DESIGNUS panel, APPROVED 2026-06-12).
+ * internal design note aria-cola-2026-06-11-spec (not published) (DESIGNUS panel, APPROVED 2026-06-12).
  *
  *   B0. Folio · B1. § EL SALDO — kept frames (sentence carries the GT/DISC split)
  *   § EL EMBUDO — log-width compression band = the tier navigation
@@ -499,7 +499,7 @@ export default function AriaPage() {
                     {formatNumber(stats?.latest_run?.tier1_count ?? 0)}
                   </SaldoAnchor>{' '}
                   al Nivel 1{queueSummary && queueSummary.novel_leads_t1 === 0 ? (
-                    <span className="text-text-muted"> — todos anclados a casos documentados</span>
+                    <span className="text-text-muted"> — todos anclados a casos etiquetados</span>
                   ) : null}.
                   {queueSummary && queueSummary.novel_leads_t2 > 0 ? (
                     <>
@@ -533,7 +533,7 @@ export default function AriaPage() {
                     {formatNumber(stats?.latest_run?.tier1_count ?? 0)}
                   </SaldoAnchor>{' '}
                   to Tier 1{queueSummary && queueSummary.novel_leads_t1 === 0 ? (
-                    <span className="text-text-muted"> — every one anchored to a documented case</span>
+                    <span className="text-text-muted"> — every one anchored to a labelled case</span>
                   ) : null}.
                   {queueSummary && queueSummary.novel_leads_t2 > 0 ? (
                     <>

@@ -92,7 +92,7 @@
   },
   "workspaceEmpty": {
     "title": "Your investigation starts here.",
-    "description": "Save vendors, institutions, and contracts to track risk-score changes over time. Begin by watching a high-priority vendor, exploring the procurement data, or opening a documented case.",
+    "description": "Save vendors, institutions, and contracts to track risk-score changes over time. Begin by watching a high-priority vendor, exploring the procurement data, or opening a labelled case.",
     "hint": "Use the eye icon on any vendor or institution profile to start tracking.",
     "watchVendorTitle": "Watch a vendor",
     "watchVendorDesc": "Track risk changes for high-priority vendors in the ARIA queue.",
@@ -100,8 +100,8 @@
     "exploreTitle": "Explore contracts",
     "exploreDesc": "Find vendors or institutions and click the eye icon to start tracking.",
     "exploreCta": "Search vendors",
-    "caseTitle": "Open a documented case",
-    "caseDesc": "Browse {{n}} documented cases and add involved parties to your workspace.",
+    "caseTitle": "Open a labelled case",
+    "caseDesc": "Browse {{n}} labelled cases and add involved parties to your workspace.",
     "caseCta": "View cases"
   },
   "dossierEmpty": {

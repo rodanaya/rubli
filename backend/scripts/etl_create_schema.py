@@ -4,7 +4,7 @@ RUBLI: Normalized Database Schema Creation
 Creates the RUBLI_NORMALIZED.db with a 3-level sector taxonomy
 optimized for fraud detection analytics.
 
-Schema Design Decisions (documented in docs/SCHEMA_DECISIONS.md):
+Schema Design Decisions (documented in docs/DATABASE_SCHEMA.md):
 1. risk_scores: Separate table for model versioning
 2. financial_metrics: Separate table for USD/inflation adjustments
 3. vendors: Normalized, aggregates computed via views

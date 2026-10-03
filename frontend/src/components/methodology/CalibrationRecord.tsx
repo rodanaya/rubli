@@ -7,9 +7,10 @@
  *
  * The editorial point: our headline AUC went DOWN on purpose. Early versions
  * (v4.0/v5.0/v5.1) posted inflated AUCs because training and test data shared
- * vendors and time windows. v0.6.5 introduced a vendor-stratified split (the
- * honest correction); v0.8.5 recalibrated on top of it. The drop from 0.957 to
- * 0.828 is not regression — it is the model finally being tested honestly.
+ * vendors and time windows. v0.6.5 introduced a vendor-stratified split;
+ * v0.8.5 recalibrated on top of it. v0.8.5's own split was not saved, so its
+ * reported test AUC is withdrawn and the active point is the forward holdout
+ * (0.656) — the only figure that can be reproduced.
  *
  * Static SVG only — no framer-motion, no <circle> (dots are banned on this
  * surface). Vertices are 6px square ticks. Colors applied via `style`, never
@@ -38,7 +39,7 @@ const CALIBRATION_LOG: CalibrationEntry[] = [
   { version: 'v5.0', day: 12, dateLabel: { en: 'Feb 2026', es: 'feb 2026' }, descKey: 'v50Desc', metric: 'AUC 0.960', auc: 0.960, kind: 'superseded' },
   { version: 'v5.1', day: 26, dateLabel: { en: 'Feb 27, 2026', es: '27 feb 2026' }, descKey: 'v51Desc', metric: 'AUC 0.957 (temporal)', auc: 0.957, kind: 'superseded' },
   { version: 'v5.2', day: 34, dateLabel: { en: 'Mar 7, 2026', es: '7 mar 2026' }, descKey: 'v52Desc', metric: '~130K dual-confirmed', auc: null, kind: 'overlay' },
-  { version: 'v0.6.5', day: 52, dateLabel: { en: 'Mar 25, 2026', es: '25 mar 2026' }, descKey: 'v60Desc', metric: 'AUC 0.828 (test)', auc: 0.828, kind: 'superseded' },
+  { version: 'v0.6.5', day: 52, dateLabel: { en: 'Mar 25, 2026', es: '25 mar 2026' }, descKey: 'v60Desc', metric: 'AUC 0.828 (reported, superseded)', auc: 0.828, kind: 'superseded' },
   { version: 'v0.8.5', day: 90, dateLabel: { en: 'May 2, 2026', es: '2 may 2026' }, descKey: 'v85Desc', metric: 'AUC 0.656 (forward holdout)', auc: 0.656, kind: 'active' },
 ]
 
@@ -314,7 +315,7 @@ export default function CalibrationRecord({ className }: { className?: string })
             </text>
           </g>
 
-          {/* leader-line annotation on the 0.957 → 0.828 drop */}
+          {/* leader-line annotation on the v5.1 → v0.6.5 drop */}
           <g className="hidden sm:block">
             <line
               x1={(xPos(v51.day) + xPos(v65.day)) / 2}

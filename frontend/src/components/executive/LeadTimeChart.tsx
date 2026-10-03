@@ -1,5 +1,5 @@
 /**
- * LeadTimeChart — for each documented case, the gap between when RUBLI's data
+ * LeadTimeChart — for each labelled case, the gap between when RUBLI's data
  * would have flagged it (retroactive risk score crosses critical threshold)
  * and when the scandal became public.
  *
@@ -35,8 +35,6 @@ const LEAD_TIME_CASES: LeadTimeCase[] = [
   { name: { en: 'Estafa Maestra',      es: 'La Estafa Maestra' },     flagYear: 2010, publicYear: 2017, sector: 'gobernacion' },
   { name: { en: 'Odebrecht-PEMEX',     es: 'Odebrecht-PEMEX' },       flagYear: 2014, publicYear: 2017, sector: 'energia' },
   { name: { en: 'Grupo Higa',          es: 'Grupo Higa' },            flagYear: 2013, publicYear: 2014, sector: 'infraestructura' },
-  { name: { en: 'Toka IT Monopoly',    es: 'Monopolio TIC Toka' },    flagYear: 2019, publicYear: 2023, sector: 'tecnologia' },
-  { name: { en: 'Edenred Vouchers',    es: 'Vales Edenred' },         flagYear: 2018, publicYear: 2022, sector: 'hacienda' },
   { name: { en: 'Segalmex',            es: 'Segalmex' },              flagYear: 2019, publicYear: 2022, sector: 'agricultura' },
   { name: { en: 'COVID-19 Hemoser',    es: 'COVID-19 Hemoser' },      flagYear: 2020, publicYear: 2021, sector: 'salud' },
 ]

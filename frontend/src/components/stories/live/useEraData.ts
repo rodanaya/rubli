@@ -63,7 +63,7 @@ export const FIRST_YEAR = 2002
 export const LAST_FULL_YEAR = 2024
 /**
  * RUBLI's own calibration target for the flagged share of contracts, 2-15%
- * (docs/RISK_METHODOLOGY_v6.md). Earlier editions attributed this band to the
+ * (docs/RISK_METHODOLOGY.md). Earlier editions attributed this band to the
  * OECD; no published OECD instrument states it, so it is carried as what it is
  * — the band v0.8.5 was calibrated into, not an external benchmark.
  */

@@ -757,7 +757,7 @@ export function ObservatoryScatter({ clusters, lens, lang, onOpenDossier, onVend
             {/* L2 micro-legend — the two encodings the macro how-to-read strip can't
                 explain while it's hidden: orb size and the documented-case ring. */}
             <text x={focusedBody.cx + SUB_HALF_W - 2} y={focusedBody.cy - SUB_HALF_H - 4} textAnchor="end" fill={C.inkFaint} fontSize={5.8} fontFamily="var(--font-family-mono)" letterSpacing="0.02em" paintOrder="stroke" stroke={C.plate0} strokeWidth={1.4} strokeLinejoin="round">
-              {lang === 'es' ? '◯ tamaño ∝ contratos · ⊝ caso documentado' : '◯ size ∝ contracts · ⊝ documented case'}
+              {lang === 'es' ? '◯ tamaño ∝ contratos · ⊝ caso etiquetado' : '◯ size ∝ contracts · ⊝ labelled case'}
             </text>
             {/* +N unlabeled cue — names with no collision-free slot are reachable via
                 hover/keyboard and the full list; click jumps straight to it. */}

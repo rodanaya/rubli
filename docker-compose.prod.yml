@@ -20,6 +20,9 @@ services:
     environment:
       - PYTHONPATH=/app
       - DATABASE_PATH=/app/RUBLI_DEPLOY.db
+      # Production rules: write endpoints fail closed without RUBLI_WRITE_KEY and
+      # the JWT secret is mandatory. Unset, the backend runs with dev semantics.
+      - RUBLI_ENV=production
       # Set CORS_ORIGINS in .env.prod (e.g. https://rubli.xyz,http://rubli.xyz)
       # IMPORTANT: if CORS_ORIGINS is unset the backend Python fallback applies
       # (localhost:3009 only).  Always set this in .env.prod for production.
@@ -77,13 +80,6 @@ services:
           cpus: '1'
     networks:
       - rubli-network
-
-  # magyar service removed (2026-04-30) — separate study app that
-  # didn't belong in the RUBLI compose. Every deploy hit recurring
-  # container-name conflicts with rubli-magyar requiring manual
-  # docker rm -f. Build context (../magyar-study-app) wasn't even
-  # in this repo. If it's needed later, it should run from its own
-  # compose file, not piggyback on RUBLI's.
 
   caddy:
     image: caddy:2-alpine

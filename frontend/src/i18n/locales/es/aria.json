@@ -28,10 +28,10 @@
     "all": "Todos",
     "newVendorOnly": "Riesgo de Proveedor Nuevo",
     "novelOnly": "Solo nuevos",
-    "novelOnlyTooltip": "Mostrar solo leads que no están en la base de casos documentados"
+    "novelOnlyTooltip": "Mostrar solo leads que no están en la base de casos etiquetados"
   },
   "tier1": {
-    "heading": "Proveedores con caso documentado — Nivel 1",
+    "heading": "Proveedores con caso etiquetado — Nivel 1",
     "subtitle": "Todo proveedor de Nivel 1 ya está en la base de casos de RUBLI: el nivel se ancla en la verdad fundamental, así que confirma casos conocidos en lugar de descubrir nuevos.",
     "empty": "No se encontraron pistas de Nivel 1. Ejecuta el pipeline de ARIA para rellenar.",
     "description": "Ya en la base de casos — revisar el expediente",
@@ -127,7 +127,7 @@
   "about": {
     "title": "Acerca de ARIA",
     "description": "El Algoritmo Automatizado de Investigación de Riesgo (ARIA) combina puntuaciones de riesgo de ML, detección de anomalías, clasificación de patrones y referencias cruzadas de registros externos (EFOS, SFP, RUPC) para clasificar proveedores según la Puntuación de Prioridad de Investigación (IPS). Las notas editoriales se generan previamente mediante síntesis asistida por LLM de señales de contratación.",
-    "disclaimer": "Las puntuaciones de IPS son indicadores de riesgo, no veredictos de corrupción. Las puntuaciones altas indican similitud estadística con patrones de corrupción documentados y justifican una investigación más profunda."
+    "disclaimer": "Las puntuaciones de IPS son indicadores de riesgo, no veredictos de corrupción. Las puntuaciones altas indican similitud estadística con patrones de casos etiquetados y justifican una investigación más profunda."
   },
   "patterns": {
     "P1": "Monopolio de Mercado",
@@ -136,14 +136,14 @@
     "P4": "Patrón de coadjudicación",
     "P5": "Sobreprecio",
     "P6": "Dependencia de un solo comprador",
-    "P7": "Vinculado a un caso documentado"
+    "P7": "Vinculado a un caso etiquetado"
   },
   "patternFilter": {
     "P1": "Monopolio",
     "P2": "Proveedor de baja huella (sin RFC)",
     "P3": "Intermediario",
     "P6": "Dependencia de un solo comprador",
-    "P7": "Vinculado a un caso documentado"
+    "P7": "Vinculado a un caso etiquetado"
   },
   "searchBar": {
     "placeholder": "Buscar proveedores por nombre...",
@@ -226,7 +226,7 @@
   "hero": {
     "headline": "{{vendorCount}} proveedores bajo vigilancia en 4 niveles de amenaza",
     "subtitle": "ARIA monitorea proveedores de contratación pública federal usando ML, detección de anomalías y cruce con registros externos. El Nivel 1 reúne a los 299 proveedores que ya están en la base de casos de RUBLI; las pistas nuevas empiezan en el Nivel 2.",
-    "t1RequireShort": "Proveedores T1 con caso documentado"
+    "t1RequireShort": "Proveedores T1 con caso etiquetado"
   },
   "patternDesc": {
     "P1": "Un proveedor domina un mercado — >60% del gasto sectorial",
@@ -235,7 +235,7 @@
     "P4": "Proveedores adjudicados juntos en los mismos procedimientos de forma repetida — coadjudicación, no colusión probada",
     "P5": "Precios de contratos significativamente arriba del mercado",
     "P6": "Una institución otorga >80% de su presupuesto a un solo proveedor",
-    "P7": "El proveedor está vinculado a un caso documentado (con fuente) en la base de casos de RUBLI"
+    "P7": "El proveedor está vinculado a un caso etiquetado (con fuente) en la base de casos de RUBLI"
   },
   "connectionError": {
     "title": "Error de Conexión",

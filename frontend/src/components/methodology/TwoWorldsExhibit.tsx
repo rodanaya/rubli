@@ -17,7 +17,7 @@
  * labels on leader lines, and showed nothing of the 46 / 607 / 178 beyond a
  * number. This draws both lists to one linear scale in the Balanza's engraving
  * vocabulary, and magnifies the state's 224 ten times so its split is legible.
- * Spec: docs/parallax/DAY-02b-methodology-plates.md § Change 3.
+ * Spec: internal planning note DAY-02b-methodology-plates (not published) § Change 3.
  */
 
 import { useId, type CSSProperties } from 'react'

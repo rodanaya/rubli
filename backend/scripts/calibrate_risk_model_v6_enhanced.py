@@ -145,7 +145,7 @@ def load_enhanced_data(conn, neg_ratio=2.0, seed=42, max_per_vendor=200, case_wi
     case_confidence = {row[0]: row[1] for row in cursor.fetchall()}
 
     # Steps 1-4: Load scoped GT contracts via VIEW (fraud-window-restricted)
-    # Uses ground_truth_contracts_scoped VIEW - see _update_gt_fraud_windows.py
+    # Uses ground_truth_contracts_scoped VIEW (built in the GT database; not distributed)
     # The VIEW handles: time-window filtering, institution scoping, FP exclusion
     # VIEW columns: contract_id, z_features..., contract_year, sector_id, vendor_id,
     #               case_id, vendor_curriculum_weight (NULL if not set)

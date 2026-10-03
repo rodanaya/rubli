@@ -1,7 +1,7 @@
 /**
  * Entity name formatters — canonical per-type display logic.
  *
- * Per docs/SITE_SKELETON.md, every entity surface in RUBLI must format
+ * Per internal planning note SITE_SKELETON (not published), every entity surface in RUBLI must format
  * names through the SAME function for its type. This kills the
  * "GRUPO FARMACOS ESPECIALIZADOS" vs "Grupo Fármacos Especializados"
  * vs "Grupo Fármacos…" inconsistency the audit found across 28 surfaces.

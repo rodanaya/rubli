@@ -277,7 +277,7 @@ export function visibilityMeta(value: string | undefined | null): VisibilityMeta
 }
 
 // ─── Sector red-flag benchmarks (platform-internal thresholds) ──────────────
-// From .claude/rules/data-validation.md § Sector-Specific Benchmarks. These
+// Project sector benchmarks (internal data-validation rules, not published). These
 // are the platform's own review thresholds — captions must say so.
 
 const SECTOR_RED_FLAG: Record<number, number> = {
@@ -422,7 +422,7 @@ function ordinalSuffixEn(n: number): string {
 }
 
 /**
- * "The 3rd-costliest of 43 documented cases" — the cost-rank clause, plus
+ * "The 3rd-costliest of 43 labelled cases" — the cost-rank clause, plus
  * the substring inside it that should carry the accent color.
  */
 export function ordinalCostRank(
@@ -433,22 +433,22 @@ export function ordinalCostRank(
   if (rank === 1) {
     return lang === 'es'
       ? { text: `el caso más costoso de ${total} documentados`, emphasis: 'más costoso' }
-      : { text: `the costliest of ${total} documented cases`, emphasis: 'costliest' }
+      : { text: `the costliest of ${total} labelled cases`, emphasis: 'costliest' }
   }
   if (rank === 2) {
     return lang === 'es'
       ? { text: `el segundo más costoso de ${total} documentados`, emphasis: 'segundo más costoso' }
-      : { text: `the 2nd-costliest of ${total} documented cases`, emphasis: '2nd-costliest' }
+      : { text: `the 2nd-costliest of ${total} labelled cases`, emphasis: '2nd-costliest' }
   }
   if (rank === 3) {
     return lang === 'es'
       ? { text: `el tercero más costoso de ${total} documentados`, emphasis: 'tercero más costoso' }
-      : { text: `the 3rd-costliest of ${total} documented cases`, emphasis: '3rd-costliest' }
+      : { text: `the 3rd-costliest of ${total} labelled cases`, emphasis: '3rd-costliest' }
   }
   const suffix = ordinalSuffixEn(rank)
   return lang === 'es'
     ? { text: `el ${rank}.º más costoso de ${total} documentados`, emphasis: `${rank}.º más costoso` }
-    : { text: `the ${rank}${suffix}-costliest of ${total} documented cases`, emphasis: `${rank}${suffix}-costliest` }
+    : { text: `the ${rank}${suffix}-costliest of ${total} labelled cases`, emphasis: `${rank}${suffix}-costliest` }
 }
 
 /**
@@ -518,11 +518,11 @@ export function leadFinding(
       : (lang === 'es' ? `${n} condenas` : `${n} convictions`)
     const text = n === 1
       ? (lang === 'es'
-        ? `la ${emphasis} en ${t} casos documentados`
-        : `the ${emphasis} in ${t} documented cases`)
+        ? `la ${emphasis} en ${t} casos etiquetados`
+        : `the ${emphasis} in ${t} labelled cases`)
       : (lang === 'es'
-        ? `una de solo ${emphasis} en ${t} casos documentados`
-        : `one of only ${emphasis} in ${t} documented cases`)
+        ? `una de solo ${emphasis} en ${t} casos etiquetados`
+        : `one of only ${emphasis} in ${t} labelled cases`)
     candidates.push({ kind: 'conviction', text, emphasis, strength: 0.7 })
   }
 

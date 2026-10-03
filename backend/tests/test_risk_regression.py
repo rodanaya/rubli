@@ -2,10 +2,10 @@
 Risk scoring regression tests.
 
 Verifies that the risk model correctly identifies known-bad vendors from
-documented corruption cases. These tests use the real database to ensure
+labelled cases. These tests use the real database to ensure
 the scoring pipeline produces expected results.
 
-Ground truth: 9 documented corruption cases with 17 matched vendors.
+Ground truth: 9 labelled cases with 17 matched vendors.
 """
 import os
 import pytest
@@ -17,7 +17,7 @@ _default_db = Path(__file__).parent.parent / "RUBLI_NORMALIZED.db"
 DB_PATH = Path(os.environ.get("DATABASE_PATH", str(_default_db)))
 
 # Known corruption cases with their expected vendors
-# From docs/RISK_METHODOLOGY_v4.md
+# From docs/RISK_METHODOLOGY.md
 KNOWN_CASES = {
     "IMSS Ghost Company Network": {
         "sectors": ["salud"],
@@ -39,7 +39,7 @@ KNOWN_CASES = {
     },
 }
 
-# v4.0 thresholds (from CLAUDE.md and constants)
+# v4.0 thresholds (from constants)
 RISK_THRESHOLDS_V4 = {
     "critical": 0.50,
     "high": 0.30,
@@ -127,12 +127,11 @@ class TestRiskScoreDistribution:
             assert levels[level] > 0, f"Risk level {level} has 0 contracts"
 
     def test_high_risk_rate_within_oecd_benchmark(self, db_conn):
-        """High-risk rate (critical + high) should be 2-30% per OECD.
+        """High-risk rate (critical + high) should be 2-30%.
 
         v6.1 (scored Mar 13, 2026) uses point-in-time vendor features (C1 fix)
         and honest 3-way HPO split (C2 fix). Honest HR ~25.3% — above the
-        2-15% OECD core benchmark but within the acceptable extended range
-        used for transparent risk-indicator systems (OECD 2023 Annex B).
+        2-15% benchmark; the 30% upper bound is a project choice, not an external standard.
         Upper bound raised from 25% to 30% to reflect this methodological choice.
         v5.1 scores preserved in risk_score_v5 column.
         """

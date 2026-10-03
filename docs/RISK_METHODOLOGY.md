@@ -1,201 +1,127 @@
-# Risk Scoring Methodology v3.3
+# Risk methodology — model v0.8.5
 
-**Last Updated:** February 6, 2026 | **Contracts:** 3,110,017 | **Years:** 2002-2025
+> **Status:** active since 2026-05-02 · run `CAL-v8-202605020212` · one global model
+> **Read with:** [MODEL_CARD.md](MODEL_CARD.md) (evaluation and limits) · [GROUND_TRUTH.md](GROUND_TRUTH.md) (labels) · [DATA.md](DATA.md) (sources)
 
----
-
-## Quick Reference
-
-| Level | Threshold | Count | % | Action |
-|-------|-----------|-------|---|--------|
-| **Critical** | ≥ 0.50 | 898 | 0.03% | Immediate investigation |
-| **High** | ≥ 0.35 | 61,098 | 2.0% | Priority review |
-| **Medium** | ≥ 0.20 | 1,153,281 | 37.1% | Watch list |
-| **Low** | < 0.20 | 1,894,740 | 60.9% | Standard monitoring |
-
-**v3.3 achieves 12.4% high-risk rate** (1.8% critical + 10.6% high) — within OECD benchmark of 2-15%.
+RUBLI gives every federal contract a **risk indicator** between 0 and 1. The indicator measures how closely a contract's procurement characteristics resemble those of contracts linked to RUBLI's labelled cases. It is **not** a probability of corruption, and a high score is not evidence of wrongdoing. It exists to help reporters and auditors decide where to look first in a universe of three million contracts.
 
 ---
 
-## Risk Factors
+## 1. Model in one paragraph
 
-### Base Factors (sum to 100%)
-
-| Factor | Weight | Trigger |
-|--------|--------|---------|
-| Single Bidding | 18% | Only 1 vendor bid on competitive procedure |
-| Non-Open Procedure | 18% | Direct award or restricted tender |
-| Price Anomaly | 18% | Amount > 3x sector mean |
-| Vendor Concentration | 12% | Vendor holds >30% of sector contracts |
-| Short Ad Period | 12% | < 15 days between publication and award |
-| Year-End Timing | 7% | Contract signed in December |
-| Threshold Splitting | 7% | Multiple same-day contracts to same vendor |
-| Network Risk | 8% | Vendor in group of related entities |
-
-### Bonus Factors (added on top)
-
-| Factor | Bonus | Trigger |
-|--------|-------|---------|
-| **Co-Bidding Risk** | +5% | Vendor in suspicious co-bidding pattern (≥50% shared procedures) |
-| Price Hypothesis | +5% | IQR-based statistical outlier (very high confidence) |
-| Industry Mismatch | +3% | Vendor's industry doesn't match contract sector |
-| Institution Risk | +3% | Higher-risk institution type (municipal, state agency) |
-
----
-
-## Interaction Effects (v3.3)
-
-When two correlated risk factors both trigger on the same contract, the combination is more suspicious than the sum of its parts. The model adds bonus points for these pairs:
-
-| Factor Pair | Bonus | Rationale |
-|-------------|-------|-----------|
-| Single Bid + Short Ad Period | +5% | Rushed procedure with no competition |
-| Non-Open + Year-End | +4% | Direct award in December budget dump |
-| Price Anomaly + Vendor Concentration | +5% | Overpriced contract from dominant vendor |
-| Threshold Splitting + Network Risk | +6% | Split contracts among related entities |
-| Network Risk + Single Bid | +5% | Network vendor wins uncontested |
-
-**Cap**: Total interaction bonus is capped at **+15%** regardless of how many pairs trigger.
-
-**Gradient scoring**: Each base factor uses gradient tiers rather than binary on/off:
-
-| Factor | Full Score | Partial Tiers |
-|--------|-----------|---------------|
-| Price Anomaly | ≥3x upper fence → 100% | ≥2x → 80%, ≥1.5x → 60%, >1x → 40% |
-| Vendor Concentration | >30% share → 100% | >20% → 70%, >10% → 50% |
-| Short Ad Period | <5 days → 100% | <15 days → 70%, <30 days → 30% |
-| Threshold Splitting | ≥5 same-day → 100% | ≥3 → 60%, ≥2 → 30% |
-| Network Risk | ≥5 members → 100% | ≥3 → 60%, ≥2 → 30% |
-| Non-Open Procedure | Direct award → 100% | Restricted → 50% |
-
-**Theoretical maximum score**: 1.0 (base) + 0.16 (bonuses) + 0.15 (interactions) = 1.31, capped to 1.0.
-
----
-
-## Co-Bidding Detection (v3.3)
-
-Identifies vendors that frequently bid in the same procedures — a key indicator of potential bid-rigging.
-
-**Detection criteria:**
-- Vendor has ≥5 procedure participations
-- Shares ≥10 procedures with another vendor
-- Co-bid rate ≥50% of their procedures
-
-**Risk tiers:**
-| Co-Bid Rate | Risk Level | Bonus |
-|-------------|------------|-------|
-| ≥ 80% | High | +5% |
-| 50-80% | Medium | +3% |
-| < 50% | None | +0% |
-
-**Results:** 8,701 suspicious vendors, 1,029,113 flagged contracts
-
-**Suspicious patterns detected:**
-- **Cover bidding**: Partners that always lose (win rate < 10%)
-- **Bid rotation**: Partners with ~50% alternating wins
-
----
-
-## Price Hypothesis System
-
-Uses Tukey's IQR method to detect statistical outliers:
+A single **ElasticNet-regularised logistic regression** is fit on 21 contract- and vendor-level features. Each feature is a z-score normalised against its own **sector × year** baseline, so a direct award in Defence (where it is the norm) is not penalised the way one in Education is. Because unlabelled contracts are not known to be clean, the raw output is adjusted with the **Elkan & Noto (2008) positive-unlabelled (PU) correction**. There is one model for all twelve sectors; earlier versions with per-sector sub-models are retired.
 
 ```
-Upper Fence = Q3 + 1.5 × IQR  (statistical outlier)
-Extreme Fence = Q3 + 3.0 × IQR  (extreme overpricing)
+z_i      = clamp((x_i − μ_sector,year) / max(σ_sector,year, 0.1), −5, +5)     # continuous features
+z_i      = (x_i − p_sector,year) / √(p(1 − p))                                # binary features
+raw      = sigmoid(−2.6157 + Σ β_i · z_i)
+score    = min(1, raw / c),   c = 0.32                                         # PU correction
 ```
 
-**Hypothesis types:**
-| Type | Definition | Count |
-|------|------------|-------|
-| extreme_overpricing | Amount > Q3 + 3×IQR | 300,499 |
-| statistical_outlier | Amount > Q3 + 1.5×IQR | 89,746 |
+Two post-scoring adjustments are applied (script: [`backend/scripts/_patch_v85_ghost_fp.py`](../backend/scripts/_patch_v85_ghost_fp.py)):
 
----
+- **Ghost-companion boost.** Vendors with a shell-company confidence ≥ 0.4 get `score + confidence × weight` (weight 0.20 / 0.30 / 0.40 by tier), capped at 1.0. The regression alone under-scores small shell vendors.
+- **Structural false-positive cap.** A short list of vendors marked as structural monopolies (single licensed suppliers of medical gases, dialysis and similar) are capped at 0.05. They are also excluded from training.
 
-## International Standards Alignment
+Because of the `min(1, ·)` clip, about 80K contracts are tied at exactly 1.0. Treat the top of the scale as a band, not a ranking.
 
-| Standard | How We Comply |
-|----------|---------------|
-| **IMF CRI** | 8-factor model weights based on IMF research |
-| **OECD** | Single-bid and concentration indicators |
-| **EU ARACHNE** | Price anomaly and network analysis |
-| **World Bank INT** | Fraud red flags and collusion detection |
-| **UNCITRAL** | Procedure type classification |
+## 2. Hyper-parameters
 
----
+| Parameter | Value |
+|---|---|
+| Model | `elasticnet_global` (scikit-learn logistic regression, ElasticNet penalty) |
+| C | 0.2243 |
+| l1_ratio | 0.7545 |
+| Intercept | −2.6157 |
+| PU constant c | 0.32 |
+| Features | 21 in, 18 non-zero after regularisation |
+| Labels at training time | 1,401 cases (1,417 today) |
+| Split | vendor-stratified (not persisted — see §6) |
 
-## Data Quality Notes
+## 3. Features and coefficients
 
-| Period | Years | RFC Coverage | Quality |
-|--------|-------|--------------|---------|
-| Structure A | 2002-2010 | 0.1% | Lowest — risk may be underestimated |
-| Structure B | 2010-2017 | 15.7% | Better |
-| Structure C | 2018-2022 | 30.3% | Good |
-| Structure D | 2023-2025 | 47.4% | Best |
+Coefficients are on standardised (z-score) inputs, so their magnitudes are comparable. Sorted by absolute weight; values are read from the `model_calibration` row for `v0.8.5`.
 
-**Amount validation:** Contracts > 100B MXN are rejected as data errors.
+| Feature | β | What it measures |
+|---|---:|---|
+| `price_volatility` | +0.558 | Spread of the vendor's contract sizes (std / median) relative to the sector-year norm |
+| `institution_diversity` | −0.388 | **Misnamed:** it is a Herfindahl concentration index of the vendor's buyers. Single-buyer vendors therefore score *lower*, which runs against the institutional-capture pattern. Known issue, to be fixed at the next retrain |
+| `price_ratio` | +0.358 | Contract amount ÷ sector-year median. The model does see contract size |
+| `vendor_concentration` | +0.327 | Vendor's share of value within its sector |
+| `cobid_herfindahl` | +0.272 | Concentration of the vendor's co-bidding relationships |
+| `recency_z` | −0.247 | Days since the vendor's previous contract (frequent repeat contracting raises the score) |
+| `amount_residual_z` | −0.187 | Contract amount relative to the vendor's own history |
+| `network_member_count` | +0.166 | Size of the vendor's name-similarity group. Built from an old fuzzy grouping later measured at ~19% precision; rebuild from the new entity-resolution judgements is pending (v0.9) |
+| `amendment_flag` | +0.102 | Contract was amended |
+| `ad_period_days` | +0.090 | Days between publication of the procedure and contract signing (0–365) |
+| `direct_award` | −0.081 | Direct-award procedure (binary) |
+| `pub_delay_z` | −0.055 | Delay between the contract date and its CompraNet publication |
+| `institution_risk` | −0.034 | Prior risk baseline of the buying institution |
+| `sector_spread` | +0.034 | Number of sectors the vendor sells into |
+| `industry_mismatch` | −0.017 | Vendor's classified industry differs from the contract's sector |
+| `year_end` | +0.017 | Signed in the December rush |
+| `same_day_count` | +0.014 | Contracts with the same buyer and vendor on the same day (threshold splitting) |
+| `single_bid` | −0.002 | Competitive procedure with exactly one bidder |
+| `co_bid_rate` | 0 | Regularised to zero |
+| `price_hyp_confidence` | 0 | Regularised to zero |
+| `win_rate` | 0 | Regularised to zero |
 
----
+Several signs are counter-intuitive (`direct_award`, `single_bid` near zero or negative). That is what a regularised model does when correlated vendor-level features already carry the signal; it does not mean direct awards are safe. Feature effects are **associations learned from the label set**, not causal claims.
 
-## API Endpoints
+The 16 original features are computed by [`backend/scripts/compute_z_features.py`](../backend/scripts/compute_z_features.py) against baselines from [`compute_factor_baselines.py`](../backend/scripts/compute_factor_baselines.py). The five v2 features (`amount_residual_z`, `recency_z`, `cobid_herfindahl`, `pub_delay_z`, `amendment_flag`) live in the `contract_z_features_v2` table; the script that built that table is not in this repository.
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /contracts?risk_factor=co_bid` | Filter by specific risk factor |
-| `GET /contracts/{id}/risk` | Contract risk breakdown |
-| `GET /vendors/{id}/risk-profile` | Vendor risk profile |
-| `GET /network/co-bidders/{id}` | Co-bidding analysis |
-| `GET /analysis/price-hypotheses` | Price anomaly hypotheses |
+## 4. Risk levels
 
----
+| Level | Threshold | Share of scored contracts |
+|---|---|---|
+| Critical | ≥ 0.60 | 4.98% |
+| High | ≥ 0.40 | 6.0% |
+| Medium | ≥ 0.25 | 16.2% |
+| Low | < 0.25 | 72.9% |
 
-## Interpretation Guidelines
+High + critical = **11.0%**. The thresholds were chosen so that this rate falls inside RUBLI's own 2–15% triage target. That band is a project choice, not an external benchmark, and the rate is not an estimate of how much procurement is corrupt.
 
-1. **Risk score ≠ proof of corruption** — it indicates elevated risk for review
-2. **Low scores don't guarantee clean contracts** — new patterns may emerge
-3. **Context matters** — Energia/Defensa sectors have structural reasons for high concentration
-4. **Co-bidding alone isn't proof** — some vendors legitimately specialize together
+The frontend reads these thresholds from `getRiskLevelFromScore` in [`frontend/src/lib/constants.ts`](../frontend/src/lib/constants.ts); do not re-implement the ladder.
 
----
+## 5. Explanations
 
-## Version History
+Per-vendor explanations are exact linear SHAP values (β × z on the vendor's mean z-vector), stored in `vendor_shap_v52`. They show which features pushed a vendor up or down. They do not cover the post-scoring adjustments in §1.
 
-| Version | Date | Key Changes |
-|---------|------|-------------|
-| **3.3.0** | 2026-02-06 | Reweighted to 8 base factors, updated thresholds (critical >=0.50, high >=0.35), 12.4% high-risk rate |
-| 3.2.0 | 2026-02-05 | Co-bidding risk factor (+5%), lowered thresholds (critical ≥0.50, high ≥0.35), 1M+ contracts flagged |
-| 3.1.0 | 2026-02-03 | Price hypothesis integration (+5%), 390K contracts flagged |
-| 3.0.0 | 2026-02 | Reweighted factors, interaction effects, sector baselines |
-| 2.0.0 | 2026-01 | Added short ad period, threshold splitting, network risk |
-| 1.0.0 | 2026-01 | Initial 10-factor model |
+## 6. What we can and cannot reproduce
 
----
+| Claim | Status |
+|---|---|
+| Stored coefficients reproduce `risk_score_v8` | **Yes** — 1,983 of 2,000 sampled contracts; the 17 differences are the §1 post-scoring adjustments |
+| High-risk rate 11.0% | **Yes** |
+| Forward-holdout AUC **0.656** | **Yes** — see [MODEL_CARD.md](MODEL_CARD.md) |
+| In-sample AUC **0.733** | **Yes** |
+| Originally reported test AUC 0.785 | **No.** The train/test split was not saved, and the training script is not in the repository. The figure is no longer cited |
+| Bootstrap confidence intervals | **None published** for v0.8.5 |
 
-## Key Sources
+## 7. Model history
 
-- IMF Working Paper 2022/094: *Assessing Vulnerabilities to Corruption in Public Procurement*
-- OECD (2023): *Public Procurement Performance Report*
-- EU ARACHNE: Risk scoring methodology
-- World Bank INT (2019): *Warning Signs of Fraud and Corruption*
-- Gallego et al. (2022): *Early warning model of malfeasance in public procurement*
+Older AUCs were measured on different splits, and several were inflated by leakage. They are not comparable with the v0.8.5 forward holdout and are listed only for provenance.
 
----
+| Version | Period | Approach | Note |
+|---|---|---|---|
+| v3.3 | Feb 2026 | Expert-weighted checklist | Retired |
+| v4.0 | Feb 2026 | Z-scores + logistic regression on 9 cases | In-sample only |
+| v5.1 | Mar 2026 | Per-sector sub-models + PU learning | Reported AUC inflated by temporal leakage; scores kept in `risk_score_v5` |
+| v0.6.5 | Mar–May 2026 | Institution-scoped labels, curriculum weights | Scores kept in `risk_score_v6` |
+| **v0.8.5** | May 2026 → | One global ElasticNet, 21 features | Active, `risk_score_v8` |
 
----
+## 8. Planned for v0.9
 
-## Successor Model: v4.0
+Retraining is paused until label quality improves (see [GROUND_TRUTH.md](GROUND_TRUTH.md)). The open items are:
 
-v3.3 has been superseded by v4.0 (statistical framework) as the primary risk model. v3.3 scores are preserved in the `risk_score_v3` column for comparison and potential ensemble use.
+- train and evaluate on independently sourced cases, reporting model-discovered cases separately;
+- rebuild `network_member_count` from the entity-resolution judgements;
+- rename and reconsider `institution_diversity`;
+- recompute year-keyed features after the 2010–2012 year correction;
+- put the training and scoring code in the repository and persist the split.
 
-| Metric | v3.3 | v4.0 |
-|--------|------|------|
-| AUC-ROC | 0.584 | **0.951** |
-| Detection rate (med+) | 67.1% | **95.3%** |
-| Lift | 1.22x | **4.04x** |
+## References
 
-See `docs/RISK_METHODOLOGY_v4.md` for v4.0 methodology and `docs/MODEL_COMPARISON_REPORT.md` for detailed comparison.
-
----
-
-*Risk scores are calculated automatically based on objective criteria. This methodology is provided for transparency and reproducibility.*
+- Elkan, C. & Noto, K. (2008). *Learning classifiers from only positive and unlabeled data.* KDD.
+- Fazekas, M., Tóth, I. J. & King, L. P. (2016). *An objective corruption risk index using public procurement data.* European Journal on Criminal Policy and Research.
+- Zou, H. & Hastie, T. (2005). *Regularization and variable selection via the elastic net.* JRSS-B.

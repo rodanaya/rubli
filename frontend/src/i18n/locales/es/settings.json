@@ -22,7 +22,7 @@
     },
     "about": {
       "title": "Acerca de RUBLI",
-      "description": "RUBLI (Red Unificada de Búsqueda de Licitaciones Irregulares) es una plataforma de detección de corrupción con inteligencia artificial para la contratación pública federal de México. Nombrada en referencia al concepto de red unificada para detectar patrones irregulares de contratación en los sectores federales."
+      "description": "RUBLI (Red Unificada de Búsqueda de Licitaciones Irregulares) es una plataforma de código abierto de análisis de riesgo de corrupción para la contratación pública federal de México. Nombrada en referencia al concepto de red unificada para detectar patrones irregulares de contratación en los sectores federales."
     }
   },
   "export": {

@@ -22,19 +22,19 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/procurement-health", tags=["procurement-health"])
 
 # ---------------------------------------------------------------------------
-# Thresholds — sourced from OECD, EU Scoreboard, DOJ/FTC
+# Thresholds — EU Single Market Scoreboard, ECA, DOJ/FTC, or RUBLI working values
 # ---------------------------------------------------------------------------
 
 THRESHOLDS = {
     "competition_rate": {
         # % of contracts awarded competitively (not direct award)
-        # OECD avg competitive rate ~70-85% in advanced economies
+        # RUBLI working threshold; no published OECD average is cited
         "green": 60,   # >=60% competitive
         "yellow": 35,  # 35-60%
         # <35% = red
         "unit": "%",
         "direction": "higher_is_better",
-        "source": "OECD Government at a Glance 2025",
+        "source": "RUBLI working threshold (not externally sourced)",
     },
     "single_bid_rate": {
         # % of competitive procedures with only 1 bidder
@@ -84,7 +84,7 @@ THRESHOLDS = {
         # >20% = red
         "unit": "%",
         "direction": "lower_is_better",
-        "source": "EU Court of Auditors SR-2023-28; OECD 2023",
+        "source": "EU Court of Auditors SR-2023-28",
     },
 }
 
@@ -298,7 +298,7 @@ def _compute_sector_phi(conn: sqlite3.Connection, sector_id: Optional[int] = Non
             "light": _traffic_light("competition_rate", competition_rate),
             "label": "Competition Rate",
             "description": f"{competition_rate}% of contracts awarded competitively",
-            "benchmark": "OECD avg: 70-85%",
+            "benchmark": "RUBLI working threshold: >=60% competitive",
         },
         "single_bid_rate": {
             "value": single_bid_rate,

@@ -430,7 +430,7 @@ def load_external_crossref(conn: sqlite3.Connection) -> dict:
         LEFT JOIN ground_truth_vendors g
                ON v.id = g.vendor_id
               -- FP / junk fuzzy links must not boost IPS or set P7
-              -- (docs/PREPUB_AUDIT_2026-09-24.md § B4, 05 report F2)
+              -- (Sep-2026 pre-publication audit (internal) § B4, 05 report F2)
               AND COALESCE(g.is_false_positive, 0) = 0
               AND COALESCE(g.match_method, '') <> 'scandal_actor'
         """

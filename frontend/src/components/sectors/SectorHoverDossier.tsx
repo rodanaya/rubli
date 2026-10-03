@@ -235,14 +235,14 @@ export function SectorDossierCard({
                     border: `1px solid ${RISK_COLORS.high}`,
                   }}
                 >
-                  ▣ {gt.cases} {isEs ? 'casos documentados' : 'documented cases'} · {gt.vendors} {isEs ? 'proveedores GT' : 'GT vendors'}
+                  ▣ {gt.cases} {isEs ? 'casos etiquetados' : 'labelled cases'} · {gt.vendors} {isEs ? 'proveedores GT' : 'GT vendors'}
                 </span>
               ) : (
                 <span
                   className="font-mono"
                   style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)' }}
                 >
-                  {isEs ? 'Sin casos documentados en este sector' : 'No documented cases in this sector'}
+                  {isEs ? 'Sin casos etiquetados en este sector' : 'No labelled cases in this sector'}
                 </span>
               )}
             </div>

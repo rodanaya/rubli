@@ -14,7 +14,7 @@
  *
  * So the figures are built the other way up. F1 and F2 show where the money
  * is. F3 goes to the thirteen Tier-1 leads, where the signature is unambiguous
- * and every row is already a documented case. F4 counts who has been checked.
+ * and every row is already a labelled case. F4 counts who has been checked.
  * F5 counts who has not — 2,691 of 2,972.
  *
  * No vendor carrying a cleared disposition is drawn, named or chipped
@@ -511,7 +511,7 @@ const LOG_MAX = 10 // 10B MXN
  *
  * "1B" may not appear in the Spanish axis: a billón is 10¹², so an
  * English-loaned B would put the tick three decades off for a Mexican reader
- * (CLAUDE.md § Spanish currency formatting). Spanish counts the lane in MDP —
+ * (docs/DESIGN_SYSTEM.md currency rules). Spanish counts the lane in MDP —
  * millones de pesos — which is also the unit every row readout in this figure
  * prints, so the axis and the rows read in the same currency.
  */
@@ -567,7 +567,7 @@ function Ticket({
       annotation={
         es
           ? `El punto lleno es el ticket del proveedor — su contratación total entre su número de contratos. El punto hueco es el contrato promedio de su sector principal, de /sectors, y el tramo entre los dos es el múltiplo impreso a la derecha. La escala es logarítmica: cuatro décadas, de un millón de pesos a diez mil millones, porque los dos valores de una fila se separan por dos o tres órdenes de magnitud. Un ticket grande no prueba nada por sí solo — un tramo de carretera cuesta lo que cuesta — pero es uno de los seis términos del burst score con que ARIA define la intermediación de un solo uso (ARIA_SPEC § Módulo 3), junto con una vida de a lo más tres años y la desaparición posterior. La prueba del patrón se toma contra la mediana del sector; aquí se imprime el promedio, que es lo que publica /sectors. Estas son las ${formatNumber(rows.length)} filas de nivel 1 de la cohorte P3 — la banda que la cola prioriza — y las ${formatNumber(rows.filter((r) => r.in_ground_truth).length)} están ya documentadas como casos.`
-          : `The filled dot is the vendor's ticket — its total contracting divided by its number of contracts. The hollow dot is the average contract in its primary sector, from /sectors, and the run between them is the multiple printed on the right. The scale is logarithmic across four decades, from one million pesos to ten billion, because a row's two values sit two or three orders of magnitude apart. A large ticket proves nothing on its own — a stretch of motorway costs what it costs — but it is one of the six terms in the burst score ARIA defines single-use intermediation with (ARIA_SPEC § Module 3), alongside a life of at most three years and disappearance afterwards. The pattern's own test is taken against the sector median; what is printed here is the average, which is what /sectors publishes. These are the cohort's ${formatNumber(rows.length)} Tier-1 rows — the band the queue prioritises — and ${formatNumber(rows.filter((r) => r.in_ground_truth).length)} of them are already documented cases.`
+          : `The filled dot is the vendor's ticket — its total contracting divided by its number of contracts. The hollow dot is the average contract in its primary sector, from /sectors, and the run between them is the multiple printed on the right. The scale is logarithmic across four decades, from one million pesos to ten billion, because a row's two values sit two or three orders of magnitude apart. A large ticket proves nothing on its own — a stretch of motorway costs what it costs — but it is one of the six terms in the burst score ARIA defines single-use intermediation with (ARIA_SPEC § Module 3), alongside a life of at most three years and disappearance afterwards. The pattern's own test is taken against the sector median; what is printed here is the average, which is what /sectors publishes. These are the cohort's ${formatNumber(rows.length)} Tier-1 rows — the band the queue prioritises — and ${formatNumber(rows.filter((r) => r.in_ground_truth).length)} of them are already labelled cases.`
       }
     >
       <div className="px-2 pb-2">
@@ -951,8 +951,8 @@ function Queue({ body, lang }: { body: AriaPatternGroupsResponse; lang: 'en' | '
             },
             {
               count: k.in_ground_truth,
-              labelEn: `Already documented corruption cases in RUBLI's ground truth.`,
-              labelEs: `Ya son casos de corrupción documentados en la verdad-base de RUBLI.`,
+              labelEn: `Already labelled cases in RUBLI's ground truth.`,
+              labelEs: `Ya son casos etiquetados en la verdad-base de RUBLI.`,
               color: PARTIAL,
             },
             {

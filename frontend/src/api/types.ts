@@ -2662,7 +2662,7 @@ export interface AriaQueueItem {
   /** S.7: GT-anchored overlay flag — true when vendor is in ground_truth_vendors.
    *  Distinguishes "we already know this is corrupt" from "model discovered this". */
   gt_overlay?: boolean | null
-  /** Detail endpoint only — the named documented case this lead is anchored to
+  /** Detail endpoint only — the named labelled case this lead is anchored to
    *  (ground_truth_vendors ⨝ ground_truth_cases, added 2026-06-12). */
   gt_case_name?: string | null
   gt_case_type?: string | null

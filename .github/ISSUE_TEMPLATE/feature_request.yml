@@ -1,0 +1,19 @@
+name: Feature request
+description: Suggest an analysis, page, endpoint or improvement.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or question you want to answer
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Who would use it (journalists, researchers, auditors), related data sources, prior art.

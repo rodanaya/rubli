@@ -918,8 +918,8 @@ export const STORIES: StoryDef[] = [
         name: 'Rapiscan Systems, Inc.',
         riskScore: 1.0,
         ariaTier: 1,
-        role: 'Largest in the cohort · 2,509.0 MDP at SAT · linked to a documented case',
-        role_es: 'El mayor de la cohorte · 2,509.0 MDP en el SAT · ligado a un caso documentado',
+        role: 'Largest in the cohort · 2,509.0 MDP at SAT · linked to a labelled case',
+        role_es: 'El mayor de la cohorte · 2,509.0 MDP en el SAT · ligado a un caso etiquetado',
       },
       {
         type: 'vendor',
@@ -933,12 +933,12 @@ export const STORIES: StoryDef[] = [
     ],
     corrections: [
       "2026-09-19 — An earlier edition of chapter four called a named individual's registration \"the shell\". The register supports calling it a flagged vendor; the story asserts nothing more about him.",
-      "2026-09-30 — Earlier editions named three private individuals (personas físicas) flagged by the P2 algorithm. They are on no SAT or SFP list, in no documented case and charged with nothing; their names have been removed. The pattern analysis is unchanged.",
+      "2026-09-30 — Earlier editions named three private individuals (personas físicas) flagged by the P2 algorithm. They are on no SAT or SFP list, in no labelled case and charged with nothing; their names have been removed. The pattern analysis is unchanged.",
       "2026-09-19 — An earlier edition closed chapter four with \"1,954 vendors sanctioned\" beside the 99 SFP matches named in the sentence before it. The 1,954 is the SFP's whole docket for 2002-2025; 99 is what matches the P2-flagged cohort.",
     ],
     corrections_es: [
       "2026-09-19 — Una edición anterior del capítulo cuatro llamaba «la fachada» al registro de una persona con nombre. El registro sostiene llamarlo proveedor marcado; la historia no afirma nada más sobre él.",
-      "2026-09-30 — Ediciones anteriores nombraban a tres personas físicas marcadas por el algoritmo P2. No aparecen en ninguna lista del SAT ni de la SFP, en ningún caso documentado y no se les ha imputado nada; sus nombres se retiraron. El análisis del patrón no cambia.",
+      "2026-09-30 — Ediciones anteriores nombraban a tres personas físicas marcadas por el algoritmo P2. No aparecen en ninguna lista del SAT ni de la SFP, en ningún caso etiquetado y no se les ha imputado nada; sus nombres se retiraron. El análisis del patrón no cambia.",
       "2026-09-19 — Una edición anterior cerraba el capítulo cuatro con «1,954 proveedores sancionados» junto a los 99 empates de la SFP nombrados en la frase anterior. Los 1,954 son el expediente completo de la SFP de 2002 a 2025; 99 es lo que empata con la población marcada por P2.",
     ],
     chapters: [
@@ -951,12 +951,12 @@ export const STORIES: StoryDef[] = [
         subtitle_es: "Una persona, dos contratos, 370 millones de pesos, y después nada",
         prose: [
           "One vendor exists in the federal procurement record as a single line. It is a sole trader, a persona física — a physical person, not a company — and he holds two contracts worth approximately 370 million pesos, between 18 and 25 million US dollars. No contracting history precedes the registration; none follows. The activity concentrates inside one institution across one year, and then it stops. One person, two contracts, 370 million pesos, and then nothing. RUBLI withholds the name: this is a private individual, and nothing in the public record goes beyond a contracting shape.",
-          "The shape is not unique. A second sole trader holds two contracts worth roughly 370 million pesos and then disappears from the record. A third repeats the line exactly: 370 million pesos, two contracts, a single person rather than a company, gone afterward. Three identical rows. Mexican law does let individuals win federal contracts, and legitimate cases exist — specialized consulting, artistic commissions, small local services — but none of them obviously explains 370 million pesos awarded to a single person. What must be said plainly: none of the three appears on SAT's Art. 69-B list, none carries an SFP sanction, none is a documented corruption case, and none has been charged with anything. RUBLI's flag is a description of a contracting shape and an invitation to report, not a finding against any of them.",
+          "The shape is not unique. A second sole trader holds two contracts worth roughly 370 million pesos and then disappears from the record. A third repeats the line exactly: 370 million pesos, two contracts, a single person rather than a company, gone afterward. Three identical rows. Mexican law does let individuals win federal contracts, and legitimate cases exist — specialized consulting, artistic commissions, small local services — but none of them obviously explains 370 million pesos awarded to a single person. What must be said plainly: none of the three appears on SAT's Art. 69-B list, none carries an SFP sanction, none is a labelled case, and none has been charged with anything. RUBLI's flag is a description of a contracting shape and an invitation to report, not a finding against any of them.",
           "RUBLI found the first of them with a lens that reads behavior, not names or domiciles. Its Pattern 2 (P2) algorithm weighs a sudden single-year appearance, contract values 10 to 50 times the sector median, no prior or subsequent activity, an RFC that resolves to nothing in the Registro Único de Proveedores y Contratistas, and bursts measured in weeks rather than years. That is why the chart below sets two foreign-domiciled companies — RAPISCAN SYSTEMS INC at 2,509 MDP, APIS FOOD BV at 732 MDP — beside three personas físicas, names withheld, each between 373 and 376 MDP. The algorithm flagged all five on conduct alone; on every axis, the first sole trader reads as a textbook match for the pattern, which describes the contracting record and is not a finding about the person.",
         ],
         prose_es: [
           "Un proveedor aparece en el registro federal de contrataciones como una sola línea. Es una persona física — un individuo, no una empresa — y tiene dos contratos por aproximadamente 370 millones de pesos, entre 18 y 25 millones de dólares. No hay historial de contratación antes del registro; tampoco después. Su actividad se concentra en una sola institución durante un solo año, y luego se detiene. Una persona, dos contratos, 370 millones de pesos, y después nada. RUBLI omite el nombre: es un particular, y nada en el registro público va más allá de una forma de contratación.",
-          "La forma no es única. Una segunda persona física tiene dos contratos por unos 370 millones de pesos y después desaparece del registro. Una tercera repite la línea idéntica: 370 millones de pesos, dos contratos, una persona y no una empresa, esfumada después. Tres renglones idénticos. La ley mexicana sí permite que personas físicas ganen contratos federales, y existen casos legítimos — consultoría especializada, comisiones artísticas, pequeños servicios locales — pero ninguno explica a simple vista 370 millones de pesos adjudicados a una sola persona. Lo que hay que decir con todas sus letras: ninguno de los tres aparece en la lista del Art. 69-B del SAT, ninguno carga una sanción de la SFP, ninguno es un caso de corrupción documentado y a ninguno se le ha imputado nada. La marca de RUBLI describe una forma de contratación e invita a reportear; no es un hallazgo en contra de ninguno de ellos.",
+          "La forma no es única. Una segunda persona física tiene dos contratos por unos 370 millones de pesos y después desaparece del registro. Una tercera repite la línea idéntica: 370 millones de pesos, dos contratos, una persona y no una empresa, esfumada después. Tres renglones idénticos. La ley mexicana sí permite que personas físicas ganen contratos federales, y existen casos legítimos — consultoría especializada, comisiones artísticas, pequeños servicios locales — pero ninguno explica a simple vista 370 millones de pesos adjudicados a una sola persona. Lo que hay que decir con todas sus letras: ninguno de los tres aparece en la lista del Art. 69-B del SAT, ninguno carga una sanción de la SFP, ninguno es un caso etiquetado y a ninguno se le ha imputado nada. La marca de RUBLI describe una forma de contratación e invita a reportear; no es un hallazgo en contra de ninguno de ellos.",
           "RUBLI encontró a la primera con un lente que lee conducta, no nombres ni domicilios. Su algoritmo de Patrón 2 (P2) pondera una aparición súbita en un solo año, montos de 10 a 50 veces la mediana del sector, sin actividad previa ni posterior, un RFC que no resuelve a nada en el Registro Único de Proveedores y Contratistas, y ráfagas medidas en semanas y no en años. Por eso la gráfica coloca a dos empresas de domicilio extranjero — RAPISCAN SYSTEMS INC con 2,509 MDP, APIS FOOD BV con 732 MDP — junto a tres personas físicas, con nombre omitido, cada una entre 373 y 376 MDP. El algoritmo marcó a las cinco solo por su conducta; en cada eje, la primera encaja como caso de manual del patrón, que describe el registro de contratación y no es un hallazgo sobre la persona.",
         ],
         chartConfig: {
@@ -1043,12 +1043,12 @@ export const STORIES: StoryDef[] = [
         prose: [
           "SAT's fastest definitive listing takes six months; its worst case runs past three years. RUBLI's last full pipeline run scored every vendor in the register in under five minutes. A genuine ghost vendor can collect hundreds of millions of pesos and dissolve long before any official list reaches it — and it can keep contracting the entire time, because the definitive listing is the only trigger for procurement exclusion.",
           "The procedure dictates the delay. Article 69-B requires SAT to prove, with simulated invoices and operational records, that an entity issued fiscal receipts without underlying economic activity — proof built from bank records, third-party testimony, and on-site visits. A provisional listing then publishes in the Diario Oficial de la Federación with a 30-day rebuttal period, and only after it expires does the definitive listing go live. That sequence is why the official clock runs in months and not in days: six at SAT's fastest, twelve to eighteen in the typical case, thirty-six or more when a vendor litigates.",
-          "The OECD's 2023 framework for measuring procurement performance describes this same gap and treats independent, behaviour-based red-flag indicators as a parallel line of defence — because tax enforcement is retrospective while procurement fraud is prospective. World Bank research on Eastern European procurement reached the identical conclusion in 2019. P2 is that recommendation operationalized: pattern-based, procurement-native, fast. It does not replace SAT; it adds the one thing tax enforcement cannot deliver at scale — speed.",
+          "The gap is structural: tax enforcement looks backward, at returns already filed, while procurement fraud happens at the moment of award. The OECD's 2023 framework for measuring procurement performance makes the broader case for monitoring procurement with its own data and indicators. P2 applies that idea to ghost suppliers: pattern-based, procurement-native, fast. It does not replace SAT; it adds the one thing tax enforcement cannot deliver at scale — speed.",
         ],
         prose_es: [
           "El listado definitivo más rápido del SAT tarda seis meses; en el peor caso rebasa los tres años. La última corrida completa del pipeline de RUBLI puntuó a todo el padrón en menos de cinco minutos. Un proveedor fantasma real puede cobrar cientos de millones de pesos y disolverse mucho antes de que cualquier lista oficial lo alcance — y puede seguir contratando todo ese tiempo, porque el listado definitivo es el único disparador de la exclusión en contrataciones.",
           "El procedimiento dicta la demora. El Artículo 69-B obliga al SAT a probar, con facturas simuladas y registros operativos, que una entidad emitió comprobantes fiscales sin actividad económica real — prueba construida con estados de cuenta, testimonios de terceros y visitas en sitio. Luego se publica un listado provisional en el Diario Oficial de la Federación con un plazo de 30 días para desvirtuar, y solo cuando vence entra el listado definitivo. Esa secuencia es la razón de que el reloj oficial corra en meses y no en días: seis en el mejor caso del SAT, de doce a dieciocho en el típico, treinta y seis o más cuando un proveedor litiga.",
-          "El marco de la OCDE de 2023 para medir el desempeño en contratación pública describe esta misma brecha y trata los indicadores conductuales independientes de bandera roja como una línea de defensa paralela — porque la fiscalización mira al pasado mientras el fraude en contrataciones mira al futuro. La investigación del Banco Mundial sobre contrataciones en Europa del Este llegó a la misma conclusión en 2019. P2 es esa recomendación hecha operación: basada en patrones, nativa de la contratación, rápida. No reemplaza al SAT; aporta lo único que la fiscalización no puede entregar a escala — velocidad.",
+          "La brecha es estructural: la fiscalización mira hacia atrás, a declaraciones ya presentadas, mientras el fraude en contrataciones ocurre en el momento de la adjudicación. El marco de la OCDE de 2023 para medir el desempeño en contratación pública defiende, en términos generales, vigilar la contratación con sus propios datos e indicadores. P2 aplica esa idea a los proveedores fantasma: basada en patrones, nativa de la contratación, rápida. No reemplaza al SAT; aporta lo único que la fiscalización no puede entregar a escala — velocidad.",
         ],
         chartConfig: {
           // SD-06 F3 replaces the typed SAT-vs-RUBLI Cleveland pair. The SAT
@@ -1301,12 +1301,12 @@ export const STORIES: StoryDef[] = [
         prose: [
           "The climb is not a model artifact. It tracks structural realities of procurement fraud that international research has documented for two decades, through three compounding mechanisms. First: large contracts skip competition — but not the way the headline number suggests. In RUBLI's data, 23.2 percent of the 105,011 contracts above 10 million pesos are direct awards, against 74.2 percent across the register as a whole; the largest contracts are competed on paper far more often than small ones, and draw a single bidder instead. Direct award strips out three of the four integrity controls open tendering provides — competitive pricing pressure, public advertising, and systematic bid evaluation with an audit trail. The EU Single Market Scoreboard treats a direct-award share at or above 10 percent as unsatisfactory; at 23.2 percent the big-contract band more than doubles it, and the register as a whole runs seven times it.",
           "Second: large contracts concentrate enough money to pay for sophisticated fraud. Inventing a ghost company, staging a fake competition, securing an official — each carries fixed costs in time, relationships, and risk. Below a break-even point those costs exceed the return; above it, they turn profitable. The IMSS Ghost Company Network operated mostly in the 100-to-500-million-peso band. The Infrastructure Overpricing Network RUBLI tracks in ARIA runs contracts averaging 645 million pesos each — well past any plausible break-even.",
-          "Third: the biggest contracts pool where capture is already entrenched. PEMEX, CFE, IMSS, ISSSTE, and SCT — the five largest procuring entities — generate the majority of contracts above 500 million pesos, and all five carry decades of documented corruption. The more-money-more-scrutiny intuition fails because the money flows precisely to the places where the guardrails are already gone.",
+          "Third: the biggest contracts pool where capture is already entrenched. PEMEX, CFE, IMSS, ISSSTE, and SCT — the five largest procuring entities — generate the majority of contracts above 500 million pesos, and all five carry decades of reported corruption. The more-money-more-scrutiny intuition fails because the money flows precisely to the places where the guardrails are already gone.",
         ],
         prose_es: [
           "La subida no es un artefacto del modelo. Refleja realidades estructurales del fraude en contratación que la investigación internacional ha documentado por dos décadas, mediante tres mecanismos que se combinan. Primero: los contratos grandes se saltan la competencia — pero no como sugiere la cifra de cabecera. En los datos de RUBLI, el 23.2 por ciento de los 105,011 contratos por encima de 10 millones de pesos son adjudicaciones directas, frente al 74.2 por ciento del registro completo; los contratos más grandes se concursan en el papel mucho más que los chicos, y en cambio atraen a un solo postor. La adjudicación directa elimina tres de los cuatro controles de integridad que aporta la licitación abierta — la presión de precios competitivos, la publicidad pública y la evaluación sistemática de ofertas con historial de auditoría. El Tablero del Mercado Único de la UE considera insatisfactoria una proporción de adjudicación directa igual o superior al 10 por ciento; con 23.2 por ciento la banda de contratos grandes la duplica con creces, y el registro completo la multiplica por siete.",
           "Segundo: los contratos grandes concentran suficiente dinero para pagar el fraude sofisticado. Inventar una empresa fantasma, simular una competencia, conseguir a un funcionario — cada cosa tiene costos fijos de tiempo, relaciones y riesgo. Por debajo de un punto de equilibrio esos costos superan el beneficio; por encima, se vuelven rentables. La Red de Empresas Fantasma del IMSS operó sobre todo en el rango de 100 a 500 millones de pesos. La Red de Sobreprecio en Infraestructura que RUBLI rastrea en ARIA maneja contratos que promedian 645 millones de pesos cada uno — muy por encima de cualquier punto de equilibrio plausible.",
-          "Tercero: los contratos más grandes se acumulan donde la captura ya está arraigada. PEMEX, CFE, IMSS, ISSSTE y SCT — las cinco entidades contratantes más grandes — generan la mayoría de los contratos por encima de 500 millones de pesos, y las cinco cargan décadas de corrupción documentada. La intuición de a-más-dinero-más-escrutinio falla porque el dinero fluye justo hacia los lugares donde los controles ya desaparecieron.",
+          "Tercero: los contratos más grandes se acumulan donde la captura ya está arraigada. PEMEX, CFE, IMSS, ISSSTE y SCT — las cinco entidades contratantes más grandes — generan la mayoría de los contratos por encima de 500 millones de pesos, y las cinco cargan décadas de corrupción reportada. La intuición de a-más-dinero-más-escrutinio falla porque el dinero fluye justo hacia los lugares donde los controles ya desaparecieron.",
         ],
         pullquote: {
           quote:
@@ -1336,13 +1336,13 @@ export const STORIES: StoryDef[] = [
           "795 contratos por encima de mil millones — en manos de 466 proveedores, en cuatro sectores",
         prose: [
           "Above 10 billion pesos sit 40 contracts, held by 33 vendors, every one scored high-risk, average score 0.962. Read that band with the register's own rule attached: RUBLI rejects any contract above 100 billion pesos as a data error and flags everything above 10 billion for manual review, so every contract in this tier is one the platform requires a human to verify before it counts as a finding. Reviewers have since cleared several of the largest. Cross the one-billion-peso line and the field thins to 795 contracts out of 3,051,294, worth 2.66 trillion pesos, held by just 466 vendors, about 0.15 percent of the active vendor universe. Above 5 billion: 112 contracts, 93 vendors. The mega-contract tier is not a market. It is a directory.",
-          "The cast is not random. It clusters into five recognizable types: pharmaceutical distributors with multi-decade IMSS relationships — Grupo Fármacos, Maypo, PISA, DIMM, the concentration examined in The Invisible Monopoly; Tren Maya contractors awarded after 2019 — Operadora CICSA, ICA Constructora; Pemex and CFE infrastructure providers — Cotemar; military-construction operators such as Coconal; and card-and-voucher welfare operators such as TOKA Internacional. Several names that belong to this list by value do not belong to it by finding: ARIA has reviewed and cleared Dowell Schlumberger, ICA Fluor and Constructora Arhnos, and treats Repsol Exploración and Alstom Transport as structural-monopoly exceptions rather than risk cases.",
+          "The cast is not random. It clusters into five recognizable types: pharmaceutical distributors with multi-decade IMSS relationships — Grupo Fármacos, Maypo, PISA, Dimesa, whose combined share of IMSS spending is examined in “Concentration in IMSS Medicine Purchasing”; Tren Maya contractors awarded after 2019 — Operadora CICSA, ICA Constructora; Pemex and CFE infrastructure providers — Cotemar; military-construction operators such as Coconal; and card-and-voucher welfare operators such as TOKA Internacional. Several names that belong to this list by value do not belong to it by finding: ARIA has reviewed and cleared Dowell Schlumberger, ICA Fluor and Constructora Arhnos, and treats Repsol Exploración and Alstom Transport as structural-monopoly exceptions rather than risk cases.",
           "The extremes are where the pattern breaks down. The three largest single-vendor totals in this band have all been reviewed and ruled out: ARIA files Mantenimiento Express Marítimo, Urbanissa and Constructora Arhnos as false positives: Mantenimiento Express holds nine contracts at a mean indicator of 0.251, Urbanissa fifty-two. Above ten billion pesos, RUBLI's own data rules require every amount to be flagged for manual review before it is read as a finding. The mega-contract tier is where the model is least reliable, not most.",
-          "These vendors match the pattern RUBLI flags — concentration, sole-source awards, perfect risk scores; the model classifies behavior, not proven crime. The chart below ranks the top 12 by pesos in contracts above one billion, each annotated with its contract count and score, with single-contract and perfect-score outliers marked. Together those 12 capture 618 billion pesos, 23 percent of the mega-contract universe. The four sectors that absorb 92 percent of all mega-pesos are the four with the longest documented corruption histories. No published oversight programme assigns dedicated teams to the four sectors that hold 92 percent of the mega-contract pesos.",
+          "These vendors match the pattern RUBLI flags — concentration, sole-source awards, perfect risk scores; the model classifies behavior, not proven crime. The chart below ranks the top 12 by pesos in contracts above one billion, each annotated with its contract count and score, with single-contract and perfect-score outliers marked. Together those 12 capture 618 billion pesos, 23 percent of the mega-contract universe. The four sectors that absorb 92 percent of all mega-pesos are the four with the longest records of reported corruption. No published oversight programme assigns dedicated teams to the four sectors that hold 92 percent of the mega-contract pesos.",
         ],
         prose_es: [
           "Por encima de 10 mil millones de pesos hay 40 contratos, en manos de 33 proveedores, todos calificados de alto riesgo, con promedio de 0.962. Lea esa banda con la regla del propio registro puesta al lado: RUBLI rechaza como error de captura cualquier contrato por encima de 100 mil millones de pesos y marca para revisión manual todo lo que pase de 10 mil millones, así que cada contrato de este nivel exige verificación humana antes de contar como hallazgo. Desde entonces los revisores han descartado a varios de los mayores. Cruce la línea de mil millones de pesos y el campo se reduce a 795 contratos de 3,051,294, con valor de 2.66 billones de pesos, en manos de solo 466 proveedores, alrededor del 0.15 por ciento del universo activo. Por encima de 5 mil millones: 112 contratos, 93 proveedores. El nivel de mega-contratos no es un mercado. Es un directorio.",
-          "El reparto no es aleatorio. Se agrupa en cinco tipos reconocibles: distribuidoras farmacéuticas con relaciones de varias décadas con el IMSS — Grupo Fármacos, Maypo, PISA, DIMM, la concentración que examina El Monopolio Invisible; contratistas del Tren Maya adjudicados después de 2019 — Operadora CICSA, ICA Constructora; proveedores de infraestructura de Pemex y CFE como Cotemar; operadores de construcción militar como Coconal; y operadores de tarjetas y vales de bienestar como TOKA Internacional. Varios nombres que pertenecen a esta lista por monto no le pertenecen por hallazgo: ARIA revisó y descartó a Dowell Schlumberger, ICA Fluor y Constructora Arhnos, y trata a Repsol Exploración y Alstom Transport como excepciones de monopolio estructural y no como casos de riesgo.",
+          "El reparto no es aleatorio. Se agrupa en cinco tipos reconocibles: distribuidoras farmacéuticas con relaciones de varias décadas con el IMSS — Grupo Fármacos, Maypo, PISA, Dimesa, cuya participación conjunta en el gasto del IMSS examina «Concentración en las compras de medicamentos del IMSS»; contratistas del Tren Maya adjudicados después de 2019 — Operadora CICSA, ICA Constructora; proveedores de infraestructura de Pemex y CFE como Cotemar; operadores de construcción militar como Coconal; y operadores de tarjetas y vales de bienestar como TOKA Internacional. Varios nombres que pertenecen a esta lista por monto no le pertenecen por hallazgo: ARIA revisó y descartó a Dowell Schlumberger, ICA Fluor y Constructora Arhnos, y trata a Repsol Exploración y Alstom Transport como excepciones de monopolio estructural y no como casos de riesgo.",
           "En los extremos es donde el patrón se rompe. Los tres mayores totales por proveedor de esta banda ya fueron revisados y descartados: ARIA clasifica a Mantenimiento Express Marítimo, Urbanissa y Constructora Arhnos como falsos positivos: Mantenimiento Express tiene nueve contratos con un indicador medio de 0.251; Urbanissa, cincuenta y dos. Por encima de los diez mil millones de pesos, las propias reglas de datos de RUBLI obligan a marcar cada monto para revisión manual antes de leerlo como hallazgo. El nivel de los mega-contratos es donde el modelo es menos confiable, no el más.",
           "Estos proveedores coinciden con el patrón que RUBLI marca — concentración, adjudicaciones a proveedor único, calificaciones de riesgo perfectas; el modelo clasifica comportamiento, no delito probado. La gráfica de abajo ordena los 12 primeros por pesos en contratos por encima de mil millones, cada uno anotado con su número de contratos y su calificación, con los atípicos de un solo contrato y de calificación perfecta marcados. Juntos esos 12 capturan 618 mil millones de pesos, 23 por ciento del universo de mega-contratos. Los cuatro sectores que absorben el 92 por ciento de todos los mega-pesos son los cuatro con las historias de corrupción mejor documentadas. Ningún programa de fiscalización publicado asigna equipos dedicados a los cuatro sectores que concentran el 92 por ciento de los pesos en mega-contratos.",
         ],
@@ -1573,14 +1573,14 @@ export const STORIES: StoryDef[] = [
             },
             unit: 'B MXN',
             annotation:
-              'Mega-contract pesos by sector. Top 4 sectors absorb 92 percent of the universe. The four sectors are also the four with the longest documented corruption histories.',
+              'Mega-contract pesos by sector. Top 4 sectors absorb 92 percent of the universe. The four sectors are also the four with the longest records of reported corruption.',
             annotation_es:
               'Pesos en mega-contratos por sector. Los 4 sectores principales absorben el 92 por ciento del universo. Estos cuatro sectores son los mismos cuatro con las historias de corrupción mejor documentadas.',
           },
         },
         pullquote: {
           quote:
-            "The sectors that absorb Mexico's biggest contracts are the same four with the longest documented corruption histories. Concentrated capture, by definition.",
+            "The sectors that absorb Mexico's biggest contracts are the same four with the longest records of reported corruption. Concentrated capture, by definition.",
           quote_es:
             "Los sectores que absorben los contratos más grandes de México son los mismos cuatro con las historias de corrupción mejor documentadas. Captura concentrada, por definición.",
           stat: '92%',
@@ -1641,22 +1641,22 @@ export const STORIES: StoryDef[] = [
     nextSteps: [
       "Request from SFP the complete list of contracts above 100M MXN awarded via direct adjudication in 2023-2025; cross-reference against RUBLI's P2 and P6 vendor lists.",
       'File ASF audit requests for the top 20 contracts above 500M MXN that RUBLI flags as critical-risk, naming the specific contract IDs.',
-      "Compare Mexico's large-contract audit coverage against peer countries using the indicator set in the OECD's 2023 procurement-performance framework.",
+      "Compare Mexico's large-contract audit coverage against peer countries, using compliance indicators of the kind proposed in the OECD's 2023 procurement-performance framework.",
       'Investigate whether procurement thresholds under LAASSP Art. 42 have been adjusted for inflation since 2012; compute the real-value erosion.',
       'Request from Congress (Cámara de Diputados) the complete list of contracts above 5B MXN approved in each fiscal year and cross-reference with RUBLI risk scores.',
-      'Open dedicated case files on the four dominant IMSS pharmaceutical vendors (Grupo Fármacos, Maypo, PISA, DIMM) with focus on 2018-2025 contract awards.',
+      'Open dedicated case files on the four dominant IMSS pharmaceutical vendors (Grupo Fármacos, Maypo, PISA, Dimesa) with focus on 2018-2025 contract awards.',
     ],
     nextSteps_es: [
       'Solicitar a la SFP la lista completa de contratos superiores a 100 MDP adjudicados directamente en 2023-2025; cruzarlos con los listados P2 y P6 de RUBLI.',
       'Presentar solicitudes de auditoría a la ASF para los 20 contratos superiores a 500 MDP que RUBLI califica como riesgo crítico, citando las claves de contrato específicas.',
-      'Comparar la cobertura de auditoría de México en contratos de gran valor contra países pares usando el conjunto de indicadores del marco de desempeño en contratación de la OCDE (2023).',
+      'Comparar la cobertura de auditoría de México en contratos de gran valor contra países pares, con indicadores de cumplimiento como los que propone el marco de desempeño en contratación de la OCDE (2023).',
       'Investigar si los umbrales de contratación del Art. 42 de la LAASSP han sido ajustados por inflación desde 2012; calcular la erosión en valor real.',
       'Solicitar a la Cámara de Diputados la lista completa de contratos superiores a 5,000 MDP aprobados en cada ejercicio fiscal y cruzar con los puntajes de riesgo de RUBLI.',
-      'Abrir expedientes de investigación sobre los cuatro proveedores farmacéuticos dominantes en el IMSS (Grupo Fármacos, Maypo, PISA, DIMM), con énfasis en contratos 2018-2025.',
+      'Abrir expedientes de investigación sobre los cuatro proveedores farmacéuticos dominantes en el IMSS (Grupo Fármacos, Maypo, PISA, Dimesa), con énfasis en contratos 2018-2025.',
     ],
   },
 
-  // === STORY 3: Anatomy of a Captured Market ===
+  // === STORY 3: Concentration in IMSS Medicine Purchasing ===
   {
     slug: 'el-monopolio-invisible',
     outlet: 'investigative',
@@ -1665,18 +1665,18 @@ export const STORIES: StoryDef[] = [
     byline: 'RUBLI Investigative Data Unit',
     status: 'reporteado',
     estimatedMinutes: 17,
-    headline: "Anatomy of a Captured Market",
-    headline_es: "Anatomía de un mercado capturado",
+    headline: "Concentration in IMSS Medicine Purchasing",
+    headline_es: "Concentración en las compras de medicamentos del IMSS",
     subheadline:
-      "Grupo Fármacos Especializados collected 133.2 billion pesos from Mexico's federal government — and carries a 0.99 risk score, the top of RUBLI's entire vendor ladder. It is one of four pharmaceutical distributors that took 326.2 billion pesos between 2002 and 2025, funneled it through a single customer, and passed dominance among themselves as the procurement rules changed three times. Four named competitors. One captured market.",
+      "Grupo Fármacos Especializados collected 133.2 billion pesos from Mexico's federal government — and carries a 0.99 risk score, the top of RUBLI's entire vendor ladder. It is one of four pharmaceutical distributors that took 326.2 billion pesos between 2002 and 2025, funneled it through a single customer, and the lead among them changed as the procurement rules changed three times. Four named suppliers. One concentrated market.",
     subheadline_es:
-      "Grupo Fármacos Especializados recibió 133,200 millones de pesos del gobierno federal mexicano — y carga una calificación de riesgo de 0.99, la cima de toda la escalera de proveedores de RUBLI. Es una de cuatro distribuidoras farmacéuticas que se llevaron 326,200 millones de pesos entre 2002 y 2025, los canalizaron por un solo cliente y se pasaron el dominio entre ellas mientras las reglas de contratación cambiaban tres veces. Cuatro competidoras con nombre. Un mercado capturado.",
+      "Grupo Fármacos Especializados recibió 133,200 millones de pesos del gobierno federal mexicano — y carga una calificación de riesgo de 0.99, la cima de toda la escalera de proveedores de RUBLI. Es una de cuatro distribuidoras farmacéuticas que se llevaron 326,200 millones de pesos entre 2002 y 2025, los canalizaron por un solo cliente y el liderazgo entre ellas cambió mientras las reglas de contratación cambiaban tres veces. Cuatro proveedoras con nombre. Un mercado concentrado.",
     leadStat: {
       value: '326.2B MXN',
       label: "collected by four vendors in a single pharmaceutical market",
       label_es: "recaudados por cuatro proveedores en un solo mercado farmacéutico",
-      sublabel: "Grupo Fármacos · Maypo · PISA · DIMM, 2003-2025",
-      sublabel_es: "Grupo Fármacos · Maypo · PISA · DIMM, 2003-2025",
+      sublabel: "Grupo Fármacos · Maypo · PISA · Dimesa, 2003-2025",
+      sublabel_es: "Grupo Fármacos · Maypo · PISA · Dimesa, 2003-2025",
       color: '#dc2626',
     },
     kickerStats: [
@@ -1704,7 +1704,7 @@ export const STORIES: StoryDef[] = [
       patterns: ['P1', 'P5', 'P6'],
       sectors: ['salud'],
       years: [2014, 2018, 2024],
-      terms: ['monopolio', 'farmacéutico', 'IMSS', 'PISA', 'Maypo'],
+      terms: ['concentración', 'farmacéutico', 'IMSS', 'PISA', 'Maypo'],
     },
     entities: [
       {
@@ -1712,40 +1712,36 @@ export const STORIES: StoryDef[] = [
         id: 29277,
         name: 'Grupo Fármacos Especializados',
         riskScore: 0.99,
-        ariaTier: 1,
-        role: 'ARIA P1 · marked confirmed in RUBLI internal review (no public ruling) · 133.2B MXN',
-        role_es: 'ARIA P1 · marcado como confirmado en la revisión interna de RUBLI (sin resolución pública) · 133,200 MDP',
+        role: 'ARIA pattern P1 · 133.2B MXN across 6,303 contracts · current tier in the vendor dossier',
+        role_es: 'Patrón ARIA P1 · 133,200 MDP en 6,303 contratos · nivel vigente en el expediente del proveedor',
       },
       {
         type: 'vendor',
         id: 2873,
         name: 'Farmacéuticos Maypo',
-        riskScore: 0.95,
-        ariaTier: 1,
-        role: 'ARIA P1 · awaiting review · 86.2B MXN',
-        role_es: 'ARIA P1 · pendiente de revisión · 86,200 MDP',
+        riskScore: 0.94,
+        role: 'ARIA pattern P1 · 86.2B MXN across 18,216 contracts · current tier in the vendor dossier',
+        role_es: 'Patrón ARIA P1 · 86,200 MDP en 18,216 contratos · nivel vigente en el expediente del proveedor',
       },
       {
         type: 'vendor',
         id: 4335,
         name: 'Laboratorios PISA',
         riskScore: 0.97,
-        ariaTier: 2,
-        role: 'ARIA P1 · marked confirmed in RUBLI internal review (no public ruling) · 55.4B MXN',
-        role_es: 'ARIA P1 · marcado como confirmado en la revisión interna de RUBLI (sin resolución pública) · 55,400 MDP',
+        role: 'ARIA pattern P1 · 55.4B MXN across 9,173 contracts · current tier in the vendor dossier',
+        role_es: 'Patrón ARIA P1 · 55,400 MDP en 9,173 contratos · nivel vigente en el expediente del proveedor',
       },
       {
         type: 'vendor',
         id: 13885,
-        name: 'DIMM',
+        name: 'Distribuidora Internacional de Medicamentos y Equipo Médico (Dimesa)',
         riskScore: 0.93,
-        ariaTier: 2,
-        role: 'Not in the ARIA queue · 51.4B MXN across 4,305 contracts',
-        role_es: 'Fuera de la cola de ARIA · 51,400 MDP en 4,305 contratos',
+        role: 'ARIA pattern P1 · 51.4B MXN across 4,305 contracts · current tier in the vendor dossier',
+        role_es: 'Patrón ARIA P1 · 51,400 MDP en 4,305 contratos · nivel vigente en el expediente del proveedor',
       },
     ],
     nextSteps: [
-      'File formal COFECE complaint under Art. 53 of the Ley Federal de Competencia Económica for investigation of Grupo Fármacos Especializados, Maypo, PISA, and DIMM as a potential cartel in IMSS pharmaceutical procurement.',
+      'Request that COFECE review concentration in IMSS pharmaceutical procurement (Art. 53 of the Ley Federal de Competencia Económica), starting from the market-share and single-bid figures in the register.',
       'Request from IMSS a complete breakdown of pharmaceutical procurement contracts 2007-2020, including competing bidders at each tender — how many genuinely competitive procedures were there?',
       'Investigate the 2025 spike in Laboratorios PISA contracting: what specific contracts drove the 19.46B MXN annual figure, and under what procurement mechanism?',
       'Cross-reference the 40 non-pharmaceutical P1 vendors with RUPC records to identify declared shareholders, legal representatives, and physical addresses.',
@@ -1753,7 +1749,7 @@ export const STORIES: StoryDef[] = [
       'Track the AMLO-era transition of pharmaceutical contracting from IMSS-direct to BIRMEX/INSABI: did the same P1 vendors continue dominating under the new architecture?',
     ],
     nextSteps_es: [
-      'Interponer denuncia formal ante la COFECE bajo el Art. 53 de la LFCE solicitando investigación de Grupo Fármacos Especializados, Maypo, PISA y DIMM como posible cártel en la contratación farmacéutica del IMSS.',
+      'Solicitar a la COFECE que revise la concentración en la contratación farmacéutica del IMSS (Art. 53 de la LFCE), a partir de las cifras de participación de mercado y de licitaciones con un solo postor del registro.',
       'Solicitar al IMSS el desglose completo de contratos farmacéuticos 2007-2020, incluyendo licitantes competidores en cada convocatoria — ¿cuántos procedimientos fueron genuinamente competitivos?',
       'Investigar el repunte de contratos de Laboratorios PISA en 2025: ¿qué contratos específicos impulsaron los 19,460 MDP anuales y bajo qué mecanismo de contratación?',
       'Cruzar los 40 proveedores P1 no farmacéuticos contra el RUPC para identificar accionistas declarados, representantes legales y domicilios físicos.',
@@ -1769,23 +1765,23 @@ export const STORIES: StoryDef[] = [
         subtitle: "Four named competitors, all four at the top of the risk ladder",
         subtitle_es: "Cuatro competidoras con nombre, las cuatro en la cima de la escalera de riesgo",
         prose: [
-          "Grupo Fármacos Especializados carries a 0.99 risk score — the top of RUBLI's entire vendor ladder. It collected 133.2 billion pesos from the Mexican federal government, all of it between 2007 and 2020. It is not alone. Farmacéuticos Maypo scores 0.94 and took 86.2 billion. Laboratorios PISA scores 0.97 and took 55.4 billion. DIMM — Distribuidora Internacional de Medicamentos y Equipo Médico — scores 0.93 and took 51.4 billion. Combined: 326.2 billion pesos, and a four-vendor average of 0.96 — all four inside RUBLI's critical tier, not three.",
-          "All four sit at the very top of the platform's risk ladder. The score is a risk indicator, not a verdict — the model flags behavior consistent with collusive procurement, not proof of it. But four flagged distributors holding 328.6 billion pesos in a single product line is the signal that demands a closer look.",
-          "The framework that produced these contracts mutated three times: IMSS-direct procurement under Calderón, INSABI/BIRMEX consolidation under AMLO, IMSS-Bienestar consolidated tendering under Sheinbaum. Three sets of rules. The same four recipients survived all of them. A market with four sellers can still be one captured organism. The next layers cut it open.",
+          "Grupo Fármacos Especializados carries a 0.99 risk score — the top of RUBLI's entire vendor ladder. It collected 133.2 billion pesos from the Mexican federal government, all of it between 2007 and 2020. It is not alone. Farmacéuticos Maypo scores 0.94 and took 86.2 billion. Laboratorios PISA scores 0.97 and took 55.4 billion. Dimesa — Distribuidora Internacional de Medicamentos y Equipo Médico — scores 0.93 and took 51.4 billion. Combined: 326.2 billion pesos, and a four-vendor average of 0.96 — all four inside RUBLI's critical tier, not three.",
+          "All four sit at the very top of the platform's risk ladder. The score is a risk indicator, not a verdict — the model flags behavior consistent with collusive procurement, not proof of it. But four flagged distributors holding 326.2 billion pesos in a single product line is the signal that demands a closer look.",
+          "The framework that produced these contracts mutated three times: IMSS-direct procurement under Calderón, INSABI/BIRMEX consolidation under AMLO, IMSS-Bienestar consolidated tendering under Sheinbaum. Three sets of rules. Grupo Fármacos Especializados records its last federal contract in 2020; the other three are still contracting in 2025. The next layers cut the market open.",
         ],
         prose_es: [
-          "Grupo Fármacos Especializados carga una calificación de riesgo de 0.99 — la cima de toda la escalera de proveedores de RUBLI. Recibió 133,200 millones de pesos del gobierno federal mexicano, todos entre 2007 y 2020. No está sola. Farmacéuticos Maypo califica 0.94 y se llevó 86,200 millones. Laboratorios PISA califica 0.97 y se llevó 55,400 millones. DIMM — Distribuidora Internacional de Medicamentos y Equipo Médico — califica 0.93 y se llevó 51,400 millones. En conjunto: 326,200 millones de pesos, y un promedio de los cuatro de 0.96 — las cuatro dentro del nivel crítico de RUBLI, no tres.",
-          "Las cuatro se ubican en la cima misma de la escalera de riesgo de la plataforma. La calificación es un indicador de riesgo, no un veredicto — el modelo señala conducta consistente con contratación colusiva, no su prueba. Pero cuatro distribuidoras señaladas que concentran 328,600 millones de pesos en una sola línea de producto es la lectura que obliga a mirar de cerca.",
-          "El marco que produjo estos contratos mutó tres veces: contratación directa del IMSS bajo Calderón, consolidación vía INSABI/BIRMEX bajo AMLO, licitación consolidada IMSS-Bienestar bajo Sheinbaum. Tres conjuntos de reglas. Las mismas cuatro destinatarias sobrevivieron a todos. Un mercado con cuatro vendedoras puede seguir siendo un solo organismo capturado. Las capas siguientes lo abren.",
+          "Grupo Fármacos Especializados carga una calificación de riesgo de 0.99 — la cima de toda la escalera de proveedores de RUBLI. Recibió 133,200 millones de pesos del gobierno federal mexicano, todos entre 2007 y 2020. No está sola. Farmacéuticos Maypo califica 0.94 y se llevó 86,200 millones. Laboratorios PISA califica 0.97 y se llevó 55,400 millones. Dimesa — Distribuidora Internacional de Medicamentos y Equipo Médico — califica 0.93 y se llevó 51,400 millones. En conjunto: 326,200 millones de pesos, y un promedio de los cuatro de 0.96 — las cuatro dentro del nivel crítico de RUBLI, no tres.",
+          "Las cuatro se ubican en la cima misma de la escalera de riesgo de la plataforma. La calificación es un indicador de riesgo, no un veredicto — el modelo señala conducta consistente con contratación colusiva, no su prueba. Pero cuatro distribuidoras señaladas que concentran 326,200 millones de pesos en una sola línea de producto es la lectura que obliga a mirar de cerca.",
+          "El marco que produjo estos contratos mutó tres veces: contratación directa del IMSS bajo Calderón, consolidación vía INSABI/BIRMEX bajo AMLO, licitación consolidada IMSS-Bienestar bajo Sheinbaum. Tres conjuntos de reglas. Grupo Fármacos Especializados registra su último contrato federal en 2020; las otras tres siguen contratando en 2025. Las capas siguientes abren el mercado.",
         ],
         pullquote: {
           quote:
             'Four named competitors. Two decades of tenders. On paper, a market. Cut into it and a single structure appears.',
           quote_es:
             'Cuatro competidoras con nombre. Dos décadas de licitaciones. En el papel, un mercado. Córtalo y aparece una sola estructura.',
-          stat: '328.6B MXN',
-          statLabel: 'four-vendor pharmaceutical concentration, 2003-2025',
-          statLabel_es: 'concentración farmacéutica de cuatro proveedores, 2003-2025',
+          stat: '326.2B MXN',
+          statLabel: 'four-vendor pharmaceutical concentration, 2002-2025',
+          statLabel_es: 'concentración farmacéutica de cuatro proveedores, 2002-2025',
           barValue: 0.103,
           barLabel: '10.4% of all federal IMSS contracting (any sector, any year)',
           barLabel_es:
@@ -1794,45 +1790,45 @@ export const STORIES: StoryDef[] = [
         },
         chartConfig: {
           type: 'inline-bar',
-          title: 'The Surface — Four Vendors, 328.6 Billion Pesos',
-          title_es: 'La superficie — Cuatro proveedores, 328.6 mil millones de pesos',
+          title: 'The Surface — Four Vendors, 326.2 Billion Pesos',
+          title_es: 'La superficie — Cuatro proveedores, 326.2 mil millones de pesos',
           chartId: 'big-four-totals',
           data: {
             points: [
               {
                 label: 'Grupo Fármacos',
-                value: 133.4,
+                value: 133.2,
                 riskScore: 0.99,
                 annotation: 'risk 0.99',
                 annotation_es: 'riesgo 0.99',
               },
               {
                 label: 'Maypo',
-                value: 88,
-                riskScore: 0.95,
-                annotation: 'risk 0.95',
-                annotation_es: 'riesgo 0.95',
+                value: 86.2,
+                riskScore: 0.94,
+                annotation: 'risk 0.94',
+                annotation_es: 'riesgo 0.94',
               },
               {
                 label: 'PISA',
-                value: 55.6,
-                riskScore: 0.75,
-                annotation: 'risk 0.75',
-                annotation_es: 'riesgo 0.75',
+                value: 55.4,
+                riskScore: 0.97,
+                annotation: 'risk 0.97',
+                annotation_es: 'riesgo 0.97',
               },
               {
-                label: 'DIMM',
-                value: 51.6,
-                riskScore: 0.54,
-                annotation: 'risk 0.54',
-                annotation_es: 'riesgo 0.54',
+                label: 'Dimesa',
+                value: 51.4,
+                riskScore: 0.93,
+                annotation: 'risk 0.93',
+                annotation_es: 'riesgo 0.93',
               },
             ],
             unit: 'B MXN',
             annotation:
-              'Total federal contracting per vendor, 2003-2025. Combined: 328.6B MXN. Three of the four carry critical-tier risk scores.',
+              'Total federal contracting per vendor, 2002-2025. Combined: 326.2B MXN. All four carry critical-tier risk scores.',
             annotation_es:
-              'Contratación federal total por proveedor, 2003-2025. Combinado: 328.6 mil millones de pesos. Tres de los cuatro tienen calificaciones de riesgo de nivel crítico.',
+              'Contratación federal total por proveedor, 2002-2025. Combinado: 326.2 mil millones de pesos. Los cuatro tienen calificaciones de riesgo de nivel crítico.',
           },
         },
         sources: [
@@ -1848,12 +1844,12 @@ export const STORIES: StoryDef[] = [
         subtitle: "One buyer underwrites up to three-quarters of each vendor",
         subtitle_es: "Un comprador sostiene hasta tres cuartas partes de cada proveedor",
         prose: [
-          "One customer underwrites this entire market. The Instituto Mexicano del Seguro Social — Mexico's largest single-payer health institution — supplies 72.2 percent of Laboratorios PISA's lifetime federal revenue, 68.5 percent of DIMM's, 60.1 percent of Grupo Fármacos', and 50.5 percent of Maypo's. Four sellers, one buyer of consequence.",
+          "One customer underwrites this entire market. The Instituto Mexicano del Seguro Social — Mexico's largest single-payer health institution — supplies 79.3 percent of Laboratorios PISA's lifetime federal revenue, 68.5 percent of Dimesa's, 60.1 percent of Grupo Fármacos', and 50.9 percent of Maypo's. Four sellers, one buyer of consequence.",
           "Read it from the customer's side and the concentration sharpens. The four collected 202.9 billion pesos in IMSS contracting alone — 10.4 percent of every peso IMSS spent on any contractor in any sector across 23 years, against a 1,957-billion-peso lifetime baseline. Four pharmaceutical distributors take one peso in every ten. No competitive supplier base produces that shape on its own.",
           "The wall that keeps competitors out is written into law. Article 41 of the Ley de Adquisiciones lets an agency award directly on the basis of an existing supplier relationship — the clause that converts past dependence into present preference. Each contract makes the next one easier to award to the same four hands.",
         ],
         prose_es: [
-          "Un solo cliente sostiene todo este mercado. El Instituto Mexicano del Seguro Social — la institución de salud de pagador único más grande de México — aporta el 72.2 por ciento de los ingresos federales acumulados de Laboratorios PISA, el 68.5 por ciento de los de DIMM, el 60.1 por ciento de los de Grupo Fármacos y el 50.5 por ciento de los de Maypo. Cuatro vendedoras, un solo comprador de peso.",
+          "Un solo cliente sostiene todo este mercado. El Instituto Mexicano del Seguro Social — la institución de salud de pagador único más grande de México — aporta el 79.3 por ciento de los ingresos federales acumulados de Laboratorios PISA, el 68.5 por ciento de los de Dimesa, el 60.1 por ciento de los de Grupo Fármacos y el 50.9 por ciento de los de Maypo. Cuatro vendedoras, un solo comprador de peso.",
           "Visto desde el lado del comprador, la concentración se afila. Los cuatro recaudaron 202,900 millones de pesos solo en contratación con el IMSS — el 10.4 por ciento de cada peso que el IMSS gastó en cualquier contratista, de cualquier sector, en 23 años, frente a una base acumulada de 1.957 billones de pesos. Cuatro distribuidoras farmacéuticas se llevan uno de cada diez pesos. Ninguna base de proveedores competitiva produce esa forma por sí sola.",
           "El muro que mantiene fuera a los competidores está escrito en la ley. El Artículo 41 de la Ley de Adquisiciones permite adjudicar directamente con base en una relación de proveedor existente — la cláusula que convierte la dependencia pasada en preferencia presente. Cada contrato vuelve más fácil adjudicar el siguiente a las mismas cuatro manos.",
         ],
@@ -1865,28 +1861,28 @@ export const STORIES: StoryDef[] = [
             rows: [
               {
                 label: 'Grupo Fármacos',
-                total: 133.4,
+                total: 133.2,
                 highlight: 80,
                 annotation: '60.1% IMSS',
                 annotation_es: '60.1% IMSS',
               },
               {
                 label: 'Maypo',
-                total: 88,
+                total: 86.2,
                 highlight: 43.9,
-                annotation: '50.5% IMSS',
-                annotation_es: '50.5% IMSS',
+                annotation: '50.9% IMSS',
+                annotation_es: '50.9% IMSS',
               },
               {
                 label: 'PISA',
-                total: 55.6,
+                total: 55.4,
                 highlight: 43.9,
-                annotation: '72.2% IMSS',
-                annotation_es: '72.2% IMSS',
+                annotation: '79.3% IMSS',
+                annotation_es: '79.3% IMSS',
               },
               {
-                label: 'DIMM',
-                total: 51.6,
+                label: 'Dimesa',
+                total: 51.4,
                 highlight: 35.2,
                 annotation: '68.5% IMSS',
                 annotation_es: '68.5% IMSS',
@@ -1895,13 +1891,13 @@ export const STORIES: StoryDef[] = [
             unit: 'B MXN',
             anchor: {
               value: '202.9B MXN',
-              label: 'BIG FOUR · IMSS CONTRACTING ONLY · 2003-2025',
-              label_es: 'LAS CUATRO GRANDES · SOLO CONTRATACIÓN IMSS · 2003-2025',
+              label: 'BIG FOUR · IMSS CONTRACTING ONLY · 2002-2025',
+              label_es: 'LAS CUATRO GRANDES · SOLO CONTRATACIÓN IMSS · 2002-2025',
             },
             annotation:
-              "Solid bar = IMSS portion. Faded portion = all other federal customers combined. Each vendor's dependency on IMSS is between 50% and 72%.",
+              "Solid bar = IMSS portion. Faded portion = all other federal customers combined. Each vendor's dependency on IMSS is between 51% and 79%.",
             annotation_es:
-              'Barra sólida = porción IMSS. Porción atenuada = todos los demás clientes federales juntos. La dependencia de cada proveedor respecto del IMSS va de 50% a 72%.',
+              'Barra sólida = porción IMSS. Porción atenuada = todos los demás clientes federales juntos. La dependencia de cada proveedor respecto del IMSS va de 51% a 79%.',
             highlightColor: '#dc2626',
             highlightLabel: 'IMSS portion',
             highlightLabel_es: 'porción IMSS',
@@ -1915,17 +1911,17 @@ export const STORIES: StoryDef[] = [
           quote_es:
             "Cuatro proveedores farmacéuticos. Un solo cliente. Uno de cada diez pesos que el IMSS gastó en cualquier contratista en 23 años.",
           stat: '10.4%',
-          statLabel: "Big Four share of all federal IMSS contracting, 2003-2025",
+          statLabel: "Big Four share of all federal IMSS contracting, 2002-2025",
           statLabel_es:
-            "participación de las Cuatro Grandes en toda la contratación federal del IMSS, 2003-2025",
-          barValue: 0.722,
-          barLabel: 'PISA reaches 72.2% IMSS dependency — highest of the four',
-          barLabel_es: 'PISA alcanza 72.2% de dependencia del IMSS — la más alta de las cuatro',
+            "participación de las Cuatro Grandes en toda la contratación federal del IMSS, 2002-2025",
+          barValue: 0.793,
+          barLabel: 'PISA reaches 79.3% IMSS dependency — highest of the four',
+          barLabel_es: 'PISA alcanza 79.3% de dependencia del IMSS — la más alta de las cuatro',
           vizTemplate: 'mosaic-tile',
         },
         sources: [
           'RUBLI contracts table joined with institutions, vendor_id IN (29277, 2873, 4335, 13885), institution name LIKE "%MEXICANO DEL SEGURO%".',
-          'IMSS total contracting 2002-2025 derived from COMPRANET. Big-Four share calculated against 1,957B MXN IMSS lifetime spend.',
+          'IMSS total contracting 2002-2025 derived from COMPRANET. Big-Four share calculated against 1,956B MXN IMSS lifetime spend.',
         ],
       },
       {
@@ -1936,12 +1932,12 @@ export const STORIES: StoryDef[] = [
         subtitle: "The four meet in 5,285 of the same procurement procedures",
         subtitle_es: "Los cuatro se encuentran en 5,285 de los mismos procedimientos",
         prose: [
-          "Maypo and PISA appear together in 1,436 of the same procurement procedures — distinct tenders where both companies show up as bidders or contract recipients. Grupo Fármacos and Maypo share 1,258. Grupo Fármacos and DIMM, 810. Maypo and DIMM, 478. Grupo Fármacos and PISA, 257. PISA and DIMM, 46. In total: 5,285 shared procurement procedures across 23 years.",
+          "Maypo and PISA appear together in 1,436 of the same procurement procedures — distinct tenders where both companies show up as bidders or contract recipients. Grupo Fármacos and Maypo share 1,258. Grupo Fármacos and Dimesa, 810. Maypo and Dimesa, 478. Grupo Fármacos and PISA, 257. PISA and Dimesa, 46. In total: 5,285 shared procurement procedures across 23 years.",
           "Independent competitors chasing distinct contracts do not usually overlap this way. The shape is consistent with cover bidding — a small set of vendors who keep turning up at the same auctions while the winning name rotates and the underlying group holds constant — and consistent with other explanations a bidding record alone cannot separate. The OECD's 2012 Recommendation on Fighting Bid Rigging names repeated co-bidding among a small supplier set as one of the most reliable cartel detectors in public procurement.",
           "A second number sharpens it: 69 percent of every peso the four collected came through direct award — nearly seven times the 10 percent line the EU Single Market Scoreboard treats as unsatisfactory. More than two in three pesos bypassed open competition. None of this proves a cartel on its own — it matches the pattern the OECD describes. If the lattice is the organism's shape, the next layer shows it breathing.",
         ],
         prose_es: [
-          "Maypo y PISA aparecen juntas en 1,436 de los mismos procedimientos de contratación — licitaciones distintas donde ambas figuran como licitantes o destinatarias de contratos. Grupo Fármacos y Maypo comparten 1,258. Grupo Fármacos y DIMM, 810. Maypo y DIMM, 478. Grupo Fármacos y PISA, 257. PISA y DIMM, 46. En total: 5,285 procedimientos compartidos en 23 años.",
+          "Maypo y PISA aparecen juntas en 1,436 de los mismos procedimientos de contratación — licitaciones distintas donde ambas figuran como licitantes o destinatarias de contratos. Grupo Fármacos y Maypo comparten 1,258. Grupo Fármacos y Dimesa, 810. Maypo y Dimesa, 478. Grupo Fármacos y PISA, 257. PISA y Dimesa, 46. En total: 5,285 procedimientos compartidos en 23 años.",
           "Competidores independientes que persiguen contratos distintos no suelen solaparse así. La forma es compatible con la cobertura cruzada — un grupo pequeño de proveedores que reaparece en las mismas subastas mientras el nombre ganador rota y el grupo de fondo se mantiene constante — y también con otras explicaciones que un registro de licitaciones no alcanza a separar. La Recomendación de la OCDE de 2012 sobre el Combate a la Manipulación de Licitaciones nombra la co-licitación repetida entre un conjunto pequeño de proveedores como uno de los detectores de cártel más confiables en la contratación pública.",
           "Un segundo dato lo afila: el 69 por ciento de cada peso que recaudaron los cuatro llegó por adjudicación directa — casi siete veces la línea del 10 por ciento que el Tablero del Mercado Único de la UE considera insatisfactoria. Más de dos de cada tres pesos eludieron la competencia abierta. Nada de esto prueba un cártel por sí solo — coincide con el patrón que describe la OCDE. Si el entramado es la forma del organismo, la capa siguiente lo muestra respirando.",
         ],
@@ -1973,7 +1969,7 @@ export const STORIES: StoryDef[] = [
               },
               {
                 id: 'dimm',
-                label: 'DIMM',
+                label: 'Dimesa',
                 sublabel: '51.6B',
                 color: '#8b5cf6',
               },
@@ -2029,9 +2025,9 @@ export const STORIES: StoryDef[] = [
         },
         pullquote: {
           quote:
-            "Maypo and PISA appear in 1,436 of the same procurement procedures. The OECD calls repeated co-bidding among a small supplier set one of the most reliable cartel detectors.",
+            "Maypo and PISA appear in 1,436 of the same procurement procedures. Repeated co-bidding among a small supplier set is one of the patterns the OECD advises procurement agencies to screen for.",
           quote_es:
-            "Maypo y PISA aparecen en 1,436 de los mismos procedimientos. La OCDE llama a la co-licitación repetida entre pocos proveedores uno de los detectores de cártel más confiables.",
+            "Maypo y PISA aparecen en 1,436 de los mismos procedimientos. La co-licitación repetida entre pocos proveedores es uno de los patrones que la OCDE recomienda a las compras públicas vigilar.",
           stat: '5,285',
           statLabel: "shared bidding procedures among the Big Four (combined)",
           statLabel_es: "procedimientos de licitación compartidos entre las Cuatro Grandes (en conjunto)",
@@ -2056,13 +2052,13 @@ export const STORIES: StoryDef[] = [
         subtitle: "Dominance passes vendor to vendor as the rules change",
         subtitle_es: "El dominio pasa de proveedor en proveedor mientras cambian las reglas",
         prose: [
-          "In 2020, Grupo Fármacos went from 17.64 billion pesos the year before to zero — not reduced, not redirected to other clients, zero — and has stayed there every year since. DIMM collapsed 97 percent in the same year. Maypo was cut in half. The cause is documented: the AMLO administration dissolved IMSS-direct pharmaceutical procurement and consolidated buying through INSABI and BIRMEX, expressly to break what it called \"the cartel of distributors.\"",
-          "Plotted across 2003-2025, the four series read as a relay. The early years belonged to PISA, peaking at 2.97 billion in 2009 — about one and a half times its nearest rival — then going quiet, never crossing 3.5 billion a year through the 2010s. In its place rose Grupo Fármacos: 1.07 billion in 2007, climbing to a 19.94-billion peak in 2017, a single-year figure larger than the annual budget of several federal ministries. Maypo peaked at 10.05 billion and DIMM at 7.96 billion, both in 2018. Three of the four hit their all-time annual peaks inside a 12-month window.",
+          "In 2020, Grupo Fármacos went from 17.64 billion pesos the year before to zero — not reduced, not redirected to other clients, zero — and has stayed there every year since. Dimesa collapsed 97 percent in the same year. Maypo was cut in half. The cause is documented: the AMLO administration dissolved IMSS-direct pharmaceutical procurement and consolidated buying through INSABI and BIRMEX, expressly to break what it called \"the cartel of distributors.\"",
+          "Plotted across 2003-2025, the four series read as a relay. The early years belonged to PISA, peaking at 2.97 billion in 2009 — about one and a half times its nearest rival — then going quiet, never crossing 3.5 billion a year through the 2010s. In its place rose Grupo Fármacos: 1.07 billion in 2007, climbing to a 19.94-billion peak in 2017, a single-year figure larger than the annual budget of several federal ministries. Maypo peaked at 10.05 billion and Dimesa at 7.96 billion, both in 2018. Three of the four hit their all-time annual peaks inside a 12-month window.",
           "The spend never vanished after the 2020 cliff — it changed hands. PISA, quiet for a decade, resurged: 6.42 billion in 2020, then 2.56, 3.77, 0.13, 0.67 across the COVID years. Then in 2025, under Sheinbaum's IMSS-Bienestar consolidated tendering, PISA contracted 19.46 billion pesos in a single year — almost exactly Grupo Fármacos' 2017 peak. The architecture changed three times. The dominant vendor changed identity. The dependency did not.",
         ],
         prose_es: [
-          "En 2020, Grupo Fármacos pasó de 17,640 millones de pesos el año anterior a cero — no reducido, no redirigido a otros clientes, cero — y ahí ha permanecido cada año desde entonces. DIMM colapsó un 97 por ciento el mismo año. Maypo se redujo a la mitad. La causa está documentada: la administración de AMLO disolvió la contratación farmacéutica directa del IMSS y consolidó las compras vía INSABI y BIRMEX, expresamente para romper lo que llamó \"el cártel de los distribuidores\".",
-          "Graficados a lo largo de 2003-2025, los cuatro trazos se leen como un relevo. Los primeros años fueron de PISA, con un pico de 2,970 millones en 2009 — cerca de una vez y media su rival más cercano — y luego silencio, sin cruzar los 3,500 millones al año durante la década de 2010. En su lugar se alzó Grupo Fármacos: 1,070 millones en 2007, escalando a un pico de 19,940 millones en 2017, una cifra de un solo año mayor que el presupuesto anual de varios ministerios federales. Maypo alcanzó su pico en 10,050 millones y DIMM en 7,960 millones, ambos en 2018. Tres de los cuatro registraron sus máximos históricos en una ventana de 12 meses.",
+          "En 2020, Grupo Fármacos pasó de 17,640 millones de pesos el año anterior a cero — no reducido, no redirigido a otros clientes, cero — y ahí ha permanecido cada año desde entonces. Dimesa colapsó un 97 por ciento el mismo año. Maypo se redujo a la mitad. La causa está documentada: la administración de AMLO disolvió la contratación farmacéutica directa del IMSS y consolidó las compras vía INSABI y BIRMEX, expresamente para romper lo que llamó \"el cártel de los distribuidores\".",
+          "Graficados a lo largo de 2003-2025, los cuatro trazos se leen como un relevo. Los primeros años fueron de PISA, con un pico de 2,970 millones en 2009 — cerca de una vez y media su rival más cercano — y luego silencio, sin cruzar los 3,500 millones al año durante la década de 2010. En su lugar se alzó Grupo Fármacos: 1,070 millones en 2007, escalando a un pico de 19,940 millones en 2017, una cifra de un solo año mayor que el presupuesto anual de varios ministerios federales. Maypo alcanzó su pico en 10,050 millones y Dimesa en 7,960 millones, ambos en 2018. Tres de los cuatro registraron sus máximos históricos en una ventana de 12 meses.",
           "El gasto nunca desapareció tras el precipicio de 2020 — cambió de manos. PISA, silenciosa una década, resurgió: 6,420 millones en 2020, luego 2,560, 3,770, 130, 670 a lo largo de los años de la COVID. Y en 2025, bajo la licitación consolidada de IMSS-Bienestar de Sheinbaum, PISA contrató 19,460 millones de pesos en un solo año — casi exactamente el pico de 2017 de Grupo Fármacos. La arquitectura cambió tres veces. El proveedor dominante cambió de identidad. La dependencia no.",
         ],
         chartConfig: {
@@ -2146,7 +2142,7 @@ export const STORIES: StoryDef[] = [
                 totalCaption_es: '· 55.6B total',
               },
               {
-                name: 'DIMM',
+                name: 'Distribuidora Internacional de Medicamentos y Equipo Médico (Dimesa)',
                 color: '#8b5cf6',
                 values: [
                   0.01, 0, 0.02, 0, 0, 0, 0, 0.13, 0.86, 3.38, 4.56, 4.26, 5.66, 6.53, 7.4, 7.96,
@@ -2162,9 +2158,9 @@ export const STORIES: StoryDef[] = [
               },
             ],
             annotation:
-              "Read the relay: PISA dominates 2003-2009 → Grupo Fármacos / Maypo / DIMM dominate 2010-2019 → 2020 cliff (Grupo F. + DIMM collapse) → PISA returns and explodes in 2025 (19.46B, matching Grupo F.'s 2017 all-time peak). The architecture that produced these contracts changed three times. The dependency did not.",
+              "Read the relay: PISA dominates 2003-2009 → Grupo Fármacos / Maypo / Dimesa dominate 2010-2019 → 2020 cliff (Grupo F. + Dimesa collapse) → PISA returns and explodes in 2025 (19.46B, matching Grupo F.'s 2017 all-time peak). The architecture that produced these contracts changed three times. The dependency did not.",
             annotation_es:
-              'Lee el relevo: PISA domina 2003-2009 → Grupo Fármacos / Maypo / DIMM dominan 2010-2019 → desplome 2020 (Grupo F. + DIMM colapsan) → PISA regresa y explota en 2025 (19.46B, igualando el pico histórico de 2017 de Grupo F.). La arquitectura que produjo estos contratos cambió tres veces. La dependencia no.',
+              'Lee el relevo: PISA domina 2003-2009 → Grupo Fármacos / Maypo / Dimesa dominan 2010-2019 → desplome 2020 (Grupo F. + Dimesa colapsan) → PISA regresa y explota en 2025 (19.46B, igualando el pico histórico de 2017 de Grupo F.). La arquitectura que produjo estos contratos cambió tres veces. La dependencia no.',
             eventLines: [
               {
                 xIndex: 17,
@@ -2199,16 +2195,16 @@ export const STORIES: StoryDef[] = [
         subtitle: "Where oversight should be, the record is empty",
         subtitle_es: "Donde debería estar la fiscalización, el registro está vacío",
         prose: [
-          "Grupo Fármacos Especializados took 133 billion pesos over 13 years at a 0.993 risk indicator, and RUBLI found no published ASF audit focused on it. No public investigation RUBLI could locate has named all four together. DIMM is virtually unknown to the public; Maypo surfaces in periodic procurement features but never a sustained inquiry; PISA, the most-covered of the four, drew no published regulatory response when its 2025 contracting exploded to 19.46 billion pesos.",
+          "Grupo Fármacos Especializados took 133 billion pesos over 13 years at a 0.993 risk indicator, and RUBLI found no published ASF audit focused on it. No public investigation RUBLI could locate has named all four together. Dimesa is virtually unknown to the public; Maypo surfaces in periodic procurement features but never a sustained inquiry; PISA, the most-covered of the four, drew no published regulatory response when its 2025 contracting exploded to 19.46 billion pesos.",
           "That 2025 spike demands immediate scrutiny. A distributor that had not crossed 3.5 billion pesos a year in over a decade booked 19.46 billion in one — including a 6.69-billion-peso consolidated medicine contract awarded in February 2025 and a 4.82-billion-peso direct-award contract for \"claves del sector salud\" in June 2025. The direct-award status is a flag; the size is unprecedented; the vendor's prior absence from consolidated tendering is conspicuous.",
           "The instruments to examine all of this already exist. COFECE can open Art. 53 investigations into prácticas monopólicas absolutas under the Ley Federal de Competencia Económica. RUBLI supplies the detection: it classifies the four under its P1 pattern and places them in the ARIA queue at Tier 1, alongside 40 non-pharmaceutical P1 vendors awaiting the same scrutiny. COFECE has repeatedly identified pharmaceutical distribution as a market where tendering conditions favour incumbents; its competition studies in the sector are the natural starting point for the monitoring this analysis calls for.",
-          "What is missing is the will to convert flags into formal investigations. The specimen has been opened. Its structure is visible in the data, traceable in the bidding records, unconcealed in the financials. Until that void fills, the captured market will regenerate around whatever architecture Mexican health procurement adopts next — and no one with the authority to look has looked.",
+          "What is missing is the will to convert flags into formal investigations. The specimen has been opened. Its structure is visible in the data, traceable in the bidding records, unconcealed in the financials. Until that void fills, the concentration will regenerate around whatever architecture Mexican health procurement adopts next — and no one with the authority to look has looked.",
         ],
         prose_es: [
-          "Grupo Fármacos Especializados se llevó 133,000 millones de pesos en 13 años con un indicador de riesgo de 0.993, y RUBLI no encontró una auditoría publicada de la ASF enfocada en la empresa. Ninguna investigación pública que RUBLI haya podido localizar ha nombrado a las cuatro juntas. DIMM es prácticamente desconocida para el público; Maypo aparece en reportajes esporádicos de contratación pero nunca como sujeto de una indagatoria sostenida; PISA, la más cubierta de las cuatro, no provocó respuesta regulatoria publicada cuando su contratación de 2025 explotó a 19,460 millones de pesos.",
+          "Grupo Fármacos Especializados se llevó 133,000 millones de pesos en 13 años con un indicador de riesgo de 0.993, y RUBLI no encontró una auditoría publicada de la ASF enfocada en la empresa. Ninguna investigación pública que RUBLI haya podido localizar ha nombrado a las cuatro juntas. Dimesa es prácticamente desconocida para el público; Maypo aparece en reportajes esporádicos de contratación pero nunca como sujeto de una indagatoria sostenida; PISA, la más cubierta de las cuatro, no provocó respuesta regulatoria publicada cuando su contratación de 2025 explotó a 19,460 millones de pesos.",
           "Ese pico de 2025 exige escrutinio inmediato. Una distribuidora que no había cruzado los 3,500 millones de pesos al año en más de una década registró 19,460 millones en uno — incluyendo un contrato de medicamentos consolidados por 6,690 millones adjudicado en febrero de 2025 y un contrato de adjudicación directa por 4,820 millones para \"claves del sector salud\" en junio de 2025. La adjudicación directa es una bandera; el tamaño es sin precedentes; la ausencia previa del proveedor en la licitación consolidada es llamativa.",
           "Los instrumentos para examinar todo esto ya existen. La COFECE puede abrir investigaciones del Art. 53 sobre prácticas monopólicas absolutas bajo la Ley Federal de Competencia Económica. RUBLI aporta la detección: clasifica a las cuatro bajo su patrón P1 y las coloca en la cola de ARIA en el Nivel 1, junto a 40 proveedores P1 no farmacéuticos a la espera del mismo escrutinio. La COFECE ha señalado repetidamente la distribución farmacéutica como un mercado donde las condiciones de licitación favorecen a los proveedores establecidos; sus estudios de competencia en el sector son el punto de partida natural para el monitoreo que este análisis propone.",
-          "Lo que falta es la voluntad de convertir las señales en investigaciones formales. El espécimen ya está abierto. Su estructura es visible en los datos, rastreable en los registros de licitación y no está oculta en las finanzas. Hasta que ese vacío se llene, el mercado capturado se regenerará en torno a cualquier arquitectura que adopte después la contratación de salud mexicana — y nadie con la autoridad para mirar ha mirado.",
+          "Lo que falta es la voluntad de convertir las señales en investigaciones formales. El espécimen ya está abierto. Su estructura es visible en los datos, rastreable en los registros de licitación y no está oculta en las finanzas. Hasta que ese vacío se llene, la concentración se regenerará en torno a cualquier arquitectura que adopte después la contratación de salud mexicana — y nadie con la autoridad para mirar ha mirado.",
         ],
         pullquote: {
           quote:
@@ -2733,13 +2729,13 @@ export const STORIES: StoryDef[] = [
         prose: [
           "La Estafa Maestra moved 7.67 billion pesos through an intermediary structure in two years, and it ended in an acquittal. Between 2013 and 2014, eleven federal agencies contracted public universities, which subcontracted 186 fictitious companies, which returned money to officials at the originating agencies. Animal Político and MCCI documented the scheme in 2017. The minister at the centre of it was arrested in 2019 and acquitted by the Supreme Court in 2024. Not one conviction came out of it.",
           "The exploit was structural. Procurement law carried a carve-out exempting contracts with public universities from competitive bidding, on the fiction that universities are trusted public institutions. The universities became the intermediary layer between the law and a shadow market. Below them sat phantom companies whose RFCs matched nothing in the Registro Federal de Contribuyentes — paper entities built to receive money and pass it on. Only the top half of that chain is visible in the public record: agency-to-university contracts appear in COMPRANET; the university-to-shell subcontracts do not.",
-          "RUBLI's ground truth includes La Estafa Maestra; its linked vendors carry risk scores averaging 0.55 to 0.65 — elevated but not at the ceiling, because the thin contract counts of phantom firms limit what the behavioral model can see. The mechanism, though, is unmistakable. The 2,972 P3 vendors in today's queue share its shape: different entities, different institutions, the same paid pass-through between budget and delivery. 155 of them are already documented corruption cases in their own right.",
+          "RUBLI's ground truth includes La Estafa Maestra; its linked vendors carry risk scores averaging 0.55 to 0.65 — elevated but not at the ceiling, because the thin contract counts of phantom firms limit what the behavioral model can see. The mechanism, though, is unmistakable. The 2,972 P3 vendors in today's queue share its shape: different entities, different institutions, the same paid pass-through between budget and delivery. 155 of them are already labelled cases in their own right.",
           "And the design may carry a price, though this register cannot put a number on it. The public record stops at the first contract: the federal payment to the intermediary is published, the intermediary's payment to whoever did the work is not. Any overhead figure applied to RUBLI's 556.5 billion pesos of P3 contracting would be an assumption multiplied by a total, not a measurement. La Estafa Maestra ran 7.67 billion pesos over two years and the state could not make a case stick. The pattern it belonged to is still running, and the queue that matches its shape holds 18,242 companies no reviewer has opened.",
         ],
         prose_es: [
           "La Estafa Maestra movió 7.67 mil millones de pesos por una estructura de intermediación en dos años, y terminó en absolución. Entre 2013 y 2014, once dependencias federales contrataron con universidades públicas, que subcontrataban 186 empresas ficticias, que devolvían el dinero a funcionarios de las dependencias originales. Animal Político y MCCI documentaron el esquema en 2017. La secretaria en el centro del caso fue detenida en 2019 y absuelta por la Suprema Corte en 2024. No salió de ahí una sola condena.",
           "El resquicio era estructural. La ley de adquisiciones tenía una excepción que eximía de licitación competitiva los contratos con universidades públicas, bajo la ficción de que las universidades son instituciones públicas confiables. Las universidades se volvieron la capa intermediaria entre la ley y un mercado en la sombra. Debajo estaban las empresas fantasma cuyos RFC no coincidían con nada en el Registro Federal de Contribuyentes — entidades de papel hechas para recibir dinero y pasarlo. Solo la mitad de arriba de esa cadena es visible en el registro público: los contratos dependencia-universidad aparecen en COMPRANET; los subcontratos universidad-empresa fantasma no.",
-          "La verdad-base de RUBLI incluye La Estafa Maestra; sus proveedores vinculados promedian calificaciones de riesgo de 0.55 a 0.65 — elevadas pero no en el techo, porque las cuentas raquíticas de contratos de las empresas fantasma limitan lo que el modelo conductual alcanza a ver. El mecanismo, sin embargo, es inconfundible. Los 2,972 proveedores P3 de la cola de hoy comparten su forma: distintas entidades, distintas instituciones, el mismo paso pagado entre el presupuesto y la entrega. 155 de ellos ya son casos de corrupción documentados por cuenta propia.",
+          "La verdad-base de RUBLI incluye La Estafa Maestra; sus proveedores vinculados promedian calificaciones de riesgo de 0.55 a 0.65 — elevadas pero no en el techo, porque las cuentas raquíticas de contratos de las empresas fantasma limitan lo que el modelo conductual alcanza a ver. El mecanismo, sin embargo, es inconfundible. Los 2,972 proveedores P3 de la cola de hoy comparten su forma: distintas entidades, distintas instituciones, el mismo paso pagado entre el presupuesto y la entrega. 155 de ellos ya son casos etiquetados por cuenta propia.",
           "Y el diseño puede tener un precio, aunque este registro no puede ponerle cifra. El registro público se detiene en el primer contrato: el pago federal al intermediario se publica; el pago del intermediario a quien hizo el trabajo, no. Cualquier cifra de sobrecosto aplicada a los 556.5 mil millones de pesos de contratación P3 de RUBLI sería un supuesto multiplicado por un total, no una medición. La Estafa Maestra corrió 7,670 MDP en dos años y el Estado no pudo sostener el caso. El patrón al que pertenecía sigue corriendo, y la cola que repite su forma guarda 18,242 empresas que ningún revisor ha abierto.",
         ],
         chartConfig: {
@@ -2779,13 +2775,13 @@ export const STORIES: StoryDef[] = [
         },
         prose: [
           "Both patterns resist prosecution for one reason: each rests on legal procurement actions whose aggregate effect is harmful. Subcontracting is legal. Selling to one customer is legal. Direct adjudication of specialized procurement is legal. A prosecutor cannot easily build a case against a single contract, and Mexican procurement law offers no vehicle to charge a pattern.",
-          "The keys exist, and almost none of them have been turned. The 15,939 P6 and 2,972 P3 vendors — 18,911 in all — are a ready starting point. 372 are already documented corruption cases. 669 have been given any review disposition at all, and 81 of those were confirmed. That leaves 18,242 companies that no reviewer has opened, and 275 of them sit in the two tiers the queue itself marks as priority.",
+          "The keys exist, and almost none of them have been turned. The 15,939 P6 and 2,972 P3 vendors — 18,911 in all — are a ready starting point. 372 are already labelled cases. 669 have been given any review disposition at all, and 81 of those were confirmed. That leaves 18,242 companies that no reviewer has opened, and 275 of them sit in the two tiers the queue itself marks as priority.",
           "There is no shortage of institutions that could open them. The public-administration ministry, SFP, can audit procurement-unit performance and, in theory, sanction officials whose award patterns indicate favoritism; in practice its sanctions docket focuses on documented individual misconduct. The financial-intelligence unit, UIF, could subpoena bank records on the top-value P3 intermediaries to test whether the spread between government payment and subcontract payment is systematic. The competition regulator, COFECE, could investigate the dependency relationships as relative monopolistic practices. And the federal audit office, ASF, could audit the procurement units with the most dependent suppliers.",
           "None of this is happening systematically. The accountability gap is not legal — Mexico has the statutes, the oversight bodies, and, with RUBLI, the analytical capacity. What is missing is the decision to open rooms that have stayed locked for two decades.",
         ],
         prose_es: [
           "Ambos patrones resisten el proceso penal por una razón: cada uno se apoya en acciones legales de contratación cuyo efecto agregado es dañino. Subcontratar es legal. Venderle a un solo cliente es legal. La adjudicación directa de contratación especializada es legal. Un fiscal no puede construir fácilmente un caso contra un contrato individual, y la ley mexicana de adquisiciones no ofrece vehículo para imputar un patrón.",
-          "Las llaves existen, y casi ninguna se ha girado. Los 15,939 proveedores P6 y 2,972 proveedores P3 — 18,911 en total — son un punto de partida listo. 372 ya son casos de corrupción documentados. 669 tienen alguna disposición de revisión, y 81 de esos quedaron confirmados. Eso deja 18,242 empresas que ningún revisor ha abierto, y 275 de ellas están en los dos niveles que la propia cola marca como prioridad.",
+          "Las llaves existen, y casi ninguna se ha girado. Los 15,939 proveedores P6 y 2,972 proveedores P3 — 18,911 en total — son un punto de partida listo. 372 ya son casos etiquetados. 669 tienen alguna disposición de revisión, y 81 de esos quedaron confirmados. Eso deja 18,242 empresas que ningún revisor ha abierto, y 275 de ellas están en los dos niveles que la propia cola marca como prioridad.",
           "No faltan instituciones que pudieran abrirlas. La SFP puede auditar el desempeño de las unidades compradoras y, en teoría, sancionar a funcionarios cuyos patrones de adjudicación indiquen favoritismo; en la práctica sus expedientes de sanción se enfocan en conducta indebida individual documentada. La UIF podría requerir los estados de cuenta de los intermediarios P3 de mayor valor para probar si la diferencia entre el pago del gobierno y el del subcontrato es sistemática. La COFECE podría investigar las relaciones de dependencia como prácticas monopólicas relativas. La ASF podría auditar las unidades compradoras con más proveedores dependientes.",
           "Nada de esto está pasando sistemáticamente. La brecha de rendición de cuentas no es jurídica — México tiene las leyes, los órganos de fiscalización y, con RUBLI, la capacidad analítica. Lo que falta es la decisión de abrir puertas que llevan dos décadas cerradas.",
         ],
@@ -3178,15 +3174,15 @@ export const STORIES: StoryDef[] = [
         subtitle: "Five administrations, one ascending column",
         subtitle_es: "Cinco sexenios, una columna ascendente",
         prose: [
-          "Post the five terms in the order they governed and the ledger reads itself. A contract counts as high-risk when RUBLI's model scores it 0.40 or above on a 0-to-1 scale — close enough to the documented corruption cases to be worth a second look. Fox: 7.50 percent of contracts flagged high-risk, 15,468 of 206,307. Calderón: 8.15 percent, 39,230 of 481,450. Peña Nieto: 11.18 percent, 137,344 of 1,228,625. AMLO: 12.53 percent, 131,643 of 1,050,552. Four complete terms, each one reading higher than the one before it, and the column climbs in a single direction.",
+          "Post the five terms in the order they governed and the ledger reads itself. A contract counts as high-risk when RUBLI's model scores it 0.40 or above on a 0-to-1 scale — close enough to the labelled cases to be worth a second look. Fox: 7.50 percent of contracts flagged high-risk, 15,468 of 206,307. Calderón: 8.15 percent, 39,230 of 481,450. Peña Nieto: 11.18 percent, 137,344 of 1,228,625. AMLO: 12.53 percent, 131,643 of 1,050,552. Four complete terms, each one reading higher than the one before it, and the column climbs in a single direction.",
           "The instrument is politically blind. RUBLI's v0.8.5 model (out-of-sample AUC 0.656) was not tuned to any administration. It trained on RUBLI's labelled case set (1,401 cases at training time, most of them analyst write-ups rather than adjudicated findings) spanning multiple presidencies and scores each contract by structural resemblance to known-bad patterns — vendor concentration, price volatility, co-bidding concentration, network membership, procurement mechanism. It carries no party. It sees only patterns, and the patterns trend upward.",
-          "Read each term against its own audit note. Fox governed under Structure A coverage, where COMPRANET records a tax ID for one contract in a thousand, so 7.50 percent is a floor rather than a measurement — the period is under-reported and the true rate is likely higher. Calderón, Peña Nieto and AMLO all sit inside the 2-to-15-percent band RUBLI calibrates the flagged share to (docs/RISK_METHODOLOGY_v6.md); none of the five terms leaves it. What the register shows is not a breach. It is a drift of 5.0 points inside the band, and it runs one way.",
+          "Read each term against its own audit note. Fox governed under Structure A coverage, where COMPRANET records a tax ID for one contract in a thousand, so 7.50 percent is a floor rather than a measurement — the period is under-reported and the true rate is likely higher. Calderón, Peña Nieto and AMLO all sit inside the 2-to-15-percent band RUBLI calibrates the flagged share to (docs/RISK_METHODOLOGY.md); none of the five terms leaves it. What the register shows is not a breach. It is a drift of 5.0 points inside the band, and it runs one way.",
           "Then the fifth column arrives and stops the pattern. RUBLI holds 92,631 contracts of Sheinbaum's account, flagged at 11.18 percent — the same reading as Peña Nieto's full six years, and below AMLO. It is the first term in the book that does not climb. It is also nine months of a single year, measured against terms of six, and the federal feed froze on 28 September 2025 before that year finished. A column that short cannot carry a verdict either way.",
         ],
         prose_es: [
-          "Asentados los cinco sexenios en el orden en que gobernaron, el libro mayor se lee solo. Un contrato cuenta como de alto riesgo cuando el modelo de RUBLI lo califica en 0.40 o más en una escala de 0 a 1 — lo bastante cerca de los casos de corrupción documentada como para merecer una segunda mirada. Fox: 7.50 por ciento de contratos marcados como de alto riesgo, 15,468 de 206,307. Calderón: 8.15 por ciento, 39,230 de 481,450. Peña Nieto: 11.18 por ciento, 137,344 de 1,228,625. AMLO: 12.53 por ciento, 131,643 de 1,050,552. Cuatro sexenios completos, cada uno más alto que el anterior, y la columna sube en una sola dirección.",
+          "Asentados los cinco sexenios en el orden en que gobernaron, el libro mayor se lee solo. Un contrato cuenta como de alto riesgo cuando el modelo de RUBLI lo califica en 0.40 o más en una escala de 0 a 1 — lo bastante cerca de los casos etiquetados como para merecer una segunda mirada. Fox: 7.50 por ciento de contratos marcados como de alto riesgo, 15,468 de 206,307. Calderón: 8.15 por ciento, 39,230 de 481,450. Peña Nieto: 11.18 por ciento, 137,344 de 1,228,625. AMLO: 12.53 por ciento, 131,643 de 1,050,552. Cuatro sexenios completos, cada uno más alto que el anterior, y la columna sube en una sola dirección.",
           "El instrumento es políticamente ciego. El modelo v0.8.5 de RUBLI (AUC fuera de muestra 0.656) no se calibró para ninguna administración. Se entrenó con la base de casos etiquetados de RUBLI (1,401 casos al entrenar, la mayoría documentados por analistas y no resoluciones) de varias presidencias y evalúa cada contrato por su parecido estructural con patrones conocidos de corrupción: concentración de proveedores, volatilidad de precios, concentración entre coparticipantes, membresía en redes, mecanismo de contratación. No tiene partido. Solo ve patrones, y los patrones apuntan hacia arriba.",
-          "Cada sexenio se lee junto a su propia nota de auditoría. Fox gobernó con cobertura de Estructura A, donde CompraNet registra un RFC por cada mil contratos, así que el 7.50 por ciento es un piso y no una medición: el periodo está subregistrado y la tasa real es probablemente mayor. Calderón, Peña Nieto y AMLO caben todos dentro de la banda de 2 a 15 por ciento que RUBLI fija como meta de calibración para la proporción señalada (docs/RISK_METHODOLOGY_v6.md); ninguno de los cinco sexenios la rebasa. Lo que muestra el registro no es un rebase del umbral. Es una deriva de 5.0 puntos dentro de la banda, y va en un solo sentido.",
+          "Cada sexenio se lee junto a su propia nota de auditoría. Fox gobernó con cobertura de Estructura A, donde CompraNet registra un RFC por cada mil contratos, así que el 7.50 por ciento es un piso y no una medición: el periodo está subregistrado y la tasa real es probablemente mayor. Calderón, Peña Nieto y AMLO caben todos dentro de la banda de 2 a 15 por ciento que RUBLI fija como meta de calibración para la proporción señalada (docs/RISK_METHODOLOGY.md); ninguno de los cinco sexenios la rebasa. Lo que muestra el registro no es un rebase del umbral. Es una deriva de 5.0 puntos dentro de la banda, y va en un solo sentido.",
           "Entonces llega la quinta columna y rompe el patrón. RUBLI tiene 92,631 contratos de la cuenta de Sheinbaum, marcados al 11.18 por ciento — la misma lectura que los seis años completos de Peña Nieto, y por debajo de AMLO. Es el primer sexenio del libro que no sube. También son nueve meses de un solo año, medidos frente a mandatos de seis, y el flujo federal se congeló el 28 de septiembre de 2025 antes de que ese año terminara. Una columna tan corta no puede cargar un veredicto en ninguna dirección.",
         ],
         chartConfig: {
@@ -3213,7 +3209,7 @@ export const STORIES: StoryDef[] = [
         },
         sources: [
           'RUBLI /analysis/year-over-year — per-term rate as Σ (contracts × high_risk_pct) ÷ Σ contracts across the term years in lib/administrations.ts. Queried September 2026.',
-          'RUBLI risk model v0.8.5 — calibration target for the flagged share (2–15%), docs/RISK_METHODOLOGY_v6.md.',
+          'RUBLI risk model v0.8.5 — calibration target for the flagged share (2–15%), docs/RISK_METHODOLOGY.md.',
         ],
       },
       {
@@ -3368,12 +3364,12 @@ export const STORIES: StoryDef[] = [
         prose: [
           "Seventy-nine point four percent of AMLO's contracts were awarded without a contest — 2.76 trillion pesos of federal contracting, four fifths of it handed out rather than competed for. The rate is a count, not a sum: the register publishes each year's total value but does not split it by procedure type, so no peso figure for direct awards can be built from it. What the count says is enough. That is the hardest line on the inherited balance sheet, and it does not bend easily. The officials who learned to work that way did not retire on October 1, 2024. The vendors who built businesses around AMLO-era programs did not find new customers. Articles 41 and 42 remain on the books, ready to be invoked.",
           "Sheinbaum took office in October 2024. RUBLI holds 92,631 of her contracts at 11.18 percent high-risk — level with Peña Nieto's full term, below AMLO's, above Calderón's. It is the first account in the book that does not read higher than the one before it, and it is much too thin to call a trajectory: nine months of a single year against terms of six. The architecture she inherited is not thin, though, and three liabilities carry forward like unamortized obligations: pharmaceutical procurement under IMSS-Bienestar, where the 2025 consolidated medicine tender awarded 19.46 billion pesos to PISA in a single year; welfare logistics through voucher operators, TOKA's 51.81 billion pesos of lifetime contracting among them; and civilian infrastructure absorbed by SEDENA under national-security cover.",
-          "Beneath all five columns runs one institutional argument. The OECD's 2023 framework for measuring procurement performance argues for analytical capacity built into oversight rather than bolted on after the fiscal year closes. RUBLI is a working version of it: ASF audits the previous fiscal year each spring; RUBLI's pipeline updates monthly. That gap — between real-time visibility and formal accountability — is what a tool like RUBLI is built to narrow. Whether the fifth term operationalizes that visibility, or becomes the fifth administration to promise transparency while direct-award dependency climbs, is a verdict the open account will return one quarter at a time.",
+          "Beneath all five columns runs one institutional argument. The OECD's 2023 framework for measuring procurement performance argues for measuring procurement continuously, with data, rather than only through after-the-fact review. RUBLI is one attempt at that: ASF audits the previous fiscal year each spring, while RUBLI can recompute its indicators as soon as new contract data is published. That gap — between real-time visibility and formal accountability — is what a tool like RUBLI is built to narrow. Whether the fifth term operationalizes that visibility, or becomes the fifth administration to promise transparency while direct-award dependency climbs, is a verdict the open account will return one quarter at a time.",
         ],
         prose_es: [
           "El 79.4 por ciento de los contratos de AMLO se adjudicó sin concurso — 2.76 billones de pesos de contratación federal, cuatro quintas partes entregadas en lugar de competidas. La tasa es un conteo, no una suma: el registro publica el valor total de cada año pero no lo separa por tipo de procedimiento, así que ninguna cifra en pesos de adjudicación directa puede construirse desde él. Con el conteo basta. Esa es la línea más dura del balance heredado, y no se dobla fácilmente. Los funcionarios que aprendieron a trabajar así no se jubilaron el 1 de octubre de 2024. Los proveedores que armaron negocios alrededor de los programas de la era AMLO no encontraron nuevos clientes. Los Artículos 41 y 42 siguen en los libros, listos para invocarse.",
           "Sheinbaum tomó posesión en octubre de 2024. RUBLI tiene 92,631 de sus contratos con 11.18 por ciento de alto riesgo — a la par del sexenio completo de Peña Nieto, por debajo del de AMLO y por encima del de Calderón. Es la primera cuenta del libro que no se lee más alta que la anterior, y es demasiado delgada para llamarla trayectoria: nueve meses de un solo año contra mandatos de seis. La arquitectura que heredó no es delgada, en cambio, y tres pasivos se arrastran como obligaciones no amortizadas: la contratación farmacéutica bajo IMSS-Bienestar, donde la licitación consolidada de medicamentos de 2025 adjudicó 19.46 mil millones de pesos a PISA en un solo año; la logística del bienestar vía operadores de vales, entre ellos los 51.81 mil millones de pesos de contratación histórica de TOKA; y la infraestructura civil absorbida por la SEDENA bajo cobertura de seguridad nacional.",
-          "Por debajo de las cinco columnas corre un solo argumento institucional. El marco de la OCDE de 2023 para medir el desempeño en contratación pública defiende una capacidad analítica integrada en la supervisión, no añadida cuando el ejercicio fiscal ya cerró. RUBLI es una versión funcional de eso: la ASF audita el año fiscal anterior cada primavera; el proceso de RUBLI se actualiza cada mes. Esa brecha —entre la visibilidad en tiempo real y la rendición de cuentas formal— es la que una herramienta como RUBLI busca estrechar. Si el quinto sexenio pone esa visibilidad en operación, o se vuelve la quinta administración en prometer transparencia mientras la dependencia de la adjudicación directa sigue subiendo, es un veredicto que la cuenta abierta devolverá trimestre a trimestre.",
+          "Por debajo de las cinco columnas corre un solo argumento institucional. El marco de la OCDE de 2023 para medir el desempeño en contratación pública defiende medir la contratación de forma continua y con datos, no solo mediante revisiones posteriores. RUBLI es un intento en ese sentido: la ASF audita el año fiscal anterior cada primavera, mientras RUBLI puede recalcular sus indicadores en cuanto se publican nuevos datos de contratos. Esa brecha —entre la visibilidad en tiempo real y la rendición de cuentas formal— es la que una herramienta como RUBLI busca estrechar. Si el quinto sexenio pone esa visibilidad en operación, o se vuelve la quinta administración en prometer transparencia mientras la dependencia de la adjudicación directa sigue subiendo, es un veredicto que la cuenta abierta devolverá trimestre a trimestre.",
         ],
         chartConfig: {
           type: 'live',
@@ -4070,7 +4066,7 @@ export const STORIES: StoryDef[] = [
           "This is corroboration. An algorithm arrived at the same scene by a different road — aggregate statistics over millions of contracts, not one June delivery — and pointed at the same evidence. The +0.558 coefficient is a compressed judgment about what RUBLI's labelled cases share: inconsistent prices for comparable work. The roster below is the structure the model built.",
         ],
         prose_es: [
-          "De dieciocho variables candidatas, el modelo v0.8.5 de RUBLI hizo de price_volatility su predictor más fuerte de la etiqueta de caso documentado — +0.558, y un 43% por encima de la siguiente, price_ratio con +0.358. Nadie se lo pidió. El modelo nunca vio la factura de junio como algo especial.",
+          "De dieciocho variables candidatas, el modelo v0.8.5 de RUBLI hizo de price_volatility su predictor más fuerte de la etiqueta de caso — +0.558, y un 43% por encima de la siguiente, price_ratio con +0.358. Nadie se lo pidió. El modelo nunca vio la factura de junio como algo especial.",
           "Aprendió del registro. v0.8.5 se entrenó con la base de casos etiquetados de RUBLI — 1,401 casos entonces, la mayoría documentación de analistas sobre pistas surgidas del modelo, junto con casos reportados por la prensa como las redes de empresas fantasma del IMSS, el fraude de Segalmex, irregularidades del COVID, La Estafa Maestra universitaria — ponderados según qué tan firmemente está establecido cada caso, de confirmado a baja confianza, con regresión logística ElasticNet. El concurso fue abierto: veintiuna variables, en igualdad de condiciones, libres de ponderarse según los datos. Tres de ellas (co_bid_rate, price_hyp_confidence, win_rate) quedaron regularizadas a exactamente cero; dieciocho sobrevivieron.",
           "Esto es corroboración. Un algoritmo llegó a la misma escena por otro camino — estadística agregada sobre millones de contratos, no una entrega de junio — y apuntó a la misma evidencia. El coeficiente de +0.558 es un juicio comprimido sobre lo que comparten los casos etiquetados de RUBLI: precios inconsistentes para trabajo comparable. El roster de abajo es la estructura que el modelo construyó.",
         ],
@@ -4173,7 +4169,7 @@ export const STORIES: StoryDef[] = [
         },
         sources: [
           'RUBLI v0.8.5 model. Run ID CAL-v8-202605020212. Out-of-sample AUC 0.656 (forward holdout); the originally reported test AUC of 0.785 could not be reproduced. HR=11.0%.',
-          'RUBLI docs/RISK_METHODOLOGY_v6.md — tabla de coeficientes, mayo 2026.',
+          'RUBLI docs/RISK_METHODOLOGY.md — tabla de coeficientes, mayo 2026.',
         ],
       },
       {
@@ -4186,12 +4182,12 @@ export const STORIES: StoryDef[] = [
         prose: [
           "The largest negative weight belongs to a feature named institution_diversity, at -0.388 — but despite the name it is a Herfindahl index of institution concentration, high when a vendor sells to few buyers. So the model scores single-buyer vendors LOWER and vendors spread across many institutions higher: the opposite of the institutional-capture pattern RUBLI tracks elsewhere, and a known limitation of v0.8.5. Three more coefficients lean negative — recency_z at -0.247, amount_residual_z at -0.187 and direct_award at -0.081 — but none carries half its weight. Everything else on the right of the ladder is an alarm — price volatility on top, then concentration in few contracts, then co-bidding networks.",
           "The six smallest features carry their own verdict: single-bid, year-end timing, industry mismatch, win_rate, sector_spread and firm age. Earlier versions — v3.3, v4.0 — treated some as primary indicators. v0.8.5 found that once price_volatility and price_ratio are in the model, they add no predictive power; direct_award itself survives only at -0.081. Single-bid is not irrelevant to corruption — it is already captured by the dominant price signals.",
-          "The empirical finding is plain, and it is a finding about the labels, not about corruption itself. What separates the vendors inside RUBLI's 1,427 labelled cases from those outside them is price, not the award mechanism or the timing — and the inconsistency of that price, billing 9× for comparable work, is the trace that separates them most reliably. The June invoice is exactly what the top of this ladder is built to see.",
+          "The empirical finding is plain, and it is a finding about the labels, not about corruption itself. What separates the vendors inside RUBLI's 1,417 labelled cases from those outside them is price, not the award mechanism or the timing — and the inconsistency of that price, billing 9× for comparable work, is the trace that separates them most reliably. The June invoice is exactly what the top of this ladder is built to see.",
         ],
         prose_es: [
           "El peso negativo más grande corresponde a una variable llamada institution_diversity, en -0.388 — pero pese al nombre es un índice Herfindahl de concentración institucional, alto cuando un proveedor vende a pocos compradores. Así, el modelo puntúa MÁS BAJO a los proveedores de un solo comprador y más alto a los que venden a muchas instituciones: lo contrario del patrón de captura institucional que RUBLI sigue en otras secciones, y una limitación conocida de v0.8.5. Otros tres coeficientes se inclinan en negativo — recency_z en -0.247, amount_residual_z en -0.187 y direct_award en -0.081 — pero ninguno carga ni la mitad de su peso. Todo lo demás a la derecha de la escalera es una alarma — la volatilidad de precios arriba, luego la concentración en pocos contratos, luego las redes de co-licitación.",
           "Las seis variables más pequeñas traen su propio veredicto: oferta única, momento de fin de año, desajuste de industria, win_rate, sector_spread y antigüedad de la empresa. Versiones anteriores — v3.3, v4.0 — trataban algunas como indicadores principales. v0.8.5 encontró que, una vez que price_volatility y price_ratio están en el modelo, no aportan poder predictivo; el propio direct_award sobrevive apenas en -0.081. La oferta única no es irrelevante para la corrupción — ya está capturada por las señales dominantes de precio.",
-          "El hallazgo empírico es claro, y es un hallazgo sobre las etiquetas, no sobre la corrupción misma. Lo que distingue a los proveedores dentro de los 1,427 casos etiquetados de RUBLI de los que están fuera es el precio, no el mecanismo de adjudicación ni el momento — y la inconsistencia de ese precio, facturar 9× por trabajo comparable, es la huella que los separa con mayor consistencia. La factura de junio es exactamente lo que la cima de esta escalera está construida para ver.",
+          "El hallazgo empírico es claro, y es un hallazgo sobre las etiquetas, no sobre la corrupción misma. Lo que distingue a los proveedores dentro de los 1,417 casos etiquetados de RUBLI de los que están fuera es el precio, no el mecanismo de adjudicación ni el momento — y la inconsistencia de ese precio, facturar 9× por trabajo comparable, es la huella que los separa con mayor consistencia. La factura de junio es exactamente lo que la cima de esta escalera está construida para ver.",
         ],
         chartConfig: {
           type: 'inline-diverging',
@@ -4284,7 +4280,7 @@ export const STORIES: StoryDef[] = [
         },
         sources: [
           'Zou, H., & Hastie, T. (2005). Regularization and variable selection via the elastic net.',
-          'RUBLI v0.8.5 model coefficient table, docs/RISK_METHODOLOGY_v6.md, mayo 2026.',
+          'RUBLI v0.8.5 model coefficient table, docs/RISK_METHODOLOGY.md, mayo 2026.',
         ],
       },
       {
@@ -4298,12 +4294,12 @@ export const STORIES: StoryDef[] = [
         prose: [
           "Two independent algorithms, sharing no labels and no mathematics, flag the same 4,200 contracts. The first is the supervised v0.8.5 model, trained on RUBLI's labelled case set. The second is a PyOD isolation forest that uses no corruption labels at all — it flags only the contracts that are statistically unusual within the universe of 3.1 million.",
           "This is the second witness who never spoke to the first. Build a case on a single instrument and a defense attacks the instrument. When two instruments with nothing in common point at the same contracts, the signal is real, not a training artifact.",
-          "The simplest explanation is that price_volatility is visible from both vantage points. A contract billed 9× above its own baseline is anomalous in pure statistics, so the isolation forest sees it — and it resembles the documented corruption cases, so the supervised model sees it too. Same signal, same trace. The Venn below shows the overlap.",
+          "The simplest explanation is that price_volatility is visible from both vantage points. A contract billed 9× above its own baseline is anomalous in pure statistics, so the isolation forest sees it — and it resembles the labelled cases, so the supervised model sees it too. Same signal, same trace. The Venn below shows the overlap.",
         ],
         prose_es: [
           "Dos algoritmos independientes, sin etiquetas compartidas y sin matemáticas en común, marcan los mismos 4,200 contratos. El primero es el modelo supervisado v0.8.5, entrenado con la base de casos etiquetados de RUBLI. El segundo es un isolation forest de PyOD que no usa etiqueta de corrupción alguna — solo marca los contratos estadísticamente inusuales dentro del universo de 3.1 millones.",
           "Este es el segundo testigo que nunca habló con el primero. Un caso construido sobre un solo instrumento deja que la defensa ataque el instrumento. Cuando dos instrumentos sin nada en común apuntan a los mismos contratos, la señal es real, no un artefacto del entrenamiento.",
-          "La explicación más simple es que price_volatility se ve desde ambos puntos de vista. Un contrato facturado 9 veces por encima de su propia línea base es anómalo en estadística pura, y por eso lo detecta el isolation forest — y se parece a los casos de corrupción documentada, y por eso lo detecta también el modelo supervisado. La misma señal, la misma huella. El diagrama de Venn de abajo muestra el traslape.",
+          "La explicación más simple es que price_volatility se ve desde ambos puntos de vista. Un contrato facturado 9 veces por encima de su propia línea base es anómalo en estadística pura, y por eso lo detecta el isolation forest — y se parece a los casos etiquetados, y por eso lo detecta también el modelo supervisado. La misma señal, la misma huella. El diagrama de Venn de abajo muestra el traslape.",
         ],
         chartConfig: {
           type: 'venn-convergence',
@@ -4693,7 +4689,7 @@ export const STORIES: StoryDef[] = [
   // /vendors/:id/risk-timeline and /aria/queue/:id — the previous version's
   // 240B market, 96.7% Edenred direct-award rate, 2,210 / 2,868 single-bid
   // counts and "P5 · VOUCHER CARTEL" label had no source in the register.
-  // See docs/story-days/SD-03-el-cartel-de-los-vales.md.
+  // See internal planning note SD-03-el-cartel-de-los-vales (not published).
   {
     slug: 'el-cartel-de-los-vales',
     outlet: 'investigative',
@@ -4841,13 +4837,13 @@ export const STORIES: StoryDef[] = [
           "Five administrations and three parties have governed Mexico across this record, and the claim that all of them bought from the same firms does not hold. Efectivale led under Fox and under Calderón. Si Vale led under Peña Nieto. Toka led under López Obrador, taking 64.9 percent of everything the five firms were awarded in that term. The lead changed hands three times.",
           "What did not change is the way in. Every one of these firms, under every one of these governments, arrived through the same two routes, and 96.4 percent of the contracts between them came through one or the other. A change of occupant is visible in the register. A change of method is not.",
           "The explanation always offered for this market's closure is infrastructure: the point-of-sale network, the beneficiary databases and the card-issuance systems cost more to build than any single contract can justify, so no challenger enters. That account fits a market with fixed occupants. It fits this one less well — because a challenger did enter. Toka appeared in 2013 and led within six years, and the door it came through was the one that was supposed to be shut.",
-          "RUBLI has no evidence that any of these firms committed fraud in the legal sense. ARIA files all five under P5, systematic overpricing, which is a pricing indicator rather than a finding of collusion; its collusion-network pattern, P7, never rises above 0.5 confidence for any of them. Four of the five sit at Tier 1 of the investigation queue and four are already documented cases. What this market needs is a procurement redesign, not a prosecution. No government on the list has reached for it.",
+          "RUBLI has no evidence that any of these firms committed fraud in the legal sense. ARIA files all five under P5, systematic overpricing, which is a pricing indicator rather than a finding of collusion; its collusion-network pattern, P7, never rises above 0.5 confidence for any of them. Four of the five sit at Tier 1 of the investigation queue and four are already labelled cases. What this market needs is a procurement redesign, not a prosecution. No government on the list has reached for it.",
         ],
         prose_es: [
           "Cinco administraciones y tres partidos han gobernado México a lo largo de este registro, y la afirmación de que todos le compraron a las mismas empresas no se sostiene. Efectivale encabezó con Fox y con Calderón. Si Vale encabezó con Peña Nieto. Toka encabezó con López Obrador, y se llevó el 64.9 por ciento de todo lo adjudicado a las cinco en ese sexenio. El liderazgo cambió de manos tres veces.",
           "Lo que no cambió es la forma de entrar. Cada una de estas empresas, bajo cada uno de estos gobiernos, llegó por las mismas dos rutas, y el 96.4 por ciento de los contratos entre todas ellas entró por una o por la otra. El cambio de ocupante se ve en el registro. El cambio de método, no.",
           "La explicación que siempre se ofrece para el cierre de este mercado es la infraestructura: la red de puntos de venta, las bases de datos de beneficiarios y los sistemas de emisión de tarjetas cuestan más de lo que un solo contrato justifica, así que ningún retador entra. Ese relato encaja con un mercado de ocupantes fijos. Con este encaja menos — porque sí entró un retador. Toka apareció en 2013 y encabezaba seis años después, y la puerta por la que entró es la que se suponía cerrada.",
-          "RUBLI no tiene evidencia de que ninguna de estas empresas haya cometido fraude en el sentido legal. ARIA clasifica a las cinco bajo P5, sobreprecio sistemático, que es un indicador de precio y no una acusación de colusión; su patrón de red de colusión, el P7, no rebasa 0.5 de confianza en ninguna de ellas. Cuatro de las cinco están en el nivel 1 de la cola de investigación y cuatro ya son casos documentados. Lo que este mercado necesita es un rediseño de la contratación, no una acusación penal. Ningún gobierno de la lista lo ha intentado.",
+          "RUBLI no tiene evidencia de que ninguna de estas empresas haya cometido fraude en el sentido legal. ARIA clasifica a las cinco bajo P5, sobreprecio sistemático, que es un indicador de precio y no una acusación de colusión; su patrón de red de colusión, el P7, no rebasa 0.5 de confianza en ninguna de ellas. Cuatro de las cinco están en el nivel 1 de la cola de investigación y cuatro ya son casos etiquetados. Lo que este mercado necesita es un rediseño de la contratación, no una acusación penal. Ningún gobierno de la lista lo ha intentado.",
         ],
         chartConfig: {
           type: 'live',

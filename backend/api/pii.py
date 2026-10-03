@@ -1,4 +1,4 @@
-"""RFC privacy guard (.claude/rules/security.md § 1).
+"""RFC privacy guard (SECURITY.md, "What RUBLI does with personal data").
 
 Mexican RFC format is self-describing:
   - 12 chars (3 letters + YYMMDD + 3) = persona moral (company) → public

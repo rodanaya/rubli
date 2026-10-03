@@ -13,7 +13,7 @@
  *     █ AdminSummaryCard — switcher + identity + fingerprint + verdict
  *     § I   La Trayectoria   — yearly panels + anomalies + inflation note + § VOLUMEN
  *     § II  La Desviación Sectorial — sector risk vs the term's own average
- *     § III El Expediente    — documented scandals + key events
+ *     § III El Expediente    — reported scandals + key events
  *     § IV  Los Beneficiarios — top vendors + top sectors + top-100 ledger
  *     § V   Los Compradores  — top spending institutions for the term (the buyers)
  *   ACT III · AdminSurvivorsSlope «Los Sobrevivientes» + OfficialTenureBands
@@ -878,7 +878,7 @@ export default function Administrations() {
                 </div>
                 {selectedEraExtras.gtCaseCount != null && (
                   <span className="text-[12px] font-mono text-text-muted shrink-0 text-right">
-                    {selectedEraExtras.gtCaseCount} {isEs ? 'casos documentados (GT)' : 'documented cases (GT)'}
+                    {selectedEraExtras.gtCaseCount} {isEs ? 'casos etiquetados (GT)' : 'labelled cases (GT)'}
                   </span>
                 )}
               </div>
@@ -1088,7 +1088,7 @@ const HARDCODED_EVENTS: Record<string, Array<{ year: number; title: string; titl
   Fox: [
     { year: 2002, title: 'COMPRANET launched as digital procurement platform', titleEs: 'COMPRANET se lanza como plataforma digital de contratación', type: 'reform', impact: 'medium' },
     { year: 2003, title: 'First ASF audit on widespread direct-award contracting', titleEs: 'Primera auditoría de la ASF sobre adjudicación directa generalizada', type: 'audit', impact: 'medium' },
-    { year: 2004, title: 'PEMEXGATE scandal: diversions in maintenance contracts', titleEs: 'Escándalo PEMEXGATE: desvíos en contratos de mantenimiento', type: 'scandal', impact: 'high', dupScandal: 'pemexgate' },
+    { year: 2003, title: 'PEMEXGATE: IFE fines the PRI over PEMEX funds routed via the oil union to its 2000 campaign', titleEs: 'PEMEXGATE: el IFE multa al PRI por recursos de PEMEX canalizados vía el sindicato petrolero a su campaña de 2000', type: 'scandal', impact: 'high', dupScandal: 'pemexgate' },
     { year: 2005, title: 'Acquisitions Law reform — new transparency requirements', titleEs: 'Reforma a la Ley de Adquisiciones — nuevos requisitos de transparencia', type: 'reform', impact: 'medium' },
   ],
   Calderon: [
@@ -1100,7 +1100,6 @@ const HARDCODED_EVENTS: Record<string, Array<{ year: number; title: string; titl
   ],
   'Pena Nieto': [
     { year: 2014, title: 'Casa Blanca scandal — conflict of interest with contractor Grupo Higa', titleEs: 'Escándalo de la Casa Blanca — conflicto de interés con el contratista Grupo Higa', type: 'scandal', impact: 'high', dupScandal: 'casa_blanca' },
-    { year: 2015, title: 'IMSS ghost-company network uncovered by ASF audit', titleEs: 'Red de empresas fantasma del IMSS descubierta por auditoría de la ASF', type: 'scandal', impact: 'high', dupScandal: 'imss_ghost' },
     { year: 2016, title: 'Odebrecht-PEMEX investigation — bribes for infrastructure contracts', titleEs: 'Investigación Odebrecht-PEMEX — sobornos por contratos de infraestructura', type: 'scandal', impact: 'high', dupScandal: 'odebrecht' },
     { year: 2017, title: 'La Estafa Maestra: MXN 7.6B diverted through public universities', titleEs: 'La Estafa Maestra: 7,600 MDP desviados a través de universidades públicas', type: 'scandal', impact: 'high', dupScandal: 'estafa_maestra' },
     { year: 2017, title: 'September earthquakes — emergency procurement without bidding', titleEs: 'Sismos de septiembre — compras de emergencia sin licitación', type: 'crisis', impact: 'medium' },
@@ -1109,8 +1108,8 @@ const HARDCODED_EVENTS: Record<string, Array<{ year: number; title: string; titl
   AMLO: [
     { year: 2019, title: 'Austerity decree — drastic reduction in service contracts', titleEs: 'Decreto de austeridad — reducción drástica de contratos de servicios', type: 'reform', impact: 'high' },
     { year: 2019, title: 'Militarization of megaprojects (AIFA, Tren Maya) — direct awards to Army', titleEs: 'Militarización de megaproyectos (AIFA, Tren Maya) — adjudicaciones directas al Ejército', type: 'reform', impact: 'high' },
-    { year: 2020, title: 'COVID-19 pandemic: emergency procurement of ventilators and medicines', titleEs: 'Pandemia de COVID-19: compras de emergencia de ventiladores y medicinas', type: 'crisis', impact: 'high', dupScandal: 'covid_procurement' },
-    { year: 2021, title: 'Segalmex scandal — MXN 9.4B fraud in food distribution', titleEs: 'Escándalo Segalmex — fraude de 9,400 MDP en distribución de alimentos', type: 'scandal', impact: 'high', dupScandal: 'segalmex' },
+    { year: 2020, title: 'COVID-19 pandemic: emergency procurement of ventilators and medicines', titleEs: 'Pandemia de COVID-19: compras de emergencia de ventiladores y medicinas', type: 'crisis', impact: 'high' },
+    { year: 2021, title: 'Segalmex scandal — SFP reports MXN 2.7B diverted; ASF observed MXN 8.6B (not final)', titleEs: 'Escándalo Segalmex — la SFP reporta 2,700 MDP desviados; la ASF observó 8,636 MDP (no definitivo)', type: 'scandal', impact: 'high', dupScandal: 'segalmex' },
     { year: 2022, title: 'SAT publishes final EFOS list: 38 COMPRANET vendors confirmed as ghost companies', titleEs: 'El SAT publica la lista definitiva de EFOS: 38 proveedores de COMPRANET confirmados como empresas fantasma', type: 'audit', impact: 'high', dupScandal: 'efos_sat' },
     { year: 2023, title: 'Tren Maya: FONATUR awards MXN 180M in direct contracts to Sedena', titleEs: 'Tren Maya: FONATUR adjudica 180 MDP en contratos directos a la Sedena', type: 'scandal', impact: 'medium', dupScandal: 'tren_maya' },
   ],

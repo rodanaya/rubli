@@ -941,7 +941,7 @@ def _query_terms(conn: sqlite3.Connection, code: str) -> ClusterVendorsResponse:
 # ============================================================================
 # Spatial nav — Z1 (sector → institutions sub-constellation)
 #
-# 2026-05-09 (docs/SPATIAL_NAV_PLAN.md):
+# 2026-05-09 (internal planning note SPATIAL_NAV_PLAN (not published)):
 # When the user is on Atlas with lens=sectors and clicks a sector cluster,
 # this endpoint provides the institutions inside that sector with a
 # pre-computed (fx, fy) layout in 0..1 normalised coords. The frontend

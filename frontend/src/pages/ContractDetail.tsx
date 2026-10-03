@@ -338,7 +338,7 @@ export default function ContractDetail() {
                   <div className="mt-4 flex items-start gap-2 rounded-sm bg-risk-high/5 border border-risk-high/20 px-3 py-2">
                     <AlertTriangle className="h-3.5 w-3.5 text-risk-high/80 mt-0.5 shrink-0" aria-hidden="true" />
                     <p className="text-[13px] text-text-secondary leading-relaxed">
-                      High risk score indicates similarity to documented corruption patterns — it is
+                      High risk score indicates similarity to patterns from labelled cases — it is
                       an investigative signal, not a verdict.
                     </p>
                   </div>

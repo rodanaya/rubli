@@ -71,7 +71,7 @@ interface VendorHeroProps {
   actions?: ReactNode
   /** ARIA investigative tier — 1=critical, 4=low. */
   ariaTier?: 1 | 2 | 3 | 4 | null
-  /** Ground-truth confirmed corruption case. Drives the GT chip. */
+  /** Linked to a labelled ground-truth case. Drives the GT chip. */
   isGroundTruth?: boolean
   /** Show the "ON THE PAGE" TOC strip. Default true (unified dossier);
    *  pass false in the legacy /print/vendors/:id context where the
@@ -313,7 +313,7 @@ function VerdictCard({
     chips.push({
       label: 'GT',
       color: RISK_COLORS.critical,
-      title: lang === 'es' ? 'Caso confirmado en Ground Truth' : 'Confirmed ground-truth case',
+      title: lang === 'es' ? 'Caso etiquetado en la base de casos' : 'Labelled ground-truth case',
     })
   }
   if (ariaTier != null && ariaTier <= 2) {
@@ -810,14 +810,14 @@ function buildVendorLede(
   // Frame 1: GT-confirmed + dominant client
   if (isGroundTruth && dominant >= 35 && topName) {
     return lang === 'en'
-      ? `${name} received ${spend} (≈${usd}) from ${topName} over ${span} years across ${contracts} contracts. ${da}% were direct-award; ${hr}% flagged high or critical by the risk model. Confirmed corruption case in the Ground Truth database.`
-      : `${name} recibió ${spend} (≈${usd}) de ${topName} a lo largo de ${span} años en ${contracts} contratos. ${da}% fueron adjudicación directa; ${hr}% marcados alto o crítico por el modelo de riesgo. Caso confirmado de corrupción en la base Ground Truth.`
+      ? `${name} received ${spend} (≈${usd}) from ${topName} over ${span} years across ${contracts} contracts. ${da}% were direct-award; ${hr}% flagged high or critical by the risk model. Linked to a labelled case in the ground-truth set.`
+      : `${name} recibió ${spend} (≈${usd}) de ${topName} a lo largo de ${span} años en ${contracts} contratos. ${da}% fueron adjudicación directa; ${hr}% marcados alto o crítico por el modelo de riesgo. Vinculado a un caso etiquetado en la base de casos.`
   }
   // Frame 2: GT-confirmed, no single dominant client
   if (isGroundTruth) {
     return lang === 'en'
-      ? `${name} holds ${contracts} contracts worth ${spend} (≈${usd}) across ${formatNumber(vendor.total_institutions)} institutions. ${da}% were direct-award; ${hr}% flagged high or critical. Confirmed corruption case in the Ground Truth database.`
-      : `${name} tiene ${contracts} contratos por ${spend} (≈${usd}) con ${formatNumber(vendor.total_institutions)} instituciones. ${da}% fueron adjudicación directa; ${hr}% marcados alto o crítico. Caso confirmado de corrupción en la base Ground Truth.`
+      ? `${name} holds ${contracts} contracts worth ${spend} (≈${usd}) across ${formatNumber(vendor.total_institutions)} institutions. ${da}% were direct-award; ${hr}% flagged high or critical. Linked to a labelled case in the ground-truth set.`
+      : `${name} tiene ${contracts} contratos por ${spend} (≈${usd}) con ${formatNumber(vendor.total_institutions)} instituciones. ${da}% fueron adjudicación directa; ${hr}% marcados alto o crítico. Vinculado a un caso etiquetado en la base de casos.`
   }
   // Frame 3: High HR%, no GT
   if (hr >= 80) {

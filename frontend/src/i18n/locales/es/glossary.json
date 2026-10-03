@@ -1,15 +1,15 @@
 {
   "riskScore": {
     "title": "Puntuación de Riesgo",
-    "description": "Un indicador estadístico de riesgo (0-1) que mide la similitud con patrones documentados de corrupción. Basado en 16 características estadísticas comparadas contra casos conocidos de corrupción. Mayor = más similitud con patrones conocidos. No es una determinación legal ni prueba de irregularidad."
+    "description": "Un indicador estadístico de riesgo (0-1) que mide la similitud con patrones de casos etiquetados. Basado en 21 características estadísticas (18 con peso distinto de cero en v0.8.5) comparadas contra casos conocidos de corrupción. Mayor = más similitud con patrones conocidos. No es una determinación legal ni prueba de irregularidad."
   },
   "riskScoreDisclaimer": {
     "title": "Cómo interpretar esta puntuación",
-    "description": "Esta puntuación mide la similitud estadística con patrones conocidos de corrupción — no es una determinación legal ni prueba de irregularidad. Una puntuación alta significa que las características de contratación de esta entidad se asemejan a casos documentados de fraude. Úsela solo para priorización de investigaciones."
+    "description": "Esta puntuación mide la similitud estadística con patrones conocidos de corrupción — no es una determinación legal ni prueba de irregularidad. Una puntuación alta significa que las características de contratación de esta entidad se asemejan a casos etiquetados. Úsela solo para priorización de investigaciones."
   },
   "riskLevel": {
     "title": "Nivel de Riesgo",
-    "description": "Categorización basada en la puntuación: Crítico (>=60%), Alto (>=40%), Medio (>=25%), Bajo (<25%). Estos umbrales son propios de RUBLI, fijados en la calibración (docs/RISK_METHODOLOGY_v6.md)."
+    "description": "Categorización basada en la puntuación: Crítico (>=60%), Alto (>=40%), Medio (>=25%), Bajo (<25%). Estos umbrales son propios de RUBLI, fijados en la calibración (docs/RISK_METHODOLOGY.md)."
   },
   "singleBid": {
     "title": "Licitante Único",
@@ -77,7 +77,7 @@
   },
   "calibratedProbability": {
     "title": "Puntuación de Riesgo",
-    "description": "Un indicador estadístico de riesgo que mide la similitud con patrones documentados de corrupción. La puntuación se deriva de regresión logística y debe interpretarse como una señal de similitud de patrones, no como una estimación de probabilidad de corrupción."
+    "description": "Un indicador estadístico de riesgo que mide la similitud con patrones de casos etiquetados. La puntuación se deriva de regresión logística y debe interpretarse como una señal de similitud de patrones, no como una estimación de probabilidad de corrupción."
   },
   "perSectorModel": {
     "title": "Normalización por Sector",
@@ -85,7 +85,7 @@
   },
   "groundTruth": {
     "title": "Verdad Base",
-    "description": "La base de casos etiquetados de RUBLI, usada para entrenar y evaluar el modelo: 1,427 casos hoy. 363 provienen de reportajes de prensa, 25 de registros oficiales y 1 de una auditoría; 989 son pistas que el modelo o ARIA detectó y un analista documentó. La mayoría no son resoluciones, y no todo proveedor vinculado ha sido confirmado como responsable."
+    "description": "La base de casos etiquetados de RUBLI, usada para entrenar y evaluar el modelo: 1,417 casos hoy. 361 provienen de reportajes de prensa, 25 de registros oficiales y 1 de una auditoría; 989 son pistas que el modelo o ARIA detectó y un analista documentó. La mayoría no son resoluciones, y no todo proveedor vinculado ha sido confirmado como responsable."
   },
   "adPeriod": {
     "title": "Período de Publicación",

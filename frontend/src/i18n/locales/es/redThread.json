@@ -94,7 +94,7 @@
   },
   "pattern": {
     "heading": "Lo Que Encontró el Algoritmo",
-    "description": "Las puntuaciones de riesgo se construyen a partir de 16 características z-score normalizadas contra los promedios del sector. Estos son los factores que impulsaron la puntuación de este proveedor.",
+    "description": "Las puntuaciones de riesgo se construyen a partir de 21 características z-score (18 con peso distinto de cero) normalizadas contra los promedios de sector y año. Estos son los factores que impulsaron la puntuación de este proveedor.",
     "raisesRisk": "▲ aumenta el riesgo",
     "lowersRisk": "▼ reduce el riesgo",
     "raises": "aumenta",
@@ -179,7 +179,7 @@
   },
   "verdict": {
     "heading": "Resumen de Investigación",
-    "description": "Las señales estadísticas justifican atención. Una puntuación alta no es prueba de irregularidades — significa que este proveedor se asemeja estrechamente a patrones de corrupción documentados.",
+    "description": "Las señales estadísticas justifican atención. Una puntuación alta no es prueba de irregularidades — significa que este proveedor se asemeja estrechamente a patrones de casos etiquetados.",
     "theQuestion": "La Pregunta",
     "theEvidence": "La Evidencia",
     "theFinding": "El Hallazgo",
@@ -258,7 +258,7 @@
   },
   "disclosure": {
     "label": "Lo que este hilo no puede decirle",
-    "body": "El conjunto de datos COMPRANET tiene vacíos estructurales conocidos. La cobertura de RFC (identificación fiscal del proveedor) es desigual entre períodos (0.1% en 2002–2010, 47% en 2023+). Los datos de beneficiario controlador no se rastrean. Los documentos contractuales (alcance real del trabajo, entregables, modificaciones) no están en este conjunto. Las relaciones de subcontratación no están expuestas. La puntuación de riesgo mide similitud estadística con patrones de corrupción documentados — no es prueba de irregularidades. Trate cada bandera como una hipótesis a verificar, no como un veredicto."
+    "body": "El conjunto de datos COMPRANET tiene vacíos estructurales conocidos. La cobertura de RFC (identificación fiscal del proveedor) es desigual entre períodos (0.1% en 2002–2010, 47% en 2023+). Los datos de beneficiario controlador no se rastrean. Los documentos contractuales (alcance real del trabajo, entregables, modificaciones) no están en este conjunto. Las relaciones de subcontratación no están expuestas. La puntuación de riesgo mide similitud estadística con patrones de casos etiquetados — no es prueba de irregularidades. Trate cada bandera como una hipótesis a verificar, no como un veredicto."
   },
   "nav": {
     "back": "Atrás",

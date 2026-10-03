@@ -19,7 +19,7 @@ export function RiskScoreDisclaimer({ className }: { className?: string }) {
       </TooltipTrigger>
       <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
         Risk scores are statistical risk indicators measuring similarity to
-        documented corruption patterns — not calibrated probabilities of
+        patterns from labelled cases — not calibrated probabilities of
         corruption. A score of 0.50 means this contract's procurement
         characteristics closely resemble those from known corruption cases.
         High scores warrant investigation, not presumption of guilt.

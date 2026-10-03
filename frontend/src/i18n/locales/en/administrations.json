@@ -35,11 +35,9 @@
     "scandals": {
       "casa_blanca": "Casa Blanca — Conflict of interest: presidential family linked to contractor Grupo Higa (EPN, 2014)",
       "estafa_maestra": "La Estafa Maestra — MXN 7.6B diverted through public universities using ghost companies (EPN, 2017)",
-      "imss_ghost": "IMSS Ghost Company Network — phantom vendors awarded billions in healthcare contracts (EPN-era exposure, 2015)",
       "odebrecht": "Odebrecht-PEMEX — Brazilian engineering firm paid bribes for infrastructure contracts (Calderón/EPN, 2010–2016)",
-      "pemexgate": "PEMEXGATE — diversion of union funds through maintenance contracts at Pemex (Fox, 2004)",
-      "segalmex": "Segalmex — MXN 9.4B fraud in subsidized food distribution contracts (AMLO, 2021)",
-      "covid_procurement": "COVID-19 Emergency Procurement — ventilators and medicines awarded without competition; Bruluart, DIMM irregularities (AMLO, 2020)",
+      "pemexgate": "PEMEXGATE — PEMEX funds routed through the oil workers' union to the PRI's 2000 presidential campaign; the IFE fined the PRI in 2003 (Fox term)",
+      "segalmex": "Segalmex — the SFP reports MXN 2.7B diverted; the ASF observed MXN 8.6B in the 2020 accounts (audit observations, not final determinations) (AMLO, 2021)",
       "tren_maya": "Tren Maya — FONATUR awarded MXN 180M in direct contracts to Army without civilian bidding (AMLO, 2023)",
       "efos_sat": "SAT EFOS Definitivo — 38 COMPRANET vendors confirmed as ghost companies by Mexico's tax authority (AMLO, 2022)",
       "grupo_higa": "Grupo Higa / Casa Blanca — infrastructure contractor with direct presidential family conflict of interest (EPN, 2014)"
@@ -59,7 +57,7 @@
   "sectorProfile": "Sector Risk Profile — {{admin}}",
   "transitionImpact": "Transition Impact",
   "keyEvents": "Key Events — {{admin}} ({{start}}–{{end}})",
-  "documentedCases": "Documented Corruption Cases",
+  "documentedCases": "Labelled Cases",
   "documentedCasesNote": "Cases from RUBLI's labelled set — press reports, official records and analyst write-ups. Most are not adjudicated findings.",
   "noData": "No yearly data available for this administration",
   "insufficientData": "Insufficient data for transition analysis",
@@ -89,7 +87,7 @@
   "sectorCorrelationsNote": "Sector pairs with correlated risk trajectories (|r| ≥ 0.70) during this administration",
   "heatmapSubtitle": "Risk metrics by sector for the selected administration — sorted by high-risk contract percentage.",
   "transitionSubtitle": "Changes in key indicators between consecutive administrations. Values marked ! or !! are statistically unusual (≥1.8σ from historical average).",
-  "keyEventsSubtitle": "Legislative reforms, documented scandals, and crises that affected public procurement patterns during this administration.",
+  "keyEventsSubtitle": "Legislative reforms, reported scandals, and crises that affected public procurement patterns during this administration.",
   "heatmap": {
     "sector": "Sector",
     "directAward": "Direct Award",
@@ -133,11 +131,11 @@
       "headline": "Peña Nieto: La Estafa Maestra and the Ghost Company Era",
       "findings": "The Peña Nieto administration (2012–2017) oversaw approximately 680,000 contracts worth 2.8 trillion MXN, with an average risk score of 0.30 — the highest of any pre-AMLO administration. This period saw the emergence of \"La Estafa Maestra\": a network of shell companies funneling public funds through universities and state agencies, ultimately diverting an estimated 7.7 billion MXN. The Casa Blanca conflict-of-interest scandal linked presidential family members directly to government contractors Grupo Higa and Constructora Teya.",
       "keyRisk": "Ghost company infrastructure: procurement was systematically routed through entities with no real operations, exploiting regulatory gaps in subcontracting oversight that COMPRANET data alone cannot fully expose.",
-      "legacy": "The Peña Nieto era produced documented cases that exposed significant gaps in procurement oversight — layered subcontracting schemes that took years of auditing by the ASF and investigative journalists to partially unravel."
+      "legacy": "The Peña Nieto era produced labelled cases that exposed significant gaps in procurement oversight — layered subcontracting schemes that took years of auditing by the ASF and investigative journalists to partially unravel."
     },
     "amlo": {
       "headline": "AMLO: 78.9% Direct Awards — Highest in the Modern Record",
-      "findings": "The AMLO administration (2018–2024) generated the largest procurement volume of any presidency: approximately 1.24 million contracts worth 3.2 trillion MXN. The direct award rate reached 78.9% — the highest recorded across all five administrations and eight times the 10% direct-award line the EU Single Market Scoreboard rates unsatisfactory. Emergency COVID-19 procurement in 2020–2021 flagged significant irregularities in health-sector contracts, with vendors such as Bruluart and DIMM receiving multi-billion-peso awards through expedited processes with minimal competitive scrutiny. Average risk score reached 0.31.",
+      "findings": "The AMLO administration (2018–2024) generated the largest procurement volume of any presidency: approximately 1.24 million contracts worth 3.2 trillion MXN. The direct award rate reached 78.9% — the highest recorded across all five administrations and eight times the 10% direct-award line the EU Single Market Scoreboard rates unsatisfactory. Emergency COVID-19 procurement in 2020–2021 channelled large health-sector awards through expedited processes with little competition. Average risk score reached 0.31.",
       "keyRisk": "The systematic bypassing of competitive tendering — justified variously as emergency powers, austerity, or anti-corruption — paradoxically created conditions that OECD frameworks identify as among the highest-risk procurement patterns.",
       "legacy": "With 1.24 million contracts, AMLO's term accounts for roughly 40% of all procurement records in the RUBLI dataset; the exceptionally high direct award rate means a disproportionate share of those contracts lack the competitive documentation needed to reconstruct pricing rationale or detect overpricing after the fact."
     },

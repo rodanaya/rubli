@@ -43,12 +43,12 @@ const OfficialProfile = lazy(() => import('@/pages/OfficialProfile'))
 // while it iterates; will be promoted to / when stable.
 // File is named SpatialMap.tsx (not Explore.tsx) to avoid a Windows
 // case-insensitive clash with the legacy `pages/explore.tsx` page.
-// See docs/SPATIAL_NAV_PLAN.md for the zoom hierarchy.
+// See internal planning note SPATIAL_NAV_PLAN (not published) for the zoom hierarchy.
 const SpatialMap = lazy(() => import('@/pages/SpatialMap'))
 // 2026-05-11 Gap 2: /vendors/:id and /institutions/:id now redirect to
 // the /explore deep link. The legacy dossier components survive at
 // /print/vendors/:id and /print/institutions/:id for the printable
-// surface. See docs/SCAFFOLDING_OF_THE_UNIVERSE.md Gap 2.
+// surface. See internal planning note SCAFFOLDING_OF_THE_UNIVERSE (not published) Gap 2.
 // Both DeepLinkRedirect components retired 2026-05-25/26 (DESIGNUS rounds 6+7):
 // /vendors/:id → VendorDossier · /institutions/:id → InstitutionDossier.
 const Sectors = lazy(() => import('@/pages/Sectors'))
@@ -62,7 +62,7 @@ const Administrations = lazy(() => import('@/pages/Administrations'))
 // route now redirects to /sectors. Component file preserved for v1.1 if a
 // real consumer surfaces.
 // v1.0 launch cuts — components retained on disk for v1.1, no longer imported.
-// See docs/RUBLI_v1.0_LAUNCH_PLAN.md for the cut list.
+// See internal planning note RUBLI_v1.0_LAUNCH_PLAN (not published) for the cut list.
 //   ModelTransparency        → /methodology
 //   Investigation/Case       → /aria
 //   YearInReview             → /
@@ -203,7 +203,7 @@ function App() {
                   static Executive briefing as the front door. Executive
                   moved to /dashboard so external links keep working via
                   the redirects below. Spatial-nav rebuild plan:
-                  docs/SPATIAL_NAV_PLAN.md. */}
+                  internal planning note SPATIAL_NAV_PLAN (not published). */}
               <Route
                 index
                 element={
@@ -318,7 +318,7 @@ function App() {
               <Route path="workspace" element={<Navigate to="/atlas" replace />} />
               <Route path="watchlist" element={<Navigate to="/atlas" replace />} />
               {/* v1.0 launch cut — Investigation surfaces overlap with /aria.
-                  Component files preserved for v1.1. See docs/RUBLI_v1.0_LAUNCH_PLAN.md. */}
+                  Component files preserved for v1.1. See internal planning note RUBLI_v1.0_LAUNCH_PLAN (not published). */}
               <Route path="investigation/:caseId" element={<Navigate to="/aria" replace />} />
               <Route path="investigation" element={<Navigate to="/aria" replace />} />
               <Route path="cola" element={<Navigate to="/aria" replace />} />
@@ -494,7 +494,7 @@ function App() {
                   /explore?s=…&i=…&v=…. Legacy dossier survives at
                   /print/vendors/:id for printable / fallback use.
                   Pass ?print=1 to bypass the redirect.
-                  See docs/SCAFFOLDING_OF_THE_UNIVERSE.md Gap 2. */}
+                  See internal planning note SCAFFOLDING_OF_THE_UNIVERSE (not published) Gap 2. */}
               {/* 2026-05-25 DESIGNUS round 6 final: /vendors/:id is the
                   canonical unified dossier (VendorDossier). Replaces the
                   Gap 2 redirect-into-/explore behavior. /explore stays the

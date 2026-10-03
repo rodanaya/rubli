@@ -108,16 +108,16 @@ const PATTERN_EDITORIAL: PatternEditorial[] = [
   },
   {
     code: 'P7',
-    nameEn: 'Linked to a documented case',
-    nameEs: 'Vinculado a un caso documentado',
+    nameEn: 'Linked to a labelled case',
+    nameEs: 'Vinculado a un caso etiquetado',
     ledeEn:
-      'P7 marks a vendor that is linked to a documented case in RUBLI\'s case set — a case sourced to press reports, official records or an audit, and rated high-confidence. It is a pointer to that case record, not an independent detection and not a finding about the vendor: read the case and its sources before relying on it.',
+      'P7 marks a vendor that is linked to a labelled case in RUBLI\'s case set — a case sourced to press reports, official records or an audit, and rated high-confidence. It is a pointer to that case record, not an independent detection and not a finding about the vendor: read the case and its sources before relying on it.',
     ledeEs:
-      'P7 marca a un proveedor vinculado a un caso documentado de la base de casos de RUBLI — un caso con fuente de prensa, registros oficiales o auditoría, y calificado de alta confianza. Es un puntero a ese expediente, no una detección independiente ni un hallazgo sobre el proveedor: lea el caso y sus fuentes antes de apoyarse en él.',
+      'P7 marca a un proveedor vinculado a un caso etiquetado de la base de casos de RUBLI — un caso con fuente de prensa, registros oficiales o auditoría, y calificado de alta confianza. Es un puntero a ese expediente, no una detección independiente ni un hallazgo sobre el proveedor: lea el caso y sus fuentes antes de apoyarse en él.',
     signalEn:
       'ARIA sets P7 when the vendor is linked to a documented (sourced, high-confidence) case in the ground-truth set. Unverified case links do not set P7. The flag is binary.',
     signalEs:
-      'ARIA activa P7 cuando el proveedor está vinculado a un caso documentado (con fuente y de alta confianza) de la base de casos. Los vínculos no verificados no activan P7. La marca es binaria.',
+      'ARIA activa P7 cuando el proveedor está vinculado a un caso etiquetado (con fuente y de alta confianza) de la base de casos. Los vínculos no verificados no activan P7. La marca es binaria.',
   },
 ]
 
@@ -264,7 +264,7 @@ const PATTERN_INVESTIGATE: Record<string, InvestigateGuide> = {
   P7: {
     what: {
       en: 'A vendor carrying documented external red flags — appearance on a regulatory blacklist, inclusion in a journalism-grounded corruption case, or ties to procurement officials. P7 surfaces the strongest external evidence the model can reach.',
-      es: 'Un proveedor que arrastra señales externas documentadas — aparición en una lista negra regulatoria, inclusión en un caso de corrupción documentado periodísticamente, o vínculos con funcionarios de contratación. P7 expone la evidencia externa más fuerte que el modelo puede alcanzar.',
+      es: 'Un proveedor que arrastra señales externas documentadas — aparición en una lista negra regulatoria, inclusión en un caso de corrupción reportado por la prensa, o vínculos con funcionarios de contratación. P7 expone la evidencia externa más fuerte que el modelo puede alcanzar.',
     },
     first: {
       en: 'Check the vendor against the external registries directly: SAT EFOS for tax fraud, the SFP sanction registry for procurement misconduct, and the curated ground-truth case library. A match on any is documented evidence, not a model inference.',
@@ -815,7 +815,7 @@ export default function PatternDossier() {
       {/* §5 GT Cases Callout */}
       {spotlight && spotlight.gt_case_count > 0 && caseType && (
         <section
-          aria-label={isEs ? 'Casos documentados' : 'Documented cases'}
+          aria-label={isEs ? 'Casos etiquetados' : 'Labelled cases'}
           className="rounded-sm border-l-2 pl-4 py-3"
           style={{
             borderLeftColor: '#dc2626',
@@ -834,7 +834,7 @@ export default function PatternDossier() {
                 >
                   {spotlight.gt_case_count.toLocaleString()}
                 </span>{' '}
-                casos documentados coinciden con la tipología{' '}
+                casos etiquetados coinciden con la tipología{' '}
                 <span className="text-text-primary">{name}</span>.
               </>
             ) : (
@@ -845,7 +845,7 @@ export default function PatternDossier() {
                 >
                   {spotlight.gt_case_count.toLocaleString()}
                 </span>{' '}
-                documented cases match the{' '}
+                labelled cases match the{' '}
                 <span className="text-text-primary">{name}</span> typology.
               </>
             )}

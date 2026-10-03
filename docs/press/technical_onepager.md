@@ -25,12 +25,12 @@
 
 | Metrica | Valor |
 |---|---|
-| Casos etiquetados (ground truth) | 1,427 hoy (1,401 al entrenar): 363 de prensa, 25 de registros oficiales, 1 de auditoria, 989 pistas surgidas del modelo o de ARIA y documentadas por analistas. La mayoria no son resoluciones. |
+| Casos etiquetados (ground truth) | 1,417 hoy (1,401 al entrenar): 361 de prensa, 25 de registros oficiales, 1 de auditoria, 989 pistas surgidas del modelo o de ARIA y documentadas por analistas, 41 de otro origen. La mayoria no son resoluciones. |
 | AUC-ROC fuera de muestra | 0.656 — 103,889 contratos de 694 proveedores vinculados a un caso despues del entrenamiento |
 | AUC-ROC dentro de muestra | 0.733 — todos los contratos de casos etiquetados, nivel contrato |
 | AUC de prueba reportado originalmente | 0.785 — no pudo reproducirse (la particion no se guardo); ya no se cita |
 | Tasa de alto riesgo | 10.95% (meta de calibracion propia de RUBLI: 2-15%; no es un rango de la OCDE) |
-| Contratos riesgo critico (≥0.60) | 152,010 (4.98%) |
+| Contratos riesgo critico (≥0.60) | 151,942 (4.97%) |
 
 Casos de prensa usados en entrenamiento incluyen: IMSS (red de empresas fantasma), Segalmex, compras COVID-19, La Estafa Maestra, Odebrecht-PEMEX, Grupo Higa/Casa Blanca.
 
@@ -52,11 +52,11 @@ Casos de prensa usados en entrenamiento incluyen: IMSS (red de empresas fantasma
 
 2. **Correlacion no es causalidad.** Una puntuacion alta indica similitud estadistica con patrones conocidos. No es determinacion de responsabilidad ni prueba de conducta ilicita.
 
-3. **Etiquetas de entrenamiento provienen de escandalos de alto perfil.** El modelo detecta bien patrones similares a casos publicos (IMSS, Segalmex). Puede no detectar corrupcion de pequeña escala o con mecanismos distintos.
+3. **Etiquetas de entrenamiento.** 989 de los 1,417 casos etiquetados son pistas surgidas del propio modelo o de ARIA; 387 provienen de prensa, registros oficiales o auditorias. El modelo detecta mejor patrones parecidos a los casos conocidos (IMSS, Segalmex) y puede no detectar corrupcion de pequeña escala o con mecanismos distintos.
 
 4. **Calidad de datos varia por periodo.** Los registros 2002-2010 tienen cobertura de RFC de 0.1%. Los puntajes de ese periodo son menos confiables.
 
-5. **No hay identificacion definitiva de proveedores.** El mismo proveedor puede aparecer bajo multiples grafias en distintos años.
+5. **Identificacion de proveedores imperfecta.** Desde septiembre de 2026 una resolucion de entidades de alta precision unifica variantes (316,967 proveedores canonicos), pero los registros 2002-2010 casi no tienen RFC y siguen siendo dificiles de vincular.
 
 ---
 

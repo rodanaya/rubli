@@ -180,7 +180,7 @@ function VendorCoda({
           <ChipRow
             label={
               caseAnchor.isGt
-                ? isEs ? 'Caso confirmado (Ground Truth)' : 'Confirmed case (Ground Truth)'
+                ? isEs ? 'Caso etiquetado (Ground Truth)' : 'Labelled case (Ground Truth)'
                 : isEs ? 'Escándalo vinculado' : 'Linked scandal'
             }
           >

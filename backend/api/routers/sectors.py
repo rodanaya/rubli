@@ -60,7 +60,7 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["sectors"])
 
-# Sector color mapping (from CLAUDE.md)
+# Sector color mapping (mirrors SECTOR_COLORS in frontend/src/lib/constants.ts)
 SECTOR_COLORS = {
     1: "#dc2626",   # salud
     2: "#3b82f6",   # educacion
@@ -1620,7 +1620,7 @@ def get_sector_gt_linkage(
     sector_id: int = Path(..., ge=1, le=12, description="Sector ID (1-12)"),
 ):
     """
-    Ground-truth linkage for a sector: how many documented corruption cases and
+    Ground-truth linkage for a sector: how many labelled cases and
     distinct GT vendors operate in it (a GT vendor "operates in" a sector if it
     holds >=1 contract there). Served from the precomputed `sector_gt_linkage`
     key — the underlying join takes ~4s live.

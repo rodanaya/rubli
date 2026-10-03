@@ -6,7 +6,7 @@
  *
  * A single bid is only meaningful against a *competitive* procedure: a direct
  * award draws one vendor by construction, so counting it would be counting the
- * definition. `.claude/rules/data-validation.md` says exactly that — single bid
+ * definition. docs/DATA.md says exactly that — single bid
  * is a competitive procedure that attracted one bidder — and the register's
  * `is_single_bid` flag is set that way.
  *

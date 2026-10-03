@@ -11,7 +11,7 @@
  *
  * The arithmetic leads; the v0.8.5 model is cross-light only. The §B figure is
  * a CUMULATIVE-of-record total (never a live "flow"). Spec:
- * .claude/designs/captura-2026-06-23-spec.md.
+ * internal design note captura-2026-06-23-spec (not published).
  */
 
 import { useMemo } from 'react'

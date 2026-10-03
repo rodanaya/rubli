@@ -170,7 +170,7 @@ export function VendorNetworkTab({
           className="pt-2"
         >
           <SubSectionTitle id="scandals-title">
-            {isEs ? 'Casos documentados vinculados' : 'Linked documented cases'}
+            {isEs ? 'Casos etiquetados vinculados' : 'Linked labelled cases'}
           </SubSectionTitle>
           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-1.5">
             {scandalList.slice(0, 10).map((s) => (

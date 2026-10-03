@@ -1,5 +1,5 @@
 """
-migrate_institutions.py — canonical institution identity (PREPUB_AUDIT entity resolution).
+migrate_institutions.py — canonical institution identity (entity resolution, Sep-2026 pre-publication audit).
 
 The ETL minted a new institution id per distinct name and per CompraNet era, so
 one buyer shows up as 2-10 ids (institution_stats double-lists 101 federal groups;
@@ -16,7 +16,7 @@ WITHOUT rewriting institution ids on contracts:
 
 Precomputes then aggregate by canonical_id (scripts/_institution_canonical.py).
 
-Inputs (backend/data/institution_resolution/, from _entity_res/inst/):
+Inputs (backend/data/institution_resolution/, built in the unpublished _entity_res/inst/ working dir):
   state_muni_canonical.csv  all ids: canonical_key, level, state_inegi, municipality
   federal_crosswalk.csv     federal ids: canonical_key (same key = same entity)
   renames_curated.csv       old_id -> new_id successor links with DOF sources
@@ -55,7 +55,7 @@ LEVEL_TO_NIVEL = {"state": "GE", "municipal": "GM", "federal": "APF", "autonomou
 # crosswalk relations that are separate legal entities (linked, never merged)
 NO_MERGE = {"container", "dissolved"}
 SUCCESSOR_RELATIONS = {"successor", "merged_into"}
-CONTAINER_RAMOS = {"023", "025", "033", "047", "000"}  # mirrors _entity_res/inst/gold/keys.py
+CONTAINER_RAMOS = {"023", "025", "033", "047", "000"}  # mirrors gold/keys.py in the unpublished _entity_res working dir
 
 DDL = """
 CREATE TABLE IF NOT EXISTS institution_canonical (

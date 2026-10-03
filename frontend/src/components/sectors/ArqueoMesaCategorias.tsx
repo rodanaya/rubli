@@ -13,7 +13,7 @@
  * Pure SVG. No <circle>, no dots, no d3-force. Bilingual inline ternaries.
  *
  * Named precedent: FT Visual Vocabulary Marimekko (see
- * docs/designs/sectors-fable-2026-07-02-spec.md §2.2 Act I / §3 NEW 2).
+ * internal planning note sectors-fable-2026-07-02-spec (not published) §2.2 Act I / §3 NEW 2).
  */
 
 import { useCallback, useMemo, useRef, useState, useId } from 'react'

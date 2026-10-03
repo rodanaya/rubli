@@ -968,8 +968,8 @@ export default function Gap() {
         </div>
         <div>
           {lang === 'es'
-            ? '† Nivel de alerta: indicador estructural basado en señales observables, NO el modelo v0.8.5 de probabilidad de corrupción (los datos post-horizonte carecen de sus características).'
-            : '† Alert level: structural indicator from observable signals, NOT the v0.8.5 corruption-probability model (post-horizon data lacks its features).'}
+            ? '† Nivel de alerta: indicador estructural basado en señales observables, NO el indicador de riesgo del modelo v0.8.5 (los datos post-horizonte carecen de sus características).'
+            : '† Alert level: structural indicator from observable signals, NOT the v0.8.5 risk-indicator model (post-horizon data lacks its features).'}
         </div>
       </div>
     </motion.div>

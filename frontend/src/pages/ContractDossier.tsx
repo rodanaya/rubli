@@ -269,7 +269,7 @@ export default function ContractDossier() {
                   letterSpacing: '0.02em',
                 }}
               >
-                {/* ES reads MXN natively — no USD conversion (CLAUDE.md currency rule) */}
+                {/* ES reads MXN natively — no USD conversion (docs/DESIGN_SYSTEM.md currency rules) */}
                 {lang === 'en' && <>≈ {formatCompactUSD(Number(contract.amount_mxn ?? 0))} · </>}
                 {contract.contract_year ?? '—'}
                 {contract.amount_flag && (

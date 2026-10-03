@@ -140,7 +140,7 @@
     "high": "Alto",
     "medium": "Medio",
     "low": "Bajo",
-    "criticalHint": "Mayor similitud con patrones documentados de corrupción",
+    "criticalHint": "Mayor similitud con patrones de casos etiquetados",
     "highHint": "Alta similitud con patrones de corrupción",
     "mediumHint": "Similitud moderada — lista de vigilancia",
     "lowHint": "Baja similitud — monitoreo estándar"

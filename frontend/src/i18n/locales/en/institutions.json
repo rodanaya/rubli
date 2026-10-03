@@ -14,7 +14,7 @@
     "compareButton": "Compare",
     "editorialSection": "INSTITUTIONAL PROFILE",
     "partOf": "Part of",
-    "documentedCase": "Documented case: {{caseName}}",
+    "documentedCase": "Labelled case: {{caseName}}",
     "tabs": {
       "overview": "Overview",
       "risk": "Risk",
@@ -49,7 +49,7 @@
       "trendStable": "Stable"
     },
     "groundTruth": {
-      "bannerLabel": "DOCUMENTED CORRUPTION CASE",
+      "bannerLabel": "LABELLED CASE",
       "bannerText": "This institution has contracts from vendors identified in",
       "contractsFlagged": "contract(s) flagged"
     },

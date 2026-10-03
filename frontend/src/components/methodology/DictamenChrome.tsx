@@ -6,7 +6,7 @@
  * "annex" disclosure (Annexes A–C, plus the risk-evidence sub-fold in Part
  * II), and the sticky left index rail. No data fetching, no framer-motion,
  * no lucide icons besides the masthead's print button. Spec:
- * `.claude/designs/methodology-fable-2026-07-02-spec.md` §4.3.
+ * internal design note methodology-fable-2026-07-02-spec (not published) §4.3.
  */
 
 import { useState } from 'react'
@@ -43,11 +43,11 @@ const ANCHOR_STATS: AnchorStat[] = [
     sub: { en: 'calibration target: 2–15%', es: 'meta de calibración: 2–15%' },
   },
   {
-    value: '1,427',
+    value: '1,417',
     label: { en: 'Labelled cases', es: 'Casos etiquetados' },
     sub: {
-      en: '389 press or official · 989 model-surfaced leads',
-      es: '389 de prensa u oficiales · 989 pistas surgidas del modelo',
+      en: '387 press or official · 989 model-surfaced leads',
+      es: '387 de prensa u oficiales · 989 pistas surgidas del modelo',
     },
   },
 ]

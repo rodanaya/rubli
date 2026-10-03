@@ -17,7 +17,7 @@
  * Pure SVG, ResizeObserver-driven width (1 svg unit = 1 px), no
  * recharts. Self-contained: no shared chart primitives, no dots.
  *
- * Spec: docs/../.claude/designs/sectors-fable-2026-07-02-spec.md
+ * Spec: internal planning note sectors-fable-2026-07-02-spec (not published)
  *   §2.1 Act I «La Mesa del Arqueo» + §3 NEW 1 — ArqueoMesa.tsx
  */
 import { useCallback, useMemo, useRef, useState } from 'react'

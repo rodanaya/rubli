@@ -107,7 +107,6 @@ export const DOSSIER_DATA: Record<string, DossierEntry> = {
       // §III spine don't double-count it. DC3.
       { key: 'casa_blanca',    severity: 'high',     caseId: 'grupo-higa-casa-blanca' },
       { key: 'estafa_maestra', severity: 'critical', caseId: 'estafa-maestra' },
-      { key: 'imss_ghost',     severity: 'critical', caseId: 'imss-ghost-company-network' },
       { key: 'odebrecht',      severity: 'high',     caseId: 'odebrecht-pemex-bribery' },
     ],
     topSectorKeys: ['salud', 'infraestructura', 'educacion', 'energia', 'hacienda'],
@@ -115,7 +114,6 @@ export const DOSSIER_DATA: Record<string, DossierEntry> = {
   AMLO: {
     contextKey: 'amlo',
     scandals: [
-      { key: 'covid_procurement', severity: 'critical', caseId: 'covid-emergency-procurement' },
       { key: 'segalmex',          severity: 'critical', caseId: 'segalmex-food-distribution' },
       { key: 'efos_sat',          severity: 'high' },
       { key: 'tren_maya',         severity: 'high',     caseId: 'tren-maya-fonatur' },
@@ -132,9 +130,9 @@ export const DOSSIER_DATA: Record<string, DossierEntry> = {
 /** Public-record year for each scandal key, per administration — used by
  *  ExpedienteSpine to merge scandals into the chronological case-file. */
 export const SCANDAL_YEARS: Record<string, Record<string, number>> = {
-  Fox: { pemexgate: 2004 },
+  Fox: { pemexgate: 2003 },
   Calderon: { odebrecht: 2010 },
-  'Pena Nieto': { casa_blanca: 2014, imss_ghost: 2015, odebrecht: 2016, estafa_maestra: 2017 },
-  AMLO: { covid_procurement: 2020, segalmex: 2021, efos_sat: 2022, tren_maya: 2023 },
+  'Pena Nieto': { casa_blanca: 2014, odebrecht: 2016, estafa_maestra: 2017 },
+  AMLO: { segalmex: 2021, efos_sat: 2022, tren_maya: 2023 },
   Sheinbaum: {},
 }

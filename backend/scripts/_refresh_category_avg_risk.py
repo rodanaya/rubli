@@ -12,7 +12,7 @@ El Concentrado sort (all key off category_stats.avg_risk).
 
 This is a MECHANICAL data refresh, NOT a rescore — the per-contract risk_score
 and risk_level are already consistent; only the precomputed aggregate is stale.
-No intercept/c_pu involved, so the CLAUDE.md scoring guards do not apply.
+No intercept/c_pu involved, so the docs/SCORING.md scoring guards do not apply.
 
 Recomputes avg_risk = AVG(risk_score) per category (one indexed pass each, via
 the composite index on contracts(category_id, ...)). Idempotent. Reports the

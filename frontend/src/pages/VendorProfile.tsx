@@ -3,8 +3,8 @@
  *
  * Compact composition of VendorHero + 3 tabs (Evidence / Activity / Network).
  * Replaces the 4,733-LOC monolith that this page was before. The IA spec is
- * in `.claude/MARATHON_PLAN.md` (vendor section); the long critique that
- * justified the rebuild lives in `.claude/marathon/critique-batch-B.md`.
+ * in internal design note MARATHON_PLAN (not published) (vendor section); the long critique that
+ * justified the rebuild lives in internal design note critique-batch-B (not published).
  *
  * Feature checklist preserved:
  *   - copy-RFC, name variants, integrity grade link, sector pill, years span
@@ -430,7 +430,7 @@ function ProvenanceFooter({ isEs }: { isEs: boolean }) {
     },
     {
       label: isEs ? 'Casos de corrupción' : 'Corruption cases',
-      note: isEs ? '1,427 casos etiquetados (389 de prensa o registros oficiales)' : '1,427 labelled cases (389 from press or official records)',
+      note: isEs ? '1,417 casos etiquetados (387 de prensa o registros oficiales)' : '1,417 labelled cases (387 from press or official records)',
     },
   ]
 

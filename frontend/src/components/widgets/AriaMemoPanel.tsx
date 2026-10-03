@@ -7,7 +7,7 @@
  * actions in a right rail when the panel itself is ≥ 64rem wide (container
  * query — the same panel also renders inside the narrow /aria row expand).
  * Chrome is bilingual (`aria` namespace); the memo text stays as written.
- * The vendor's RFC is never rendered or copied (.claude/rules/security.md § 1).
+ * The vendor's RFC is never rendered or copied (SECURITY.md, "What RUBLI does with personal data").
  */
 
 import { useState, type ReactNode } from 'react'
@@ -32,14 +32,14 @@ interface AriaMemoProps {
   vendorName: string
   tier?: number
   /** Vendor flagged as structural false positive (e.g. multinational pharma OEM).
-   *  Per docs/DATA_INTEGRITY_PLAN.md task N.2 — defamation guard. */
+   *  Per internal planning note DATA_INTEGRITY_PLAN (not published) task N.2 — defamation guard. */
   isFalsePositive?: boolean
   fpReason?: string
   className?: string
 }
 
 // Heuristic: detect templated/auto-generated memos so the UI can demote them
-// honestly. Per docs/DATA_INTEGRITY_PLAN.md task N.3 — 38% of memos are
+// honestly. Per internal planning note DATA_INTEGRITY_PLAN (not published) task N.3 — 38% of memos are
 // template strings whose "FUENTES" block is a search prompt, not citations.
 function isTemplatedMemo(text: string): boolean {
   if (!text) return false
@@ -52,7 +52,7 @@ function isTemplatedMemo(text: string): boolean {
 }
 
 // Heuristic: detect memos written before the Mar 25 v0.8.5 rescore.
-// Per docs/DATA_INTEGRITY_PLAN.md task N.4.
+// Per internal planning note DATA_INTEGRITY_PLAN (not published) task N.4.
 function hasStaleModelReference(text: string): boolean {
   if (!text) return false
   return /\bv5\.[01]\b/.test(text) || /modelo v5\b/i.test(text)
@@ -111,7 +111,7 @@ function MemoSkeleton() {
 }
 
 // Risk factor display names — maps SHAP factor keys to editorial labels.
-// Mirrors the v0.8.5 18-feature set from CLAUDE.md Risk Model section.
+// Mirrors the v0.8.5 18-feature set from docs/RISK_METHODOLOGY.md §3.
 const FACTOR_LABELS: Record<string, { es: string; en: string }> = {
   price_volatility: { es: 'Volatilidad de precios', en: 'Price volatility' },
   vendor_concentration: { es: 'Concentración en dependencias', en: 'Concentration in buyers' },
@@ -409,7 +409,7 @@ export function AriaMemoPanel({ vendorId, vendorName, tier, isFalsePositive, fpR
         </div>
       ) : memo?.memo_text ? (
         <>
-          {/* === Provenance notes (docs/DATA_INTEGRITY_PLAN.md N.2-N.4) === */}
+          {/* === Provenance notes (internal planning note DATA_INTEGRITY_PLAN (not published) N.2-N.4) === */}
           {isFalsePositive && (
             <MarginNote title={t('memo.fpTitle')} rule="var(--color-text-primary)">
               {t('memo.fpBody')} <strong className="text-text-primary">{t('memo.fpStrong')}</strong> {t('memo.fpTail')}

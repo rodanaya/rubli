@@ -1,5 +1,5 @@
 /**
- * Explore — the spatial-nav rebuild page (docs/SPATIAL_NAV_PLAN.md).
+ * Explore — the spatial-nav rebuild page (internal planning note SPATIAL_NAV_PLAN (not published)).
  *
  * Replaces the failure of /atlas?z1=true. No legacy ClusterDetailPanel
  * modal, no ZoomedClusterPanel, no AtlasContext. Clean state machine in

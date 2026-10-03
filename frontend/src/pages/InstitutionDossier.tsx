@@ -1,7 +1,7 @@
 /**
  * InstitutionDossier — canonical unified dossier at /institutions/:id.
  *
- * 2026-06-03 (DESIGNUS — operational rebuild, P0 from docs/WEBSITE_STANDARDS.md).
+ * 2026-06-03 (DESIGNUS — operational rebuild, P0 from docs/DESIGN_SYSTEM.md).
  * Reclassified from a five-chapter narrative (the pre-rebuild story pattern the
  * vendor dossier shed: TimelineHourglass/MoneyStaircase + ChapterShells + Roman
  * numerals) into a dense OPERATIONAL dossier:

@@ -151,8 +151,8 @@ export const ClusterActa = memo(function ClusterActa({
   const hubName = formatEntityName('vendor', community.hub_vendor_name, 'sm')
 
   const lede = isEs
-    ? `${community.size} firmas en la órbita de ${hubName} movieron ${formatDualCurrency(graph.stats.total_value_mxn)} con un indicador de riesgo promedio de ${r}% — ${x}× la mediana de la trama${s > 0 ? `; ${s} sancionada(s) por la SFP` : ''}${gt > 0 ? `; ${gt} en casos documentados` : ''}.`
-    : `${community.size} firms in the orbit of ${hubName} moved ${formatDualCurrency(graph.stats.total_value_mxn)} at an average risk indicator of ${r}% — ${x}× the mesh median${s > 0 ? `; ${s} SFP-sanctioned` : ''}${gt > 0 ? `; ${gt} in documented cases` : ''}.`
+    ? `${community.size} firmas en la órbita de ${hubName} movieron ${formatDualCurrency(graph.stats.total_value_mxn)} con un indicador de riesgo promedio de ${r}% — ${x}× la mediana de la trama${s > 0 ? `; ${s} sancionada(s) por la SFP` : ''}${gt > 0 ? `; ${gt} en casos etiquetados` : ''}.`
+    : `${community.size} firms in the orbit of ${hubName} moved ${formatDualCurrency(graph.stats.total_value_mxn)} at an average risk indicator of ${r}% — ${x}× the mesh median${s > 0 ? `; ${s} SFP-sanctioned` : ''}${gt > 0 ? `; ${gt} in labelled cases` : ''}.`
 
   // ── Los cargos ──────────────────────────────────────────────────────────
   const daRate = graph.stats.da_rate ?? 0
@@ -266,16 +266,16 @@ export const ClusterActa = memo(function ClusterActa({
             {!showNullFindings && gt > 0 && (
               <ChargeRow glyph="▲" color="var(--color-accent)">
                 {isEs
-                  ? `${gt} miembro(s) en casos documentados`
-                  : `${gt} member(s) in documented cases`}
+                  ? `${gt} miembro(s) en casos etiquetados`
+                  : `${gt} member(s) in labelled cases`}
               </ChargeRow>
             )}
             {showNullFindings && (
               <ChargeRow glyph="·" color="var(--color-text-muted)">
                 <span style={{ fontStyle: 'normal', color: 'var(--color-text-muted)' }}>
                   {isEs
-                    ? 'Sin sanciones SFP ni casos documentados entre sus miembros.'
-                    : 'No SFP sanctions or documented cases among its members.'}
+                    ? 'Sin sanciones SFP ni casos etiquetados entre sus miembros.'
+                    : 'No SFP sanctions or labelled cases among its members.'}
                 </span>
               </ChargeRow>
             )}

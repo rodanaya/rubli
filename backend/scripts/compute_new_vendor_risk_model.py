@@ -59,7 +59,7 @@ def compute_new_vendor_score(f: dict) -> tuple[float, list[str]]:
         score += 0.40
         triggers.append("SFP_SANCTIONED")
 
-    # High direct-award rate (OECD 2023 top red flag)
+    # High direct-award rate (standard procurement red-flag indicator)
     da_pct = f["pct_direct_award"]
     if da_pct >= 0.95:
         score += 0.20

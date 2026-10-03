@@ -54,7 +54,7 @@ interface RiskBadgeProps extends Omit<BadgeProps, 'variant'> {
 }
 
 const RISK_THRESHOLD_DESCRIPTIONS: Record<RiskLevel, string> = {
-  critical: 'Critical (≥0.60): Similitud fuerte con casos documentados de corrupción',
+  critical: 'Critical (≥0.60): Similitud fuerte con casos etiquetados',
   high:     'High (≥0.40): Similitud significativa con patrones de corrupción conocidos',
   medium:   'Medium (≥0.25): Similitud moderada — vigilancia recomendada',
   low:      'Low (<0.25): Similitud baja con patrones conocidos',

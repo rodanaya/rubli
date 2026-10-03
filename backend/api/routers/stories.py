@@ -365,13 +365,13 @@ def top_suspicious_vendors(lang: str = Query("es", pattern="^(en|es)$")):
         lede = (
             f"ARIA's algorithm has flagged {tier1_count} vendors as maximum-priority targets, "
             f"representing {_fmt_value(total_value, 'en')} in federal contracts. "
-            f"Of these, {confirmed_gt} are already linked to documented corruption cases."
+            f"Of these, {confirmed_gt} are already linked to labelled cases."
         )
     else:
         lede = (
             f"El algoritmo ARIA identificó {tier1_count} proveedores de máxima prioridad "
             f"de investigación, con un valor contractual combinado de {_fmt_value(total_value, 'es')}. "
-            f"De estos, {confirmed_gt} ya están vinculados a casos documentados de corrupción."
+            f"De estos, {confirmed_gt} ya están vinculados a casos etiquetados."
         )
 
     return {
@@ -465,12 +465,12 @@ def overpricing_patterns(lang: str = Query("es", pattern="^(en|es)$")):
             (
                 "Contratos con nivel de riesgo 'crítico' (score ≥0.60), valor ≥1M MXN, "
                 "agrupados por sector y año. Muestra dónde se concentra el gasto en "
-                "contratos con características similares a casos documentados de corrupción."
+                "contratos con características similares a casos etiquetados."
             ),
             (
                 "Contracts with 'critical' risk level (score ≥0.60), value ≥MX$1M, "
                 "grouped by sector and year. Shows where spending concentrates in "
-                "contracts matching documented corruption patterns."
+                "contracts matching patterns from labelled cases."
             ),
         ),
         "data": data,
@@ -622,13 +622,13 @@ def _build_top_suspicious_package(conn, lang: str = "es") -> dict:
             lede = (
                 f"ARIA's algorithm has flagged {tier1_count} vendors as maximum-priority targets, "
                 f"representing {_fmt_value(total_value, 'en')} in federal contracts. "
-                f"Of these, {confirmed_gt} are already linked to documented corruption cases."
+                f"Of these, {confirmed_gt} are already linked to labelled cases."
             )
         else:
             lede = (
                 f"El algoritmo ARIA identificó {tier1_count} proveedores de máxima prioridad "
                 f"de investigación, con un valor contractual combinado de {_fmt_value(total_value, 'es')}. "
-                f"De estos, {confirmed_gt} ya están vinculados a casos documentados de corrupción."
+                f"De estos, {confirmed_gt} ya están vinculados a casos etiquetados."
             )
     except Exception as e:
         logger.warning(f"top_suspicious package query failed: {e}")
@@ -738,14 +738,14 @@ def _build_administration_comparison_package(conn, lang: str = "es") -> dict:
                 f"Under {worst_admin}, {worst_da_pct:.1f}% of federal contracts were awarded "
                 f"without competitive bidding — the highest rate in 23 years of procurement data. "
                 f"Across all six administrations since 2002, Mexico has spent trillions through "
-                f"procedures that match documented corruption patterns."
+                f"procedures that match patterns from labelled cases."
             )
         else:
             lede = (
                 f"El sexenio de {worst_admin} registró la mayor tasa de adjudicación directa: "
                 f"{_fmt_pct(worst_da_pct)} de sus contratos se otorgaron sin concurso. "
                 f"En 23 años de datos, México ha gastado {_fmt_value(total_spend, 'es')} en "
-                f"contrataciones que muestran patrones similares a casos documentados de corrupción."
+                f"contrataciones que muestran patrones similares a casos etiquetados."
             )
     except Exception as e:
         logger.warning(f"administration_comparison package query failed: {e}")
@@ -1152,14 +1152,14 @@ def _build_monopoly_capture_package(conn, lang: str = "es") -> dict:
                 f"{count} vendors hold an abnormal share of their sector's spending, "
                 f"with contract totals reaching as high as {_fmt_value(top_value, 'en')}. "
                 f"This concentration pattern — market capture — is the single most consistent "
-                f"signal in Mexico's documented corruption cases."
+                f"signal in RUBLI's labelled cases."
             )
         else:
             lede = (
                 f"Al menos {count} proveedores concentran una proporción anormal del gasto "
                 f"en su sector, con valores contractuales de hasta {_fmt_value(top_value, 'es')}. "
                 f"Este patrón — conocido como 'captura de mercado' — es uno de los indicadores "
-                f"más consistentes en casos documentados de corrupción en México."
+                f"más consistentes en casos etiquetados en México."
             )
     except Exception as e:
         logger.warning(f"monopoly_capture package query failed: {e}")

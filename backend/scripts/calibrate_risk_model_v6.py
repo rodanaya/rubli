@@ -59,17 +59,17 @@ CASE_WINDOWS = {
     1: (2012, 2019),   # IMSS Ghost Companies
     2: (2019, 2023),   # Segalmex
     3: (2020, 2021),   # COVID-19 Emergency
-    4: (2013, 2018),   # IT Overpricing (Cyber Robotic)
+    4: (2013, 2018),   # GT case 4
     5: (2010, 2014),   # Odebrecht-PEMEX
     6: (2013, 2014),   # Estafa Maestra
     7: (2012, 2015),   # Grupo Higa
     8: (2008, 2014),   # Oceanografia
-    10: (2010, 2017),  # IPN Cartel Limpieza
-    11: (2010, 2018),  # Infrastructure Fraud Network
-    12: (2015, 2023),  # Toka IT Monopoly
-    13: (2010, 2020),  # PEMEX-Cotemar
-    14: (2014, 2019),  # SAT SixSigma
-    15: (2010, 2023),  # Government Voucher Monopoly (Edenred)
+    10: (2010, 2017),  # GT case 10
+    11: (2010, 2018),  # GT case 11
+    12: (2015, 2023),  # GT case 12
+    13: (2010, 2020),  # GT case 13
+    14: (2014, 2019),  # GT case 14
+    15: (2010, 2023),  # GT case 15
     22: (2010, 2023),  # SAT EFOS Ghost Network
     # For cases without clear windows, use full range
 }

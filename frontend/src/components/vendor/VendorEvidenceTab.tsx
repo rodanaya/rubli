@@ -94,7 +94,7 @@ export function VendorEvidenceTab({
       )}
 
       {/* § 1 Lede — ARIA investigative memo (5,800-char dossier surfaced here
-          per docs/VENDOR_DOSSIER_SCHEME.md). Previously invisible: the memo
+          per internal planning note VENDOR_DOSSIER_SCHEME (not published)). Previously invisible: the memo
           existed in aria_queue.memo_text but no page imported AriaMemoPanel. */}
       <AriaMemoPanel
         vendorId={Number(vendor.id)}
@@ -118,7 +118,7 @@ export function VendorEvidenceTab({
           <>
             <WaterfallRiskChart features={waterfall} />
             {/* ── V5: plate caption beneath the risk figure ───────────
-                EB Garamond 13.5px / 1.45 / 64ch. Wording per CLAUDE.md
+                EB Garamond 13.5px / 1.45 / 64ch. Wording per docs/DESIGN_SYSTEM.md
                 hard rule: "indicador de riesgo" / "risk indicator" only —
                 never "X% probability of corruption". */}
             {(() => {
@@ -240,7 +240,7 @@ export function VendorEvidenceTab({
           <p className="text-sm text-text-secondary leading-relaxed mb-4">
             {isEs
               ? 'Registros documentados en fuentes externas: casos de corrupción confirmados, listas negras fiscales, sanciones administrativas.'
-              : 'Records in external sources: documented corruption cases, tax blacklists, administrative sanctions.'}
+              : 'Records in external sources: labelled cases, tax blacklists, administrative sanctions.'}
           </p>
 
           <div className="space-y-2">
@@ -515,7 +515,7 @@ const GT_EVIDENCE_ES: Record<string, string> = {
   direct: 'Directa',
   circumstantial: 'Circunstancial',
   statistical: 'Estadística',
-  confirmed_corrupt: 'Corrupción documentada',
+  confirmed_corrupt: 'Caso etiquetado',
 }
 
 function localizeGtEnum(raw: string, isEs: boolean, esMap: Record<string, string>): string {

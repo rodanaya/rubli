@@ -191,14 +191,11 @@ def build_evidence_package(row: dict, conn: sqlite3.Connection) -> dict:
     comparable_cases = []
     primary_pattern = row.get("primary_pattern")
     if primary_pattern:
+        # Only cases with a sourced entry in backend/data/scandals_seed.json.
         case_map = {
-            "P1": ["IMSS Ghost Company Network", "Segalmex Food Distribution"],
-            "P2": ["La Estafa Maestra", "SAT EFOS Ghost Network", "BAHUD PROCESSING"],
-            "P3": ["BIRMEX Vaccine Intermediary"],
-            "P4": ["IPN Cartel de la Limpieza", "SixSigma Tender Rigging"],
-            "P5": ["Cyber Robotic IT", "ISSSTE Ambulance Leasing"],
-            "P6": ["PEMEX-Cotemar", "Constructora Garza Ponce"],
-            "P7": ["Grupo Higa / Casa Blanca", "Odebrecht-PEMEX"],
+            "P1": ["Segalmex (ASF audits)"],
+            "P2": ["La Estafa Maestra", "SAT Art. 69-B (EFOS) list"],
+            "P7": ["Odebrecht (US DOJ plea, 2016)"],
         }
         comparable_cases = case_map.get(primary_pattern, [])
 
@@ -353,7 +350,7 @@ def generate_template_memo(evidence_package: dict) -> str:
         sfp_type = flags.get("sfp_type") or "sanción activa"
         alert_lines.append(f"**ALERTA: Sancionado por SFP — {sfp_type}**")
     if flags["in_ground_truth"]:
-        alert_lines.append("**En base de datos de casos documentados**")
+        alert_lines.append("**En base de datos de casos etiquetados**")
 
     alerts_block = "\n".join(alert_lines)
 

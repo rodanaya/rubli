@@ -1,7 +1,7 @@
 /**
  * CaseTimeline — Seismograph-style spike chart with administration era bands.
  * Critical = tall spike (80px), high = medium spike (44px).
- * Trimmed to 2008+ since the GT corpus has no documented cases earlier.
+ * Trimmed to 2008+ since the GT corpus has no labelled cases earlier.
  *
  * PARALLAX D10 § Change 2 — drawn at 1:1 (useMeasuredWidth): bands, spikes
  * and caps stay in the svg; era labels, tick years and the numbered badges
@@ -30,14 +30,12 @@ interface TimelineCase {
 const TIMELINE_CASES: TimelineCase[] = [
   { year: 2008, label: { en: 'IMSS ghost companies begin', es: 'Empresas fantasma IMSS' }, sector: 'salud', severity: 'critical' },
   { year: 2010, label: { en: 'La Estafa Maestra', es: 'La Estafa Maestra' }, sector: 'gobernacion', severity: 'high' },
-  { year: 2012, label: { en: 'Oceanografia-PEMEX fraud', es: 'Fraude Oceanografía-PEMEX' }, sector: 'energia', severity: 'high' },
+  { year: 2012, label: { en: 'Oceanografía–Banamex fraud', es: 'Fraude Oceanografía–Banamex' }, sector: 'energia', severity: 'high' },
   { year: 2014, label: { en: 'Grupo Higa / Casa Blanca', es: 'Grupo Higa / Casa Blanca' }, sector: 'infraestructura', severity: 'high' },
   { year: 2016, label: { en: 'Odebrecht-PEMEX bribery', es: 'Sobornos Odebrecht-PEMEX' }, sector: 'energia', severity: 'critical' },
   { year: 2018, label: { en: 'IT procurement overpricing', es: 'Sobreprecio en TIC' }, sector: 'tecnologia', severity: 'high' },
   { year: 2019, label: { en: 'Segalmex food fraud', es: 'Fraude Segalmex' }, sector: 'agricultura', severity: 'critical' },
   { year: 2020, label: { en: 'COVID-19 emergency procurement', es: 'Compras emergencia COVID-19' }, sector: 'salud', severity: 'critical' },
-  { year: 2022, label: { en: 'Voucher monopoly (Edenred)', es: 'Monopolio de vales (Edenred)' }, sector: 'hacienda', severity: 'critical' },
-  { year: 2023, label: { en: 'Toka IT monopoly', es: 'Monopolio TIC Toka' }, sector: 'tecnologia', severity: 'critical' },
 ]
 
 const YEAR_MIN = 2008
@@ -161,8 +159,8 @@ export function CaseTimeline({ lang }: CaseTimelineProps) {
               style={{ display: 'block' }}
               role="img"
               aria-label={lang === 'en'
-                ? `${TIMELINE_CASES.length === 10 ? 'Ten' : TIMELINE_CASES.length} documented cases, 2008–2025, by year, severity and sector`
-                : `${TIMELINE_CASES.length === 10 ? 'Diez' : TIMELINE_CASES.length} casos documentados, 2008–2025, por año, gravedad y sector`}
+                ? `${TIMELINE_CASES.length === 10 ? 'Ten' : TIMELINE_CASES.length} labelled cases, 2008–2025, by year, severity and sector`
+                : `${TIMELINE_CASES.length === 10 ? 'Diez' : TIMELINE_CASES.length} casos etiquetados, 2008–2025, por año, gravedad y sector`}
             >
               {/* Administration era bands */}
               {ERA_BANDS.map((era) => {

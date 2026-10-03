@@ -1,199 +1,77 @@
 # Contributing to RUBLI
 
-Thank you for your interest in contributing to RUBLI! This document provides guidelines and instructions for contributing.
+Thank you for helping. RUBLI attaches risk indicators to real companies and public bodies, so contributions are held to two standards at once: **the code must work, and every claim must be true.**
 
-## Code of Conduct
+By taking part you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
-By participating in this project, you agree to maintain a respectful and inclusive environment. We expect all contributors to:
+## Ways to help
 
-- Be respectful and considerate in communications
-- Welcome newcomers and help them learn
-- Focus on constructive feedback
-- Accept responsibility for mistakes and learn from them
+| You have… | Do this |
+|---|---|
+| A data error (wrong amount, wrong year, two companies merged, a wrong case link) | Open an issue with the **data correction** label. Give the record id or URL on rubli.xyz, what is wrong, and a public source |
+| A correction about a company or person named on the site | Email **rubli-project@proton.me**. These are handled first and privately |
+| A security issue or exposed personal data | Follow [SECURITY.md](SECURITY.md). **Never open a public issue** |
+| A bug or feature idea | Open an issue with steps to reproduce, or the problem the feature solves |
+| Code or documentation | Open a pull request (below) |
 
-## How to Contribute
+## Development setup
 
-### Reporting Bugs
-
-If you find a bug, please open an issue with:
-
-1. **Clear title** describing the problem
-2. **Steps to reproduce** the issue
-3. **Expected behavior** vs actual behavior
-4. **Environment details** (OS, Python version, Node version)
-5. **Screenshots** if applicable
-
-### Suggesting Features
-
-Feature requests are welcome! Please:
-
-1. Check if the feature already exists or has been requested
-2. Describe the feature and its use case
-3. Explain why this would benefit the project
-
-### Pull Requests
-
-1. **Fork** the repository
-2. **Create a branch** from `main` for your feature or fix
-3. **Make your changes** following our coding standards
-4. **Write tests** for new functionality
-5. **Run existing tests** to ensure nothing breaks
-6. **Submit a PR** with a clear description
-
-## Development Setup
-
-### Prerequisites
-
-- Python 3.10+
-- Node.js 18+
-- SQLite 3
-
-### Backend Setup
+The full guide is [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md). The short version:
 
 ```bash
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+# Frontend against the public API — no database needed
+cd frontend && npm install && VITE_API_URL=https://rubli.xyz npm run dev
+
+# Backend (needs a local database; see docs/DEVELOPMENT.md#getting-a-database)
+cd backend && pip install -r requirements.txt && uvicorn api.main:app --port 8001
 ```
 
-### Frontend Setup
+Requirements: Python 3.11, Node 20. On Linux/macOS, `make setup`, `make test` and `make lint` wrap the steps above and below.
+
+## Before you open a pull request
+
+Every PR must pass the same checks CI runs.
 
 ```bash
-cd frontend
-npm install
+# Backend
+python -m pytest backend/tests/ -q --tb=short -p no:cacheprovider
+
+# Frontend (from frontend/)
+npx tsc --noEmit -p tsconfig.app.json
+npm run build
+npm run lint:tokens
+npx vitest run
 ```
 
-### Running Tests
+Also:
 
-```bash
-# Backend tests
-cd backend
-pytest
+- **Keep the change small and focused.** Don't refactor code you weren't asked to touch.
+- **Add or update a test** for any non-trivial logic: a parser, a money path, a SQL query, a matching rule.
+- **Bilingual UI.** Every visible string needs Spanish and English (i18n).
+- **Parameterised SQL only.** Validate input at the API boundary.
+- **No personal data.** Never log, return or commit a natural person's RFC, and never commit `.env` files, database files or raw registry downloads.
 
-# Frontend tests
-cd frontend
-npm test
-```
+## Rules for anything that touches data or wording
 
-## Coding Standards
+These rules come from mistakes this project has already made and fixed.
 
-### Python (Backend)
+1. **Risk indicator, not probability.** Never write "X% probability of corruption" and never call a vendor corrupt because of its score.
+2. **Labelled cases, not verified cases.** The case set is mostly analyst-written leads. Say where a case comes from.
+3. **Cite real sources.** Every external figure or report you cite must be one you have opened. Unverifiable citations are removed.
+4. **Respect the amount rules.** Over 100B MXN is rejected; over 10B MXN is flagged. Never sum `estimated_fraud_mxn` as "money stolen".
+5. **Don't rescore casually.** Read [docs/SCORING.md](docs/SCORING.md) first. Several retired scorers can still overwrite active scores.
+6. **Numbers must match the data.** If you change a figure in docs or copy, say in the PR how you measured it.
 
-- Follow PEP 8 style guide
-- Use type hints for function parameters and returns
-- Write docstrings for public functions
-- Use parameterized queries for all SQL (prevent injection)
-- Validate all user inputs
+## Commit and PR style
 
-```python
-# Good
-def get_contracts(
-    sector_id: int | None = None,
-    year: int | None = None
-) -> list[dict]:
-    """Fetch contracts with optional filters.
+- Imperative, scoped subject lines, for example:
+  - `fix(api): mask persona-física RFC in dossier export`
+  - `docs(methodology): correct institution_diversity description`
+  - `feat(frontend § sectors): add year filter to sector table`
+- Explain *why* in the body, and reference the issue.
+- One logical change per commit, where practical.
+- PR description: what changed, how you verified it (commands, screenshots for UI), and any data or wording effect.
 
-    Args:
-        sector_id: Filter by sector (1-12)
-        year: Filter by year (2002-2025)
+## Licensing of contributions
 
-    Returns:
-        List of contract dictionaries
-    """
-    cursor.execute(
-        "SELECT * FROM contracts WHERE sector_id = ?",
-        (sector_id,)
-    )
-```
-
-### TypeScript (Frontend)
-
-- Use TypeScript strict mode
-- Define interfaces for API responses
-- Use React hooks appropriately
-- Follow component naming conventions (PascalCase)
-
-```typescript
-// Good
-interface Contract {
-  id: number;
-  vendorName: string;
-  amount: number;
-  riskScore: number;
-}
-
-function ContractCard({ contract }: { contract: Contract }) {
-  // ...
-}
-```
-
-### Data Validation Rules
-
-Always enforce these rules:
-
-| Value Range | Action |
-|-------------|--------|
-| > 100B MXN | **REJECT** - Data error |
-| > 10B MXN | **FLAG** - Mark for review |
-| <= 10B MXN | Accept normally |
-
-### Security Requirements
-
-- Never expose RFC (tax IDs) in list responses
-- Sanitize CSV exports to prevent formula injection
-- Use rate limiting on expensive endpoints
-- Validate and sanitize all inputs
-
-## Project Structure
-
-```
-rubli/
-├── backend/
-│   ├── api/               # FastAPI application
-│   │   ├── routers/       # Endpoint definitions
-│   │   └── dependencies.py
-│   ├── scripts/           # ETL and utilities
-│   └── tests/             # Backend tests
-│
-├── frontend/
-│   ├── src/
-│   │   ├── pages/         # Page components
-│   │   ├── components/    # Reusable components
-│   │   ├── api/           # API client
-│   │   └── hooks/         # Custom hooks
-│   └── __tests__/         # Frontend tests
-│
-└── docs/                  # Documentation
-```
-
-## Commit Messages
-
-Use clear, descriptive commit messages:
-
-```
-feat: Add vendor network analysis endpoint
-fix: Correct risk score calculation for single-bid contracts
-docs: Update API documentation
-test: Add tests for export sanitization
-refactor: Simplify sector classification logic
-```
-
-## Review Process
-
-1. All PRs require at least one review
-2. CI checks must pass (tests, linting)
-3. Documentation must be updated if needed
-4. Breaking changes require discussion
-
-## Questions?
-
-If you have questions about contributing, please:
-
-1. Check existing documentation
-2. Search closed issues for similar questions
-3. Open a new issue with your question
-
----
-
-*"The most important thing is not to win, but to understand."* - RUBLI
+Code you contribute is licensed under [Apache-2.0](LICENSE). Documentation and data contributions are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Only contribute material you have the right to license this way.

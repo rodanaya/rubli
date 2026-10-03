@@ -13,7 +13,7 @@
  * outer ChapterKicker wrapper + h3 title, per the AdminBuyersSection
  * precedent (`frontend/src/components/administrations/AdminBuyersSection.tsx`).
  *
- * .claude/designs/administrations-2026-07-02-spec.md § II
+ * internal design note administrations-2026-07-02-spec (not published) § II
  */
 import { BenchmarkRow } from '@/components/editorial/BenchmarkRow'
 import { TableExportButton } from '@/components/TableExportButton'

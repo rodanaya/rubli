@@ -136,7 +136,7 @@ export function QueueRegisterHeader({
           <p className="text-[13px] text-text-secondary leading-snug min-w-0">
             {isEs ? (
               <>
-                Las {formatNumber(tier1Count)} del Nivel 1 están ancladas a casos documentados — los
+                Las {formatNumber(tier1Count)} del Nivel 1 están ancladas a casos etiquetados — los
                 descubrimientos del modelo viven en el{' '}
                 <button onClick={onGoT2Disc} className="underline decoration-dotted underline-offset-2 hover:text-text-primary transition-colors">
                   Nivel 2{novelLeadsT2 != null ? ` (${formatNumber(novelLeadsT2)})` : ''}
@@ -145,7 +145,7 @@ export function QueueRegisterHeader({
               </>
             ) : (
               <>
-                All {formatNumber(tier1Count)} Tier-1 vendors are anchored to documented cases — the
+                All {formatNumber(tier1Count)} Tier-1 vendors are anchored to labelled cases — the
                 model's own discoveries live in{' '}
                 <button onClick={onGoT2Disc} className="underline decoration-dotted underline-offset-2 hover:text-text-primary transition-colors">
                   Tier 2{novelLeadsT2 != null ? ` (${formatNumber(novelLeadsT2)})` : ''}
@@ -159,8 +159,8 @@ export function QueueRegisterHeader({
           <p className="text-[13px] text-text-secondary leading-snug">
             {novelOnly
               ? isEs
-                ? `${formatNumber(novelLeadsT2)} descubrimientos del modelo — sin caso documentado · en calibración`
-                : `${formatNumber(novelLeadsT2)} model discoveries — no documented case · in calibration`
+                ? `${formatNumber(novelLeadsT2)} descubrimientos del modelo — sin caso etiquetado · en calibración`
+                : `${formatNumber(novelLeadsT2)} model discoveries — no labelled case · in calibration`
               : isEs
                 ? `Nivel 2: ${formatNumber(novelLeadsT2)} descubrimientos del modelo · el resto anclados en GT`
                 : `Tier 2: ${formatNumber(novelLeadsT2)} model discoveries · the rest GT-anchored`}

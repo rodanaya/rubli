@@ -1,6 +1,6 @@
 /**
  * DispositionBand — the index hero chart: one stacked proportion band of the
- * 43 documented cases by legal disposition, ordered worst → resolved, with
+ * 43 labelled cases by legal disposition, ordered worst → resolved, with
  * the lone-conviction sliver called out by an ochre tick.
  *
  * Precedent: ProPublica *Bailout Tracker* accountability band (disposition-
@@ -47,8 +47,8 @@ export function DispositionBand({
   return (
     <figure className="mt-5 mb-1" aria-label={
       lang === 'es'
-        ? `Resolución judicial de ${total} casos documentados`
-        : `Judicial outcome of ${total} documented cases`
+        ? `Resolución judicial de ${total} casos etiquetados`
+        : `Judicial outcome of ${total} labelled cases`
     }>
       {/* Label row — a label is not a paragraph (D2c/D2d): each of these
           stays on ONE line. Side by side at 390 they each wrapped to three,

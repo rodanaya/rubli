@@ -17,7 +17,7 @@
  *   § I    El caso     — lede + body, sector-tinted drop cap.
  *   § II   La cronología — the impunity arc (Reuters Time of Evidence).
  *   § III  El daño     — ScaleBlock + CostInArchive (NYT-Upshot dot field:
- *                        this case's cost among all documented cases).
+ *                        this case's cost among all labelled cases).
  *   § IV   Los actores — chip-resolved vendor actors (hard rule #1); named
  *                        absence tag for unmatched vendors; institution/
  *                        official/journalist stay prose (no id available).
@@ -108,7 +108,7 @@ function legalStatusBody(status: string, lang: Lang): string {
         : 'Proceedings remain open; no final ruling to date.'
     case 'impunity':
       return es
-        ? 'Caso documentado por auditoría o investigación periodística; ningún actor enfrentó consecuencias penales pese a la evidencia disponible.'
+        ? 'Caso etiquetado por auditoría o investigación periodística; ningún actor enfrentó consecuencias penales pese a la evidencia disponible.'
         : 'Case documented by audit or investigative journalism; no actor faced criminal consequences despite available evidence.'
     case 'settled':
       return es
@@ -252,7 +252,7 @@ function CaseHero({
           className="font-mono uppercase mb-3"
           style={{ fontSize: 12, letterSpacing: '0.22em', color: 'var(--color-text-muted)', fontWeight: 500 }}
         >
-          § {lang === 'es' ? 'El Expediente · Caso Documentado' : 'The Case File · Documented Case'}
+          § {lang === 'es' ? 'El Expediente · Caso Etiquetado' : 'The Case File · Labelled Case'}
         </p>
 
         {/* Title */}

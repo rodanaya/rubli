@@ -1,4 +1,4 @@
-// RFC redaction (.claude/rules/security.md § 1 — RFCs are PII and are never
+// RFC redaction (SECURITY.md, personal data — RFCs are PII and are never
 // exposed). ARIA memos carry a preamble like "RFC: XXX000000XX0 | Vendor ID: 1":
 // the labelled segment is dropped; any bare RFC-shaped token left anywhere in
 // the text is masked to its first three letters.

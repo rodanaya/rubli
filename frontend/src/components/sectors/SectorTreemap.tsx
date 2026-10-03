@@ -16,7 +16,7 @@
  *   • Click → /sectors/:id
  *   • Keyboard: Tab through cells in spend order, Enter to navigate
  *
- * Plan: docs/SECTORS_REDESIGN_PLAN.md §5 HERO 1
+ * Plan: internal planning note SECTORS_REDESIGN_PLAN (not published) §5 HERO 1
  * Build: 2026-05-04-p3
  */
 

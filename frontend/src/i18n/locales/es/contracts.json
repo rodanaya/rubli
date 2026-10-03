@@ -16,7 +16,7 @@
     "contract": "Contrato — un registro de adjudicación (proveedor · institución · monto · fecha).",
     "directAward": "Adjudicación directa — otorgado sin licitación competitiva.",
     "singleBid": "Postor único — un procedimiento competitivo que atrajo a un solo postor.",
-    "risk": "Indicador de riesgo, de 100 — similitud del modelo con patrones documentados de corrupción. Una señal de investigación, no una prueba de irregularidad.",
+    "risk": "Indicador de riesgo, de 100 — similitud del modelo con patrones de casos etiquetados. Una señal de investigación, no una prueba de irregularidad.",
     "category": "Categoría (partida) — la clasificación de gasto CUCoP de los bienes/servicios."
   },
   "searchPlaceholder": "Buscar por título o número de contrato...",
@@ -127,7 +127,7 @@
     "viewFullDetails": "Ver detalles completos",
     "fullDetails": "Detalles completos",
     "riskScoreTooltipTitle": "Sobre la puntuación de riesgo",
-    "riskScoreTooltipBody": "El indicador de riesgo, de 100, mide similitud con patrones de corrupción documentados. No es prueba de irregularidad — es una señal de investigación.",
+    "riskScoreTooltipBody": "El indicador de riesgo, de 100, mide similitud con patrones de casos etiquetados. No es prueba de irregularidad — es una señal de investigación.",
     "peek": "Vista rápida",
     "scrollHint": "desliza →"
   },
@@ -189,7 +189,7 @@
   },
   "senalados": {
     "kicker": "LOS SEÑALADOS",
-    "honesty": "Señalados por el modelo y por casos documentados — no es una acusación.",
+    "honesty": "Señalados por el modelo y por casos etiquetados — no es una acusación.",
     "empty": "Sin señalamientos destacados en este filtro."
   },
   "filterTags": {

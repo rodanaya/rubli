@@ -1,7 +1,7 @@
 /**
  * useEntity — universal entity data fetcher with shared TanStack Query cache key.
  *
- * Per docs/FRONTEND_V3_PLAN.md task P1.5.
+ * Per internal planning note FRONTEND_V3_PLAN (not published) task P1.5.
  *
  * Motivation: before this hook, every page that displayed a vendor or institution
  * called useQuery with its own ad-hoc key shape ('vendor-detail', vendorId) or

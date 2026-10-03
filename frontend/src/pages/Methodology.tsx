@@ -291,8 +291,8 @@ function MethodologyProvenanceFooter({ lang }: { lang: 'en' | 'es' }) {
           }}
         >
           {isEs
-            ? 'Datos COMPRANET 2002–2025. Modelo de riesgo v0.8.5 (CAL-v8-202605020212) entrenado con la base de casos etiquetados de RUBLI (1,401 casos en mayo de 2026; 1,427 hoy, la mayoría documentados por analistas, no resoluciones). La fuente federal se congeló el 28 de septiembre de 2025 tras la abolición de CompraNet; no existe reemplazo integral. Las señales del modelo son indicadores estadísticos, no determinaciones legales.'
-            : 'COMPRANET data 2002–2025. v0.8.5 risk model (CAL-v8-202605020212) trained on RUBLI’s labelled case set (1,401 cases in May 2026; 1,427 today, most of them analyst write-ups rather than adjudicated findings). The federal source froze on 28 September 2025 after CompraNet was abolished; no comprehensive replacement exists. Model signals are statistical indicators, not legal determinations.'}
+            ? 'Datos COMPRANET 2002–2025. Modelo de riesgo v0.8.5 (CAL-v8-202605020212) entrenado con la base de casos etiquetados de RUBLI (1,401 casos en mayo de 2026; 1,417 hoy, la mayoría documentados por analistas, no resoluciones). La fuente federal se congeló el 28 de septiembre de 2025 tras la abolición de CompraNet; no existe reemplazo integral. Las señales del modelo son indicadores estadísticos, no determinaciones legales.'
+            : 'COMPRANET data 2002–2025. v0.8.5 risk model (CAL-v8-202605020212) trained on RUBLI’s labelled case set (1,401 cases in May 2026; 1,417 today, most of them analyst write-ups rather than adjudicated findings). The federal source froze on 28 September 2025 after CompraNet was abolished; no comprehensive replacement exists. Model signals are statistical indicators, not legal determinations.'}
         </p>
         <p
           className="mt-3 font-mono"
@@ -561,9 +561,9 @@ export function Methodology() {
             <ClauseSection
               id="validation"
               numeral="III"
-              kicker={{ en: '§ 1,427 labelled cases · 1,555 vendors · forward hold-out', es: '§ 1,427 casos etiquetados · 1,555 proveedores · validación prospectiva' }}
+              kicker={{ en: '§ 1,417 labelled cases · 1,556 vendors · forward hold-out', es: '§ 1,417 casos etiquetados · 1,556 proveedores · validación prospectiva' }}
               title={{ en: 'The validation', es: 'La prueba' }}
-              dek={{ en: 'How the model performs against 1,427 labelled cases, most of them analyst write-ups rather than adjudicated findings — and what it scores on vendors it never saw.', es: 'Cómo se desempeña el modelo frente a 1,427 casos etiquetados, la mayoría documentados por analistas y no resoluciones — y qué obtiene con proveedores que nunca vio.' }}
+              dek={{ en: 'How the model performs against 1,417 labelled cases, most of them analyst write-ups rather than adjudicated findings — and what it scores on vendors it never saw.', es: 'Cómo se desempeña el modelo frente a 1,417 casos etiquetados, la mayoría documentados por analistas y no resoluciones — y qué obtiene con proveedores que nunca vio.' }}
             >
               <div className="space-y-6">
             <div className="space-y-4">

@@ -221,29 +221,6 @@ export const CASE_MEDIA_LINKS: Record<string, MediaLink[]> = {
       language: 'es',
     },
   ],
-  'imss-ghost-company-network': [
-    {
-      title: 'Funcion Publica multo e inhabilito a farmaceuticas Pisa y Dimesa por falsear informacion',
-      outlet: 'Infobae',
-      url: 'https://www.infobae.com/america/mexico/2020/10/21/funcion-publica-multo-e-inhabilito-a-farmaceuticas-pisa-y-dimesa-por-falsear-informacion-en-contratacion-con-el-imss/',
-      date: '2020-10-21',
-      language: 'es',
-    },
-    {
-      title: 'El caso de una farmaceutica en Mexico: fue criticada por AMLO, pero gano contratos con el IMSS por mas de 1,000 mdp',
-      outlet: 'Infobae',
-      url: 'https://www.infobae.com/america/mexico/2020/03/01/el-caso-de-una-farmaceutica-en-mexico-fue-criticada-por-amlo-pero-gano-contratos-con-el-imss-por-mas-de-1000-millones-de-pesos/',
-      date: '2020-03-01',
-      language: 'es',
-    },
-    {
-      title: 'Salud mental: en manos de los autores del ultimo fraude por venta de insulina',
-      outlet: 'PODER',
-      url: 'https://poderlatam.org/en/2022/06/salud-mental-en-manos-de-los-autores-del-ultimo-fraude-por-venta-de-insulina/',
-      date: '2022-06-01',
-      language: 'es',
-    },
-  ],
   'fertinal-pemex-acquisition': [
     {
       title: 'Government\'s overpayment for fertilizer plants under the microscope',
@@ -262,14 +239,6 @@ export const CASE_MEDIA_LINKS: Record<string, MediaLink[]> = {
       title: 'Mexican Executive to Pay $219m to Avoid Graft Trial',
       outlet: 'OCCRP',
       url: 'https://www.occrp.org/en/news/mexican-executive-to-pay-219m-to-avoid-graft-trial',
-      language: 'en',
-    },
-  ],
-  'naicm-airport-texcoco': [
-    {
-      title: 'The New Mexico City International Airport',
-      outlet: 'PODER',
-      url: 'https://poderlatam.org/en/project/the-new-mexico-city-international-airport/',
       language: 'en',
     },
   ],
@@ -299,20 +268,6 @@ export const CASE_MEDIA_LINKS: Record<string, MediaLink[]> = {
       outlet: 'Amnesty International',
       url: 'https://www.amnesty.org/en/latest/press-release/2021/07/the-pegasus-project/',
       date: '2021-07-18',
-      language: 'en',
-    },
-  ],
-  'ahmsa-pemex-steel': [
-    {
-      title: 'Mexico freezes oil exec, steel accounts in corruption probe',
-      outlet: 'Fox Business',
-      url: 'https://www.foxbusiness.com/markets/mexico-freezes-oil-exec-steel-accounts-in-corruption-probe',
-      language: 'en',
-    },
-    {
-      title: 'Mexico Blocks Bank Accounts of Former Pemex CEO',
-      outlet: 'OCCRP',
-      url: 'https://www.occrp.org/en/news/mexico-blocks-bank-accounts-of-former-pemex-ceo',
       language: 'en',
     },
   ],

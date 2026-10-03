@@ -105,7 +105,7 @@ export function buildChargeLine(
     const caseName = (isEs ? contract.case_name_es : contract.case_name_en)
       || contract.case_name_en || contract.case_name_es || ''
     const inst = formatEntityName('institution', contract.institution_name, 'full')
-    const lead = isEs ? `Consta en un caso documentado — ${caseName}.` : `Named in a documented case — ${caseName}.`
+    const lead = isEs ? `Consta en un caso etiquetado — ${caseName}.` : `Named in a labelled case — ${caseName}.`
     const tail = hasPair && pair
       ? (isEs
           ? ` Acta ${pair.this_rank} de ${pair.total_contracts} con ${inst}, ${pair.first_year ?? ''}–${pair.last_year ?? ''}.`

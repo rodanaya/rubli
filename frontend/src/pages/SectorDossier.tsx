@@ -2,7 +2,7 @@
  * SectorDossier — canonical unified dossier at /sectors/:id.
  *
  * 2026-06-03 (DESIGNUS — operational rebuild, P0 propagation from
- * docs/WEBSITE_STANDARDS.md). Reclassified from a four-chapter narrative
+ * docs/DESIGN_SYSTEM.md). Reclassified from a four-chapter narrative
  * (Subject / Timeline·TimelineHourglass / Institutions / Risk — ChapterShells
  * with Roman numerals) into a dense OPERATIONAL dossier, matching the vendor,
  * institution and category dossiers:
@@ -332,7 +332,7 @@ export default function SectorDossier() {
       {/* HERO */}
       <SectorHero sector={sector} showTOC={false} />
 
-      {/* GT linkage credibility line — documented cases + GT vendors in the sector */}
+      {/* GT linkage credibility line — labelled cases + GT vendors in the sector */}
       {gtCases > 0 && gtTarget && (
         <a
           href={`#${gtTarget}`}
@@ -437,14 +437,14 @@ export default function SectorDossier() {
         </div>
       )}
 
-      {/* CASOS — documented corruption cases linked to the sector */}
+      {/* CASOS — labelled cases linked to the sector */}
       {sectorCases.length > 0 && (
         <div className="mt-11">
           <section id="cases" className="scroll-mt-20">
             <DossierSectionHeader
               id="cases"
               eyebrow={lang === 'es' ? 'Casos' : 'Cases'}
-              title={lang === 'es' ? 'Casos documentados' : 'Documented cases'}
+              title={lang === 'es' ? 'Casos etiquetados' : 'Labelled cases'}
               meta={lang === 'es' ? `${sectorCases.length} en archivo` : `${sectorCases.length} on file`}
               accent={sectorAccent}
               accentText={sectorAccentText}

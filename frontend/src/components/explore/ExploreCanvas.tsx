@@ -2818,8 +2818,8 @@ function Z2Panel({
     if (gtInTop10 >= 3) {
       const shareStr = `${gtSpendShare.toFixed(1)}%`
       return lang === 'en'
-        ? <><strong className="font-semibold text-text-primary">{gtInTop10} of {instTitle}'s 10 largest suppliers</strong> are confirmed corruption cases — together they take <strong className="font-semibold">{shareStr}</strong> of its spend.</>
-        : <><strong className="font-semibold text-text-primary">{gtInTop10} de los 10 mayores proveedores</strong> de {instTitle} son casos confirmados de corrupción — juntos reciben el <strong className="font-semibold">{shareStr}</strong> de su gasto.</>
+        ? <><strong className="font-semibold text-text-primary">{gtInTop10} of {instTitle}'s 10 largest suppliers</strong> are linked to labelled cases — together they take <strong className="font-semibold">{shareStr}</strong> of its spend.</>
+        : <><strong className="font-semibold text-text-primary">{gtInTop10} de los 10 mayores proveedores</strong> de {instTitle} están vinculados a casos etiquetados — juntos reciben el <strong className="font-semibold">{shareStr}</strong> de su gasto.</>
     }
     if (t1InTop10 >= 5) {
       return lang === 'en'
@@ -3706,8 +3706,8 @@ function CaptureSpine({
   segs.reduce((acc, s) => { const c = acc + s.w; cum.push(c); return c }, 0)
   const restLabel = isEs ? 'resto del gasto institucional' : 'rest of institution spend'
   const ariaLabel = isEs
-    ? `Concentración del gasto: principal proveedor ${spine.top1Seg.toFixed(1)}%, los cinco mayores ${(spine.top1Seg + spine.seg2to5).toFixed(1)}%, los cincuenta del registro ${spine.pool.toFixed(1)}%; ${spine.gtShare.toFixed(1)}% ligado a casos documentados de corrupción.`
-    : `Spend concentration: top supplier ${spine.top1Seg.toFixed(1)}%, top five ${(spine.top1Seg + spine.seg2to5).toFixed(1)}%, the fifty in this register ${spine.pool.toFixed(1)}%; ${spine.gtShare.toFixed(1)}% tied to documented corruption cases.`
+    ? `Concentración del gasto: principal proveedor ${spine.top1Seg.toFixed(1)}%, los cinco mayores ${(spine.top1Seg + spine.seg2to5).toFixed(1)}%, los cincuenta del registro ${spine.pool.toFixed(1)}%; ${spine.gtShare.toFixed(1)}% ligado a casos etiquetados.`
+    : `Spend concentration: top supplier ${spine.top1Seg.toFixed(1)}%, top five ${(spine.top1Seg + spine.seg2to5).toFixed(1)}%, the fifty in this register ${spine.pool.toFixed(1)}%; ${spine.gtShare.toFixed(1)}% tied to labelled cases.`
   return (
     <motion.div
       variants={variants}
@@ -3828,7 +3828,7 @@ function computeZ2Badges(
     out.push({
       label: 'GT',
       color: RISK_COLORS.critical,
-      tooltip: isEs ? 'Caso confirmado en la base Ground Truth' : 'Confirmed corruption case in Ground Truth',
+      tooltip: isEs ? 'Caso etiquetado en la base de casos' : 'Labelled case in the case set',
     })
   }
 

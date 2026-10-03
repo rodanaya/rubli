@@ -105,8 +105,8 @@ const INVESTIGATIONS: Investigation[] = [
   },
   {
     slug: 'el-monopolio-invisible',
-    headline: 'Anatomy of a Captured Market',
-    headline_es: 'Anatomía de un mercado capturado',
+    headline: 'Concentration in IMSS Medicine Purchasing',
+    headline_es: 'Concentración en las compras de medicamentos del IMSS',
     sub: 'Grupo Fármacos · IMSS',
     type: 'monopoly',
     status: 'reporteado',

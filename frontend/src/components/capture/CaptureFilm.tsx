@@ -24,10 +24,6 @@ import { formatEntityName } from '@/lib/entity/format'
 import { EntityIdentityChip } from '@/components/ui/EntityIdentityChip'
 import { CaptureTrajectory } from './CaptureTrajectory'
 import { CaptureExpand } from './CaptureExpand'
-import { captureCaseFor } from '@/lib/capture-cases'
-
-// Documented + still-held climbers, in lead preference (EDENRED then TOKA).
-const LEAD_PREFERENCE = [44372, 102627]
 
 type SortKey = 'cruce' | 'pico' | 'valor' | 'vigencia'
 const SORT_KEYS: SortKey[] = ['cruce', 'pico', 'valor', 'vigencia']
@@ -114,10 +110,6 @@ export function CaptureFilm({ data, thresholds, landscape, lang }: Props) {
 
   const lead = useMemo(() => {
     const held = data.filter((c) => c.latest_share_pct >= ceil)
-    for (const vid of LEAD_PREFERENCE) {
-      const hit = held.find((c) => c.vendor_id === vid)
-      if (hit) return hit
-    }
     return [...held].sort((a, b) => b.cumulative_value_mxn - a.cumulative_value_mxn)[0] ?? null
   }, [data, ceil])
 
@@ -417,7 +409,6 @@ function LeadExhibit({
   thresholds: CaptureTopResponse['thresholds']
   landscape?: CaptureLandscapeResponse
 }) {
-  const caseLink = captureCaseFor(c.vendor_id)
   const holds = c.latest_share_pct >= ceil
   return (
     <div className="rounded-sm border border-border bg-background-card overflow-hidden">
@@ -448,19 +439,6 @@ function LeadExhibit({
           </p>
           <div className="mt-3 flex items-center gap-2 flex-wrap">
             <CrossSeal c={c} lang={lang} />
-            {caseLink && (
-              <EntityIdentityChip
-                type="case"
-                id={caseLink.slug}
-                name={
-                  lang === 'en'
-                    ? `Documented: ${caseLink.label_en}`
-                    : `Documentado: ${caseLink.label_es}`
-                }
-                size="sm"
-                fullName
-              />
-            )}
           </div>
           <p className="mt-3 text-[13.5px] text-text-secondary leading-snug" style={{ fontFamily: '"EB Garamond", Georgia, serif', fontStyle: 'normal' }}>
             {lang === 'en'

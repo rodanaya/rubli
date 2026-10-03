@@ -1,12 +1,60 @@
 """
 Pytest fixtures for API tests.
+
+Most API tests need the full RUBLI_NORMALIZED.db (several GB, not in the repo).
+Without it (fresh clone, CI) every test that uses the `client`/`authed_client`
+(or `cold_client`) fixture or carries the `requires_db` marker is skipped; the rest (pure logic,
+synthetic in-memory SQLite) still run. Point DATABASE_PATH at a built DB to run
+everything.
 """
 import contextlib
+import os
+import sqlite3
+import tempfile
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
-from api.main import app
+_DB = Path(os.environ.get("DATABASE_PATH", Path(__file__).parent.parent / "RUBLI_NORMALIZED.db"))
+
+
+def _has_real_db() -> bool:
+    # mode=ro so probing never creates an empty file
+    try:
+        con = sqlite3.connect(f"file:{_DB.as_posix()}?mode=ro", uri=True)
+        try:
+            con.execute("SELECT 1 FROM contracts LIMIT 1")
+        finally:
+            con.close()
+        return True
+    except sqlite3.Error:
+        return False
+
+
+HAS_DB = _has_real_db()
+if not HAS_DB:
+    # Send any stray connection to a throwaway path instead of creating an empty
+    # RUBLI_NORMALIZED.db in the repo (which would also defeat the
+    # `if not DB_PATH.exists(): skip` guards in the direct-DB tests).
+    os.environ["DATABASE_PATH"] = str(Path(tempfile.mkdtemp(prefix="rubli-nodb-")) / "absent.db")
+
+from api.main import app  # noqa: E402  (must follow the DATABASE_PATH override)
+
+_DB_FIXTURES = {"client", "authed_client", "cold_client"}
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "requires_db: needs the full RUBLI_NORMALIZED.db")
+
+
+def pytest_collection_modifyitems(config, items):
+    if HAS_DB:
+        return
+    skip = pytest.mark.skip(reason=f"needs the full database (no `contracts` table at {_DB}); set DATABASE_PATH")
+    for item in items:
+        if _DB_FIXTURES & set(item.fixturenames) or item.get_closest_marker("requires_db"):
+            item.add_marker(skip)
 
 
 @pytest.fixture(autouse=True, scope="session")
