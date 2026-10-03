@@ -10,7 +10,7 @@ shap>=0.45.0               # SHAP explanations (compute_shap_explanations.py)
 pyod>=2.0.0                # Anomaly detection ensemble (compute_ml_anomalies_pyod.py)
 
 # Entity resolution (hyperion/splink)
-splink>=4.0.0
+splink>=5.0.0
 rapidfuzz>=3.0.0
 
 # Network analysis
