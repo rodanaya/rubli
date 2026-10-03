@@ -22,7 +22,7 @@ ruptures>=1.1.0            # Change-point detection (graceful fallback if missin
 anthropic>=0.40.0          # ai_explain.py — lazy import, needs ANTHROPIC_API_KEY at runtime
 
 # Authentication
-python-jose[cryptography]>=3.3.0  # JWT encode/decode
+python-jose[cryptography]>=3.5.0  # JWT encode/decode
 bcrypt>=4.0.0                     # Password hashing (direct, avoids passlib compat issues)
 email-validator>=2.0.0            # Required by pydantic EmailStr
 
