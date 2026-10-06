@@ -493,12 +493,25 @@ function SedenaShare({ rows, lang }: { rows: SedenaYear[]; lang: 'en' | 'es' }) 
 const F4_CHROME = {
   en: {
     eyebrow: 'FIGURE IV · THE HOT LINES',
-    title: "The risk indicator rose in nine of the ten largest categories of AMLO's term",
+    title: "The risk indicator in the ten largest categories of AMLO's term, against Peña Nieto",
   },
   es: {
     eyebrow: 'FIGURA IV · LAS PARTIDAS CALIENTES',
-    title: 'El indicador de riesgo subió en nueve de las diez partidas mayores del sexenio de AMLO',
+    title: 'El indicador de riesgo en las diez partidas mayores del sexenio de AMLO, frente a Peña Nieto',
   },
+}
+
+// the count in the title is read from the rows, so a reclassification cannot leave it stale
+const COUNT_WORDS = {
+  en: ['none', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'],
+  es: ['ninguna', 'una', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez'],
+}
+const countWord = (n: number, lang: 'en' | 'es') => COUNT_WORDS[lang][n] ?? String(n)
+
+function f4Title(risen: number, total: number, lang: 'en' | 'es'): string {
+  return lang === 'es'
+    ? `El indicador de riesgo subió en ${countWord(risen, 'es')} de las ${countWord(total, 'es')} partidas mayores del sexenio de AMLO`
+    : `The risk indicator rose in ${countWord(risen, 'en')} of the ${countWord(total, 'en')} largest categories of AMLO's term`
 }
 
 function CategoryDumbbell({ rows, lang }: { rows: CategoryShift[]; lang: 'en' | 'es' }) {
@@ -507,6 +520,7 @@ function CategoryDumbbell({ rows, lang }: { rows: CategoryShift[]; lang: 'en' | 
   const top = rows[0]
   const risen = rows.filter((r) => r.delta > 0)
   const fallen = rows.filter((r) => r.delta <= 0)
+  const largest = rows.reduce((m, r) => (r.value > m.value ? r : m), rows[0])
 
   const lo = Math.min(...rows.flatMap((r) => [r.before, r.after]))
   const hi = Math.max(...rows.flatMap((r) => [r.before, r.after]))
@@ -516,7 +530,7 @@ function CategoryDumbbell({ rows, lang }: { rows: CategoryShift[]; lang: 'en' | 
   return (
     <ChartCard
       eyebrow={c.eyebrow}
-      title={c.title}
+      title={f4Title(risen.length, rows.length, lang)}
       lang={lang}
       stamp={STAMP}
       anchor={{
@@ -617,8 +631,8 @@ function CategoryDumbbell({ rows, lang }: { rows: CategoryShift[]; lang: 'en' | 
 
         <Footline>
           {es
-            ? `De las ${rows.length} partidas mayores del sexenio, ${risen.length} leen más alto que con Peña Nieto y ${fallen.length} más bajo. La excepción es la mayor de todas: ${fallen.length ? `${fallen[fallen.length - 1].name}, ${formatCompactMXN(fallen[fallen.length - 1].value)} contratados, baja de ${ind(fallen[fallen.length - 1].before)} a ${ind(fallen[fallen.length - 1].after)}` : 'ninguna'}. El indicador mide estructura, no culpa probada, y una partida con lectura alta no es una acusación contra ninguno de sus proveedores.`
-            : `Of the ${rows.length} largest lines of the term, ${risen.length} read higher than under Peña Nieto and ${fallen.length} lower. The exception is the largest line of all: ${fallen.length ? `${fallen[fallen.length - 1].name}, ${formatCompactMXN(fallen[fallen.length - 1].value)} contracted, falls from ${ind(fallen[fallen.length - 1].before)} to ${ind(fallen[fallen.length - 1].after)}` : 'none'}. The indicator measures structure, not proven guilt, and a line that reads high is not an accusation against any of its suppliers.`}
+            ? `De las ${rows.length} partidas mayores del sexenio, ${risen.length} leen más alto que con Peña Nieto y ${fallen.length} más bajo. La mayor de todas, ${largest.name}, con ${formatCompactMXN(largest.value)} contratados, ${largest.delta > 0 ? 'sube' : 'baja'} de ${ind(largest.before)} a ${ind(largest.after)}. El indicador mide estructura, no culpa probada, y una partida con lectura alta no es una acusación contra ninguno de sus proveedores.`
+            : `Of the ${rows.length} largest lines of the term, ${risen.length} read higher than under Peña Nieto and ${fallen.length} lower. The largest line of all, ${largest.name}, ${formatCompactMXN(largest.value)} contracted, ${largest.delta > 0 ? 'rises' : 'falls'} from ${ind(largest.before)} to ${ind(largest.after)}. The indicator measures structure, not proven guilt, and a line that reads high is not an accusation against any of its suppliers.`}
         </Footline>
       </div>
     </ChartCard>
