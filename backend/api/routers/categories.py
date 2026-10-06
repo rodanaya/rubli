@@ -12,7 +12,7 @@ from typing import Any, Dict, Optional
 from fastapi import APIRouter, Query, HTTPException
 
 from ..dependencies import get_db
-from ..public_labels import NOT_SUPPRESSED_SQL, PATTERN_LABELS, suppressed_ids_json
+from ..public_labels import NOT_SUPPRESSED_SQL, PATTERN_LABELS, suppressed_ids_json, withhold_persona_names
 from ..administrations import ADMINISTRATIONS
 from ..helpers.analysis_helpers import single_award_of_competitive
 
@@ -735,7 +735,7 @@ def get_category_competition(category_id: int):
                 COALESCE(SUM(amount_mxn), 0) AS val
             FROM contracts
             WHERE category_id = ?
-            GROUP BY procedure_type_normalized
+            GROUP BY proc_type
             ORDER BY cnt DESC
         """, (category_id,))
         proc_rows = cur.fetchall()
@@ -1177,6 +1177,7 @@ def get_category_top_contracts(category_id: int, limit: int = Query(8, ge=1, le=
                     contracts = json.loads(row[0]).get(str(category_id), [])[:limit]
                 except (json.JSONDecodeError, AttributeError) as e:
                     logger.warning(f"category_largest_contracts parse failed: {e}")
+        contracts = withhold_persona_names(conn, contracts)
 
         return {"category_id": category_id, "category_name": cat["name_es"], "contracts": contracts}
 

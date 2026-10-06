@@ -41,7 +41,7 @@ def compute_competition(cur, cid, cat_name):
         SELECT COALESCE(procedure_type_normalized, 'desconocido') AS proc_type,
                COUNT(*) AS cnt, COALESCE(SUM(amount_mxn), 0) AS val
         FROM contracts WHERE category_id = ?
-        GROUP BY procedure_type_normalized ORDER BY cnt DESC
+        GROUP BY proc_type ORDER BY cnt DESC
     """, (cid,))
     proc_rows = cur.fetchall()
     total_cnt = sum(r["cnt"] for r in proc_rows) or 1

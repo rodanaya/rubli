@@ -12,6 +12,7 @@ from fastapi import APIRouter, Query, HTTPException, Path, Request
 
 from ..dependencies import get_db
 from ..config.constants import MAX_CONTRACT_VALUE
+from ..public_labels import withhold_persona_names
 from ..cache import SimpleCache
 
 
@@ -1601,6 +1602,7 @@ def get_sector_top_contracts(
                     contracts = json.loads(row[0]).get(str(sector_id), [])[:limit]
                 except (json.JSONDecodeError, AttributeError) as e:
                     logger.warning(f"sector_largest_contracts parse failed: {e}")
+            contracts = withhold_persona_names(conn, contracts)
 
             result = {
                 "sector_id": sector_id,

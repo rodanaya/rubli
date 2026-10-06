@@ -13,6 +13,7 @@ from api.public_labels import (
     label_sets,
     public_status_counts,
     ranking_safe,
+    withhold_persona_names,
 )
 
 
@@ -96,6 +97,14 @@ def test_pattern_suppression(conn):
 def test_ranking_safe_drops_offender_rows(conn):
     kept = ranking_safe(conn, [{"vendor_id": v} for v in (1, 3, 5, 7)])
     assert [d["vendor_id"] for d in kept] == [1, 7]
+
+
+def test_withhold_persona_names_blanks_only_personas(conn):
+    rows = [{"vendor_id": 5, "vendor_name": "PERSONA"}, {"vendor_id": 7, "vendor_name": "CLEAN P2 SA DE CV"},
+            {"vendor_id": None, "vendor_name": ""}]
+    out = withhold_persona_names(conn, rows)
+    assert [r["vendor_name"] for r in out] == ["", "CLEAN P2 SA DE CV", ""]
+    assert out[0]["vendor_id"] == 5 and rows[0]["vendor_name"] == "PERSONA"  # row kept, input not mutated
 
 
 def test_entity_detectors():

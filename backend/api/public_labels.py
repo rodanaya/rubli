@@ -279,6 +279,23 @@ def ranking_safe(conn: sqlite3.Connection, rows: list[dict], **label_kw) -> list
     return apply_public_labels(conn, kept, **label_kw)
 
 
+def withhold_persona_names(conn: sqlite3.Connection, rows: list[dict],
+                           id_key: str = "vendor_id", name_key: str = "vendor_name") -> list[dict]:
+    """Blank the vendor name on rows held by a persona física (a fact list such as
+    "largest contracts" keeps the row, but not the person's name; the UI then shows
+    an unidentified vendor). Same test as excluded_from_rankings()."""
+    ids = sorted({r.get(id_key) for r in rows if r.get(id_key) is not None})
+    if not ids:
+        return rows
+    persons = {
+        vid for vid, is_ind, rfc in conn.execute(
+            f"SELECT id, is_individual, rfc FROM vendors WHERE id IN ({','.join('?' * len(ids))})", ids
+        )
+        if is_persona_fisica(is_ind, rfc)
+    }
+    return [{**r, name_key: ""} if r.get(id_key) in persons else r for r in rows]
+
+
 # ---------------------------------------------------------------------------
 # B5 — amount flags
 # ---------------------------------------------------------------------------
