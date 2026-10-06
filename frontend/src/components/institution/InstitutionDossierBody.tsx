@@ -33,7 +33,6 @@ import {
   RISK_TEXT_COLORS,
   FLAG_THRESHOLD,
   EU_DIRECT_AWARD_LIMIT,
-  EU_SINGLE_BID_LIMIT,
   MODEL_HR_BASELINE,
   getRiskLevelFromScore,
 } from '@/lib/constants'
@@ -118,12 +117,10 @@ export function InstitutionReading({
       : topAdd ? `El modelo pondera al alza «${topAdd.label_en.toLowerCase()}».` : ''
   const procEn = sealValue == null ? ''
     : seal.key === 'da' ? `it awards ${sealValue}% without an open bid, ${seal.flagged ? `${ratio} the EU line` : 'within the EU line'}`
-      : seal.key === 'sb' ? `${sealValue}% of its competitive procedures ended with a single winner, ${seal.flagged ? `${ratio} the EU line` : 'within the EU line'}`
-        : `its five-year supplier HHI is ${formatNumber(sealValue)}, ${seal.flagged ? `${ratio} the 4,000 line` : 'below the 4,000 line'}`
+      : `its five-year supplier HHI is ${formatNumber(sealValue)}, ${seal.flagged ? `${ratio} the 4,000 line` : 'below the 4,000 line'}`
   const procEs = sealValue == null ? ''
     : seal.key === 'da' ? `adjudica ${sealValue}% sin licitación abierta, ${seal.flagged ? `${ratio} la línea UE` : 'dentro de la línea UE'}`
-      : seal.key === 'sb' ? `${sealValue}% de sus procedimientos competitivos terminó con un solo adjudicado, ${seal.flagged ? `${ratio} la línea UE` : 'dentro de la línea UE'}`
-        : `su HHI de proveedores a cinco años es ${formatNumber(sealValue)}, ${seal.flagged ? `${ratio} el umbral de 4,000` : 'bajo el umbral de 4,000'}`
+      : `su HHI de proveedores a cinco años es ${formatNumber(sealValue)}, ${seal.flagged ? `${ratio} el umbral de 4,000` : 'bajo el umbral de 4,000'}`
   const scoreEn = scorecard ? `the transparency score is ${Math.round(scorecard.total_score)} of 100, grade ${scorecard.grade}` : ''
   const scoreEs = scorecard ? `el puntaje de transparencia es ${Math.round(scorecard.total_score)} de 100, calificación ${scorecard.grade}` : ''
   const verdictsEn = [`Its contracts carry a ${level} model risk indicator (${risk100}/100)`, procEn, scoreEn].filter(Boolean).join('; ') + '.'
@@ -132,14 +129,11 @@ export function InstitutionReading({
 
   // OECD deviation rows
   const da = ratePct(institution.direct_award_pct ?? institution.direct_award_rate)
-  const sb = ratePct(institution.single_bid_pct)
   const hr = ratePct(institution.high_risk_pct ?? institution.high_risk_percentage)
   const daLim = EU_DIRECT_AWARD_LIMIT * 100
-  const sbLim = EU_SINGLE_BID_LIMIT * 100
   const hrLim = MODEL_HR_BASELINE * 100
   const benchRows: BenchRow[] = []
   if (da != null) benchRows.push({ label: isEs ? 'Adjudicación directa' : 'Direct award', pct: da, limit: daLim, over: da > daLim })
-  if (sb != null) benchRows.push({ label: isEs ? 'Un solo adjudicado' : 'Single award', pct: sb, limit: sbLim, over: sb > sbLim })
   if (hr != null) benchRows.push({ label: isEs ? 'Alto riesgo' : 'High-risk', pct: hr, limit: hrLim, over: hr > hrLim, note: isEs ? `media del modelo ${hrLim}%` : `model mean ${hrLim}%` })
 
   // Where the risk sits
@@ -407,7 +401,7 @@ function ConcentrationRegister({
                   <div className="font-mono tabular-nums" style={{ fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2 }}>
                     {formatNumber(v.contract_count ?? 0)} {isEs ? 'contratos' : 'contracts'}
                     {' · '}{isEs ? 'AD' : 'DA'} {fmtPct(v.direct_award_pct)}
-                    {' · '}{isEs ? 'ÚP' : 'SB'} {fmtPct(v.single_bid_pct)}
+                    {' · '}{isEs ? 'ÚP' : 'SB'} {fmtPct(v.single_award_pct ?? null)}
                   </div>
                 </div>
                 {/* A share that rounds to 0 % draws no dot (DotBar rounds up to 1). */}

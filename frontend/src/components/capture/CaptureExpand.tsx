@@ -212,10 +212,10 @@ export function CaptureExpand({
               {instDetail.direct_award_rate.toFixed(1)}%
             </p>
           )}
-          {instDetail?.single_bid_pct != null && (
+          {instDetail?.single_award_pct != null && (
             <p>
               {lang === 'en' ? 'single award' : 'un solo adjudicado'}{' '}
-              {instDetail.single_bid_pct.toFixed(1)}%
+              {instDetail.single_award_pct.toFixed(1)}% {lang === 'en' ? 'of competitive' : 'de competitivos'}
             </p>
           )}
         </div>

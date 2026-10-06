@@ -25,6 +25,7 @@ import {
   getRiskLevelFromScore,
   getSectorName,
   getSectorTextColor,
+  singleAwardOfCompetitive,
 } from '@/lib/constants'
 import type { SectorStatistics } from '@/api/types'
 import { EntityIdentityChip } from '@/components/ui/EntityIdentityChip'
@@ -73,6 +74,8 @@ interface CatSummary {
   avg_risk: number
   direct_award_pct: number
   single_bid_pct: number
+  /** Single-award share of competitive procedures (D20) — the displayed rate. */
+  single_award_pct?: number | null
   top_vendor: { id: number; name: string } | null
   top_institution: { id: number; name: string } | null
 }
@@ -160,10 +163,6 @@ function CategoryTreeView({ orderedSectors, sectorGroups, sectors, lang }: Categ
             {/* Category leaves */}
             {isOpen && cats.map((cat, idx) => {
               const riskLevel = getRiskLevelFromScore(cat.avg_risk)
-              const sbDotClass =
-                (cat.single_bid_pct ?? 0) > 25 ? 'bg-risk-critical'
-                : (cat.single_bid_pct ?? 0) >= 15 ? 'bg-risk-high'
-                : 'bg-text-muted'
               const barWidth = maxSpend > 0 ? Math.min(100, (cat.total_value / maxSpend) * 100) : 0
 
               return (
@@ -204,7 +203,6 @@ function CategoryTreeView({ orderedSectors, sectorGroups, sectors, lang }: Categ
                     {(cat.avg_risk * 100).toFixed(1)}%
                   </div>
                   <div className="flex-shrink-0 flex items-center gap-1 w-10 justify-end">
-                    <span className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${sbDotClass}`} aria-hidden="true" />
                     <span className="font-mono text-[12px] tabular-nums text-text-secondary">
                       {cat.direct_award_pct.toFixed(0)}%
                     </span>
@@ -354,7 +352,7 @@ export function Sectors() {
           criticalMxn: ext.critical_value_mxn ?? 0,
           totalMxn: s.total_value_mxn,
           daPct: s.direct_award_pct ?? 0,
-          sbPct: s.single_bid_pct ?? 0,
+          sbPct: singleAwardOfCompetitive(s.single_bid_pct ?? 0, s.direct_award_pct ?? 0),
           contracts: s.total_contracts,
           vendors: s.total_vendors ?? 0,
           avgRiskScore: s.avg_risk_score ?? 0,
@@ -818,14 +816,6 @@ export function Sectors() {
                           const prevSectorCode = idx > 0 ? catRows[idx - 1].sector_code : null
                           const sectorChanged = idx > 0 && prevSectorCode !== cat.sector_code
 
-                          // cat-P3 A: single-award traffic-light dot
-                          const sbPct = cat.single_bid_pct ?? 0
-                          const sbDotClass =
-                            sbPct > 25
-                              ? 'bg-risk-critical'
-                              : sbPct >= 15
-                                ? 'bg-risk-high'
-                                : 'bg-text-muted'
 
                           return (
                             <div key={cat.category_id}>
@@ -916,14 +906,8 @@ export function Sectors() {
                                     </div>
                                   </div>
                                 </div>
-                                {/* cat-P3 A: DA% with single-award dot to its left */}
+                                {/* DA%. The single-award traffic-light dot is gone: single award is not a red flag (D20). */}
                                 <div className="flex-shrink-0 flex items-center justify-end gap-1 min-w-[48px] sm:min-w-[80px]">
-                                  <span
-                                    className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${sbDotClass}`}
-                                    role="img"
-                                    title={`${sbPct.toFixed(1)}% ${lang === 'es' ? 'procedimiento con un solo adjudicado' : 'single award'}`}
-                                    aria-label={`${sbPct.toFixed(1)}% ${lang === 'es' ? 'procedimiento con un solo adjudicado' : 'single award'}`}
-                                  />
                                   <div className="font-mono text-sm tabular-nums text-text-secondary">
                                     {cat.direct_award_pct.toFixed(0)}%
                                   </div>
@@ -1127,8 +1111,8 @@ export function Sectors() {
                     style={{ fontSize: '13px', letterSpacing: '0.06em', color: 'var(--color-text-muted)' }}
                   >
                     {lang === 'es'
-                      ? `top 3 = ${ledeStats.varPct}% del monto observado · ${ledeStats.minSat.name}: ${ledeStats.minSatMoneyRank}.º en dinero, la saturación más baja (${ledeStats.minSatSatPct}%) y ${ledeStats.minSatSbPct}% a procedimiento con un solo adjudicado · indicador de riesgo, no estimación de fraude`
-                      : `top 3 = ${ledeStats.varPct}% of flagged amount · ${ledeStats.minSat.name}: ${ledeStats.minSatMoneyRank}${ledeStats.minSatMoneyRank === 1 ? 'st' : ledeStats.minSatMoneyRank === 2 ? 'nd' : ledeStats.minSatMoneyRank === 3 ? 'rd' : 'th'} in money, lowest saturation (${ledeStats.minSatSatPct}%) and ${ledeStats.minSatSbPct}% single award · risk indicator, not a fraud estimate`}
+                      ? `top 3 = ${ledeStats.varPct}% del monto observado · ${ledeStats.minSat.name}: ${ledeStats.minSatMoneyRank}.º en dinero, la saturación más baja (${ledeStats.minSatSatPct}%) y ${ledeStats.minSatSbPct}% de sus procedimientos competitivos con un solo adjudicado · indicador de riesgo, no estimación de fraude`
+                      : `top 3 = ${ledeStats.varPct}% of flagged amount · ${ledeStats.minSat.name}: ${ledeStats.minSatMoneyRank}${ledeStats.minSatMoneyRank === 1 ? 'st' : ledeStats.minSatMoneyRank === 2 ? 'nd' : ledeStats.minSatMoneyRank === 3 ? 'rd' : 'th'} in money, lowest saturation (${ledeStats.minSatSatPct}%) and ${ledeStats.minSatSbPct}% of its competitive procedures single-award · risk indicator, not a fraud estimate`}
                   </p>
                   </div>
                 </section>

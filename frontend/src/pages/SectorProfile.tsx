@@ -1749,14 +1749,6 @@ export function SectorProfile() {
                       maxDelta: MAX_DELTA,
                     },
                     {
-                      key: 'sb',
-                      label: isEs ? 'Procedimiento con un solo adjudicado' : 'Single-award rate',
-                      value: (stats.single_bid_pct ?? 0) / 100,
-                      benchmark: 0.10,
-                      benchmarkLabel: isEs ? 'línea UE' : 'EU line',
-                      maxDelta: MAX_DELTA,
-                    },
-                    {
                       key: 'rs',
                       label: isEs ? 'Riesgo promedio' : 'Avg risk indicator',
                       value: stats.avg_risk_score ?? 0,
@@ -1779,8 +1771,8 @@ export function SectorProfile() {
               </div>
               <p className="text-[13px] font-mono text-text-muted mt-2 opacity-60">
                 {isEs
-                  ? 'Tablero UE: adj. directa ≤10%, un solo adjudicado ≤20% · Plataforma: riesgo prom. 11.0%'
-                  : 'EU scoreboard: direct award ≤10%, single award ≤20% · Platform: avg risk 11.0%'}
+                  ? 'Tablero UE: adj. directa ≤10% · Plataforma: riesgo prom. 11.0%'
+                  : 'EU scoreboard: direct award ≤10% · Platform: avg risk 11.0%'}
               </p>
             </section>
           )}

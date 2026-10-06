@@ -61,12 +61,6 @@ const HOUR = 60 * 60 * 1000
 export const WINDOW_FROM = 2011
 /** The last complete year — the federal feed froze at 2025-09-28. */
 export const LAST_FULL_YEAR = 2024
-/**
- * The EU Single Market Scoreboard's single-bidder line: above this share a
- * country's procurement is rated unsatisfactory (10% or under is satisfactory).
- * External to RUBLI; every figure that draws it says whose line it is.
- */
-export const EU_SINGLE_BID_LINE = 20
 /** The floor of the run the story's kicker claims. */
 export const BAND_FLOOR = 45
 /**

@@ -436,7 +436,7 @@ export default function InstitutionDossier() {
                     <th className="text-left font-medium py-2 pr-3">{lang === 'es' ? 'Funcionario' : 'Officer'}</th>
                     <th className="text-right font-medium py-2 px-3">{lang === 'es' ? 'Contratos' : 'Contracts'}</th>
                     <th className="text-right font-medium py-2 px-3">{lang === 'es' ? 'Adj. directa' : 'Direct award'}</th>
-                    <th className="text-right font-medium py-2 px-3">{lang === 'es' ? 'Un solo adjudicado' : 'Single award'}</th>
+                    <th className="text-right font-medium py-2 px-3">{lang === 'es' ? 'Un solo adj. (competitivos)' : 'Single award (competitive)'}</th>
                     <th className="text-right font-medium py-2 px-3">{lang === 'es' ? 'Proveedores' : 'Vendors'}</th>
                     <th className="text-right font-medium py-2 pl-3">{lang === 'es' ? 'Indicador' : 'Risk ind.'}</th>
                   </tr>
@@ -455,7 +455,7 @@ export default function InstitutionDossier() {
                         </td>
                         <td className="py-2 px-3 text-right tabular-nums text-text-secondary">{o.total_contracts.toLocaleString(locale)}</td>
                         <td className="py-2 px-3 text-right tabular-nums text-text-secondary">{o.direct_award_pct.toFixed(0)}%</td>
-                        <td className="py-2 px-3 text-right tabular-nums text-text-secondary">{o.single_bid_pct.toFixed(0)}%</td>
+                        <td className="py-2 px-3 text-right tabular-nums text-text-secondary">{o.single_award_pct != null ? `${o.single_award_pct.toFixed(0)}%` : '—'}</td>
                         <td className="py-2 px-3 text-right tabular-nums text-text-secondary">{o.vendor_diversity.toLocaleString(locale)}</td>
                         <td className="py-2 pl-3 text-right tabular-nums">
                           <span className="inline-flex items-center gap-1.5 justify-end">

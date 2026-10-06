@@ -247,11 +247,10 @@ function DualSeal({
   const avgRisk100 = Math.round(avgRisk * 100)
   const hrPct = Math.round(institution.high_risk_pct ?? institution.high_risk_percentage ?? 0)
 
-  // ── Lens 2 · Procedure — worst OECD/EU/Prozorro deviation ──
+  // ── Lens 2 · Procedure — worst EU/Prozorro deviation ──
   const top = procedureSeal(institution)
   const { flagged, critical } = top
   const hhi5 = top.key === 'conc' ? top.value : null
-  const sb = top.key === 'sb' ? top.value ?? 0 : 0
   const da = top.key === 'da' ? top.value ?? 0 : 0
   const integFill = critical ? RISK_COLORS.critical : flagged ? RISK_COLORS.high : 'var(--color-border)'
   const integText = critical ? RISK_TEXT_COLORS.critical : flagged ? RISK_TEXT_COLORS.high : 'var(--color-text-muted)'
@@ -268,10 +267,6 @@ function DualSeal({
     integBig = hhi5 != null ? formatNumber(Math.round(hhi5)) : '—'
     integLabel = isEs ? 'HHI · concentración' : 'HHI · concentration'
     integSub = hhi5 != null ? `${top.ratio.toFixed(1)}× ${isEs ? 'umbral 4,000' : '4,000 line'}` : ''
-  } else if (top.key === 'sb') {
-    integBig = `${Math.round(sb)}%`
-    integLabel = isEs ? 'un solo adjudicado' : 'single award'
-    integSub = flagged ? `${top.ratio.toFixed(1)}× ${isEs ? 'UE' : 'EU'}` : (isEs ? '≤ línea UE' : '≤ EU line')
   } else {
     integBig = `${Math.round(da)}%`
     integLabel = isEs ? 'sin licitación' : 'no open bid'

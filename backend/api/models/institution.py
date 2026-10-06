@@ -67,7 +67,8 @@ class InstitutionResponse(BaseModel):
     avg_risk_score: Optional[float] = Field(None, description="Average risk score")
     high_risk_pct: Optional[float] = Field(None, description="Percentage of high/critical risk contracts (0-100)")
     direct_award_pct: Optional[float] = Field(None, description="Percentage of direct awards (0-100)")
-    single_bid_pct: Optional[float] = Field(None, description="Percentage of single-bid contracts (0-100)")
+    single_bid_pct: Optional[float] = Field(None, description="Single-award contracts as a percentage of ALL contracts (0-100)")
+    single_award_pct: Optional[float] = Field(None, description="Single-award procedures as a percentage of COMPETITIVE procedures (0-100); the user-facing rate")
     vendor_count: Optional[int] = Field(None, description="Number of unique vendors")
     classification_confidence: Optional[float] = Field(None, description="Classification confidence")
     data_quality_grade: Optional[str] = Field(None, description="Data quality grade (A-F)")
@@ -214,6 +215,8 @@ class VendorPoolItem(BaseModel):
     direct_award_pct: Optional[float] = None
     single_bid_count: Optional[int] = None
     single_bid_pct: Optional[float] = None
+    # single_bid_count ÷ competitive (non-direct-award) contracts — the user-facing rate
+    single_award_pct: Optional[float] = None
     # ARIA investigative signals
     ips_tier: Optional[int] = None
     primary_pattern: Optional[str] = None

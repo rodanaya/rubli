@@ -28,7 +28,6 @@ import { findStoryByLongformSlug } from '@/lib/atlas-stories'
 import { OutletBadge } from '@/components/stories/OutletBadge'
 import ChapterBanner from '@/components/stories/ChapterBanner'
 import DataPullquote, { type PullquoteRole } from '@/components/stories/DataPullquote'
-import ProseStat from '@/components/stories/ProseStat'
 import { StoryCard } from '@/components/stories/StoryCard'
 import { ScrollReveal, AnimatedNumber } from '@/hooks/useAnimations'
 import { slideUp, fadeIn, staggerContainer } from '@/lib/animations'
@@ -2095,7 +2094,6 @@ function MethodologySection({ story }: { story: StoryDef }) {
         <div className="text-sm text-text-secondary leading-relaxed space-y-3">
           <p>
             {t('story.methodologyP1')}{' '}
-            <ProseStat value="3,051,294" color="text-risk-critical" animate={false} />{' '}
             {t('story.methodologyP2')}
           </p>
           <p>

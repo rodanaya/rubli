@@ -25,7 +25,6 @@ import {
   RISK_COLORS,
   RISK_TEXT_COLORS,
   EU_DIRECT_AWARD_LIMIT,
-  EU_SINGLE_BID_LIMIT,
   MODEL_HR_BASELINE,
   getRiskLevelFromScore,
 } from '@/lib/constants'
@@ -69,7 +68,7 @@ export function InstitutionStatStrip({
   const isEs = lang === 'es'
   const hr = hrOf(institution)
   const da = daOf(institution)
-  const sb = ratePct(institution.single_bid_pct)
+  const sb = ratePct(institution.single_award_pct)
   const avgRisk = institution.avg_risk_score != null ? Math.round(institution.avg_risk_score * 100) : null
   const baseline = institution.risk_baseline ? Math.round(institution.risk_baseline * 100) : null
   const sectorDelta = baseline != null && avgRisk != null && baseline > 0 ? avgRisk - baseline : null
@@ -80,9 +79,7 @@ export function InstitutionStatStrip({
   const maxY = years.length ? Math.max(...years) : null
 
   const daLimit = EU_DIRECT_AWARD_LIMIT * 100
-  const sbLimit = EU_SINGLE_BID_LIMIT * 100
   const daColor = da == null ? undefined : da > daLimit ? RISK_TEXT_COLORS.critical : da > daLimit / 2 ? RISK_TEXT_COLORS.high : undefined
-  const sbColor = sb == null ? undefined : sb > sbLimit ? RISK_TEXT_COLORS.critical : sb > sbLimit / 2 ? RISK_TEXT_COLORS.high : undefined
   const hrColor = hr == null ? undefined : hr >= 25 ? RISK_TEXT_COLORS.critical : hr >= 15 ? RISK_TEXT_COLORS.high : undefined
   const riskLvl = institution.avg_risk_score != null ? getRiskLevelFromScore(institution.avg_risk_score) : 'low'
   const avgRiskColor = avgRisk == null ? undefined : riskLvl === 'critical' ? RISK_TEXT_COLORS.critical : riskLvl === 'high' ? RISK_TEXT_COLORS.high : undefined
@@ -110,8 +107,7 @@ export function InstitutionStatStrip({
     sb == null ? null : {
       label: isEs ? 'Un solo adjudicado' : 'Single award',
       value: `${Math.round(sb)}%`,
-      sub: sb > sbLimit ? `${(sb / sbLimit).toFixed(1)}× ${isEs ? 'UE' : 'EU'}` : (isEs ? `≤${sbLimit}% UE` : `≤${sbLimit}% EU`),
-      color: sbColor,
+      sub: isEs ? 'de los competitivos' : 'of competitive',
     },
     avgRisk == null ? null : {
       label: isEs ? 'Riesgo prom.' : 'Avg risk',
@@ -168,11 +164,10 @@ export function InstitutionDiagnosticGrid({
   const avgRiskLvl = institution.avg_risk_score != null ? getRiskLevelFromScore(institution.avg_risk_score) : 'low'
 
   // OECD deviation
-  const hr = hrOf(institution), da = daOf(institution), sb = ratePct(institution.single_bid_pct)
-  const daLim = EU_DIRECT_AWARD_LIMIT * 100, sbLim = EU_SINGLE_BID_LIMIT * 100, hrLim = MODEL_HR_BASELINE * 100
+  const hr = hrOf(institution), da = daOf(institution)
+  const daLim = EU_DIRECT_AWARD_LIMIT * 100, hrLim = MODEL_HR_BASELINE * 100
   const benchRows: BenchRow[] = []
   if (da != null) benchRows.push({ label: isEs ? 'Adjudicación directa' : 'Direct award', pct: da, limit: daLim, over: da > daLim })
-  if (sb != null) benchRows.push({ label: isEs ? 'Un solo adjudicado' : 'Single award', pct: sb, limit: sbLim, over: sb > sbLim })
   if (hr != null) benchRows.push({ label: isEs ? 'Alto riesgo' : 'High-risk', pct: hr, limit: hrLim, over: hr > hrLim, note: isEs ? `media del modelo ${hrLim}%` : `model mean ${hrLim}%` })
 
   const topSuppliers = vendors.slice(0, 4)

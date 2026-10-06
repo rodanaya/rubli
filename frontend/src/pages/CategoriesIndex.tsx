@@ -178,8 +178,8 @@ function computeFindings(items: CategorySummaryItem[]): Finding[] {
       anchorColor: captured.direct_award_pct > DA_LIMIT_PCT * 2 ? RISK_TEXT_COLORS.critical : RISK_TEXT_COLORS.high,
       proofPct: captured.direct_award_pct,
       proofColor: RISK_COLORS.high,
-      deckEs: `adjudicación directa · ${Math.round(captured.single_bid_pct)}% un solo adjudicado`,
-      deckEn: `direct award · ${Math.round(captured.single_bid_pct)}% single award`,
+      deckEs: `adjudicación directa${captured.single_award_pct != null ? ` · ${Math.round(captured.single_award_pct)}% un solo adjudicado en competitivos` : ''}`,
+      deckEn: `direct award${captured.single_award_pct != null ? ` · ${Math.round(captured.single_award_pct)}% single award of competitive` : ''}`,
     })
   }
 
@@ -247,8 +247,6 @@ function LedgerRow({
   onLeave: () => void
 }) {
   const sectorColor = item.sector_code ? SECTOR_COLORS[item.sector_code] ?? SECTOR_COLORS.otros : SECTOR_COLORS.otros
-  const sbPct = item.single_bid_pct ?? 0
-  const sbDotColor = sbPct > 25 ? RISK_COLORS.critical : sbPct >= 15 ? RISK_COLORS.high : 'var(--color-text-muted)'
   const spendPct = maxValue > 0 ? (item.total_value / maxValue) * 100 : 0
   const daOver = item.direct_award_pct > DA_LIMIT_PCT
   const hasDagger = DAGGER_SECTOR_CODES.has(item.sector_code)
@@ -347,16 +345,10 @@ function LedgerRow({
         )}
       </td>
 
-      {/* Direct award (with single-award dot + EU scoreboard reference tick) */}
+      {/* Direct award (with EU scoreboard reference tick). Single award is not
+          colour-flagged here: it reads on the competitive base and is not a red flag (D20). */}
       <td className="flex-shrink-0 min-w-[78px]">
         <div className="flex items-center justify-end gap-1.5">
-          <span
-            className="h-1.5 w-1.5 rounded-full flex-shrink-0"
-            style={{ background: sbDotColor }}
-            title={`${sbPct.toFixed(1)}% ${lang === 'es' ? 'un solo adjudicado' : 'single award'}`}
-            aria-hidden="true"
-          />
-          <span className="sr-only">{`${sbPct.toFixed(1)}% ${lang === 'es' ? 'un solo adjudicado' : 'single award'} ·`}</span>
           <div className="hidden sm:block w-12 h-1 rounded-full bg-background-elevated overflow-hidden relative" aria-hidden="true">
             <div className="h-full rounded-full" style={{ width: `${Math.min(100, item.direct_award_pct)}%`, background: daOver ? RISK_COLORS.high : 'var(--color-text-muted)', opacity: 0.8 }} />
             <div data-da-tick style={{ position: 'absolute', top: -1, bottom: -1, left: `${DA_LIMIT_PCT}%`, width: 1, background: 'var(--color-text-muted)' }} />
@@ -385,8 +377,8 @@ function ProvenanceNote({ lang }: { lang: 'en' | 'es' }) {
         style={{ fontFamily: '"EB Garamond", Georgia, serif', fontStyle: 'normal', fontSize: 14, lineHeight: 1.6, color: 'var(--color-text-secondary)' }}
       >
         {lang === 'es'
-          ? `El inventario levanta 72 anaqueles activos que cubren el 99.73% del gasto clasificable (códigos Partida/CUCoP); la cobertura confiable es 2023–2025 (Estructura D, 100% Partida) — los años previos pueden tener clasificación parcial. La marca de adjudicación directa es la línea del marcador del mercado único de la UE (${DA_LIMIT_PCT} %); el punto de un solo adjudicado se enrojece >25 % crítico / ≥15 % alto. Indicador de riesgo, no estimación de fraude. RUBLI v0.8.5.`
-          : `The stocktake counts 72 active shelves covering 99.73% of classifiable spend (Partida/CUCoP codes); reliable coverage is 2023–2025 (Structure D, 100% Partida) — earlier years may be partially classified. The direct-award tick marks the EU single-market scoreboard line (${DA_LIMIT_PCT} %); the single-award dot reddens >25 % critical / ≥15 % high. Risk indicator, not a fraud estimate. RUBLI v0.8.5.`}
+          ? `El inventario levanta 72 anaqueles activos que cubren el 99.73% del gasto clasificable (códigos Partida/CUCoP); la cobertura confiable es 2023–2025 (Estructura D, 100% Partida) — los años previos pueden tener clasificación parcial. La marca de adjudicación directa es la línea del marcador del mercado único de la UE (${DA_LIMIT_PCT} %). Indicador de riesgo, no estimación de fraude. RUBLI v0.8.5.`
+          : `The stocktake counts 72 active shelves covering 99.73% of classifiable spend (Partida/CUCoP codes); reliable coverage is 2023–2025 (Structure D, 100% Partida) — earlier years may be partially classified. The direct-award tick marks the EU single-market scoreboard line (${DA_LIMIT_PCT} %). Risk indicator, not a fraud estimate. RUBLI v0.8.5.`}
       </p>
     </section>
   )

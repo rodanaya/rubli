@@ -50,6 +50,8 @@ interface CategoryStat {
   avg_risk: number
   direct_award_pct: number
   single_bid_pct: number
+  /** Single-award share of competitive procedures (D20) — the displayed rate. */
+  single_award_pct?: number | null
   top_vendor: { id: number; name: string } | null
   top_institution: { id: number; name: string } | null
 }

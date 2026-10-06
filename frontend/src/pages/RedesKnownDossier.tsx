@@ -31,7 +31,6 @@ import {
   PATTERN_COLORS,
   getRiskLevelFromScore,
   EU_DIRECT_AWARD_LIMIT,
-  EU_SINGLE_BID_LIMIT,
   HHI_CONCENTRATED,
 } from '@/lib/constants'
 import { formatEntityName } from '@/lib/entity/format'
@@ -1194,13 +1193,6 @@ export default function RedesKnownDossier() {
                             benchmarkLabel={isEs ? 'UE' : 'EU'}
                             maxDelta={0.75}
                           />
-                          <DeviationRow
-                            label={isEs ? 'Un solo adjudicado' : 'Single award'}
-                            value={(selectedCaptureItem.single_bid_pct ?? 0) / 100}
-                            benchmark={EU_SINGLE_BID_LIMIT}
-                            benchmarkLabel={isEs ? 'UE' : 'EU'}
-                            maxDelta={0.75}
-                          />
                         </div>
                         <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 text-[12px] font-mono text-text-muted">
                           <span>
@@ -1366,8 +1358,8 @@ export default function RedesKnownDossier() {
                 en: 'Clusters above 150 actors are drawn truncated to their 100 most central; edges are capped at 2,500.',
               },
               {
-                es: `Tasas de adjudicación directa y un solo adjudicado promediadas del motor ARIA por cúmulo; referencias del Tablero UE ${Math.round(EU_DIRECT_AWARD_LIMIT * 100)}%/${Math.round(EU_SINGLE_BID_LIMIT * 100)}%.`,
-                en: `Direct-award and single-award rates are ARIA engine averages per cluster; EU scoreboard references ${Math.round(EU_DIRECT_AWARD_LIMIT * 100)}%/${Math.round(EU_SINGLE_BID_LIMIT * 100)}%.`,
+                es: `Tasas de adjudicación directa y un solo adjudicado promediadas del motor ARIA por cúmulo; referencia del Tablero UE para adjudicación directa ${Math.round(EU_DIRECT_AWARD_LIMIT * 100)}%.`,
+                en: `Direct-award and single-award rates are ARIA engine averages per cluster; EU scoreboard direct-award reference ${Math.round(EU_DIRECT_AWARD_LIMIT * 100)}%.`,
               },
               {
                 es: (

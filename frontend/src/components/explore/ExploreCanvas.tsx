@@ -2767,7 +2767,7 @@ function Z2Panel({
         case 'risk': return (b.avg_risk_score ?? 0) - (a.avg_risk_score ?? 0) || bySpend(a, b)
         case 'hr':   return (b.high_risk_pct ?? -1) - (a.high_risk_pct ?? -1) || bySpend(a, b)
         case 'da':   return (b.direct_award_pct ?? -1) - (a.direct_award_pct ?? -1) || bySpend(a, b)
-        case 'sb':   return (b.single_bid_pct ?? -1) - (a.single_bid_pct ?? -1) || bySpend(a, b)
+        case 'sb':   return (b.single_award_pct ?? -1) - (a.single_award_pct ?? -1) || bySpend(a, b)
         default:     return bySpend(a, b)
       }
     })
@@ -3228,11 +3228,12 @@ function Z2Row({
   const flagsKnown = v.high_risk_pct != null
   const hrPct = v.high_risk_pct ?? 0
   const daPct = v.direct_award_pct ?? 0
-  const sbPct = v.single_bid_pct ?? 0
+  // Single award of competitive procedures (D20); not colour-flagged.
+  const sbPct = v.single_award_pct ?? 0
   const hrBarPct = Math.min(100, Math.max(0, hrPct))
   const hrBarColor = hrPct >= 50 ? RISK_COLORS.critical : hrPct >= 25 ? RISK_COLORS.high : hrPct >= 10 ? RISK_COLORS.medium : 'var(--color-text-muted)'
   const daColor = daPct >= 80 ? RISK_COLORS.critical : daPct >= 50 ? RISK_COLORS.high : daPct >= 25 ? RISK_COLORS.medium : 'var(--color-text-muted)'
-  const sbColor = sbPct >= 50 ? RISK_COLORS.critical : sbPct >= 25 ? RISK_COLORS.high : sbPct >= 10 ? RISK_COLORS.medium : 'var(--color-text-muted)'
+  const sbColor = 'var(--color-text-muted)'
   // Pending-value glyph: scheduled-refresh promise, not session shimmer.
   const pendingGlyph = (
     <span
@@ -3978,7 +3979,9 @@ function Z3Panel({
   const directAwardN = contracts.filter((c) => c.is_direct_award).length
   const singleBidN = contracts.filter((c) => c.is_single_bid).length
   const daPct = contracts.length > 0 ? (directAwardN / contracts.length) * 100 : 0
-  const singleBidPct = contracts.length > 0 ? (singleBidN / contracts.length) * 100 : 0
+  // Single award of COMPETITIVE procedures (D20), matching the peer endpoint's single_bid_competitive_pct.
+  const competitiveN = contracts.length - directAwardN
+  const singleBidPct = competitiveN > 0 ? (singleBidN / competitiveN) * 100 : 0
   const avgRisk = contracts.length > 0 ? contracts.reduce((s, c) => s + (Number(c.risk_score) || 0), 0) / contracts.length : 0
   const vendorPricePer = contracts.length > 0 ? totalContractSpend / contracts.length : 0
   const sampleCount = contracts.length
@@ -4005,7 +4008,7 @@ function Z3Panel({
   const peerOf = (k: string) => (peerData?.metrics ?? []).find((m) => m.metric === k)
   const clampPct = (v: number | null | undefined) => (v == null ? null : Math.max(0, Math.min(100, v)))
   const ratioOf = (v: number, m: number | null) => (m && m > 0 ? v / m : null)
-  const daV = peerOf('direct_award_pct'); const sbV = peerOf('single_bid_pct')
+  const daV = peerOf('direct_award_pct'); const sbV = peerOf('single_bid_competitive_pct')
   const rkV = peerOf('avg_risk_score'); const ppV = peerOf('price_per_contract')
   const popContracts = peerOf('total_contracts')?.value ?? null
   const popValue = peerOf('total_value_mxn')?.value ?? null

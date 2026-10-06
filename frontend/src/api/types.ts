@@ -591,6 +591,8 @@ export interface InstitutionResponse {
   high_risk_pct?: number
   direct_award_pct?: number
   single_bid_pct?: number
+  /** Single-award share of competitive procedures (D20) — the displayed rate. */
+  single_award_pct?: number | null
   vendor_count?: number
   classification_confidence?: number
   data_quality_grade?: string
@@ -678,6 +680,8 @@ export interface InstitutionOfficial {
   first_contract_year: number | null
   last_contract_year: number | null
   single_bid_pct: number
+  /** Single-award share of competitive procedures (D20) — the displayed rate. */
+  single_award_pct?: number | null
   direct_award_pct: number
   avg_risk_score: number
   vendor_diversity: number
@@ -766,6 +770,8 @@ export interface VendorPoolItem {
   direct_award_pct: number | null
   single_bid_count: number | null
   single_bid_pct: number | null
+  /** Single-award share of competitive procedures (D20) — the displayed rate. */
+  single_award_pct?: number | null
   ips_tier?: number | null
   primary_pattern?: string | null
   in_ground_truth: number
@@ -3012,6 +3018,9 @@ export interface GapSummaryResponse {
   by_risk_level: { critical: number; high: number; medium: number; low: number }
   /** Procedures per buyer level (federal / state / municipal / autonomous / unknown). */
   by_buyer_level?: Record<string, number>
+  /** Direct awards among federal buyers only (null when buyer_level is absent). */
+  federal_direct_award_count?: number | null
+  federal_direct_award_pct?: number | null
   worst_institutions: GapWorstInstitution[]
   grade_methodology: string
   data_window: string

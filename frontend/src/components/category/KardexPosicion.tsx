@@ -229,6 +229,8 @@ export function KardexPosicion({ category, all, accent, lang }: KardexPosicionPr
   const rows = useMemo<RowConfig[]>(() => {
     const qualified = all.filter((c) => c.total_contracts >= CONTRACT_FLOOR)
     const hrPool = all.filter((c) => c.high_risk_pct != null)
+    // Single award on the competitive base (D20); categories with no competitive procedure drop out.
+    const saPool = all.filter((c) => c.single_award_pct != null)
     return [
       {
         key: 'value',
@@ -258,9 +260,9 @@ export function KardexPosicion({ category, all, accent, lang }: KardexPosicionPr
       },
       {
         key: 'sb',
-        label: isEs ? 'Un solo adjudicado' : 'Single award',
-        pool: all,
-        getValue: (c) => c.single_bid_pct,
+        label: isEs ? 'Un solo adjudicado · competitivos' : 'Single award · competitive',
+        pool: saPool,
+        getValue: (c) => c.single_award_pct ?? 0,
         formatReadout: (v) => `${v.toFixed(0)}%`,
         formatTick: (v) => `${v.toFixed(0)}%`,
       },

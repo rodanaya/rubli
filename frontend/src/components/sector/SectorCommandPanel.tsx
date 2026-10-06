@@ -37,7 +37,6 @@ import {
   RISK_COLORS,
   RISK_TEXT_COLORS,
   EU_DIRECT_AWARD_LIMIT,
-  EU_SINGLE_BID_LIMIT,
   MODEL_HR_BASELINE,
   PARTIAL_YEAR_NOTE,
   getRiskLevelFromScore,
@@ -187,9 +186,7 @@ export function SectorStatStrip({
   const avgRisk = stats.avg_risk_score != null ? Math.round(stats.avg_risk_score * 100) : null
 
   const daLimit = EU_DIRECT_AWARD_LIMIT * 100
-  const sbLimit = EU_SINGLE_BID_LIMIT * 100
   const daColor = da == null ? undefined : da > daLimit ? RISK_TEXT_COLORS.critical : da > daLimit / 2 ? RISK_TEXT_COLORS.high : undefined
-  const sbColor = sb == null ? undefined : sb > sbLimit ? RISK_TEXT_COLORS.critical : sb > sbLimit / 2 ? RISK_TEXT_COLORS.high : undefined
   const hrColor = hr == null ? undefined : hr >= 20 ? RISK_TEXT_COLORS.critical : hr >= 12 ? RISK_TEXT_COLORS.high : undefined
   const riskLvl = stats.avg_risk_score != null ? getRiskLevelFromScore(stats.avg_risk_score) : 'low'
   const avgRiskColor = avgRisk == null ? undefined : riskLvl === 'critical' ? RISK_TEXT_COLORS.critical : riskLvl === 'high' ? RISK_TEXT_COLORS.high : undefined
@@ -232,8 +229,7 @@ export function SectorStatStrip({
     sb == null || sb === 0 ? null : {
       label: isEs ? 'Un solo adjudicado' : 'Single award',
       value: `${Math.round(sb)}%`,
-      sub: sb > sbLimit ? `${(sb / sbLimit).toFixed(1)}× ${isEs ? 'UE' : 'EU'}` : (isEs ? `≤${sbLimit}% UE` : `≤${sbLimit}% EU`),
-      color: sbColor,
+      sub: isEs ? 'de los competitivos' : 'of competitive',
     },
     avgRisk == null ? null : {
       label: isEs ? 'Riesgo prom.' : 'Avg risk',
@@ -283,11 +279,10 @@ export function SectorDiagnosticGrid({
   const distTotal = dist.critical + dist.high + dist.medium + dist.low
 
   // OECD deviation
-  const hr = clampPct(stats.high_risk_pct), da = clampPct(stats.direct_award_pct), sb = clampPct(singleAwardOfCompetitive(stats.single_bid_pct, stats.direct_award_pct))
-  const daLim = EU_DIRECT_AWARD_LIMIT * 100, sbLim = EU_SINGLE_BID_LIMIT * 100, hrLim = MODEL_HR_BASELINE * 100
+  const hr = clampPct(stats.high_risk_pct), da = clampPct(stats.direct_award_pct)
+  const daLim = EU_DIRECT_AWARD_LIMIT * 100, hrLim = MODEL_HR_BASELINE * 100
   const benchRows: BenchRow[] = []
   if (da != null) benchRows.push({ label: isEs ? 'Adjudicación directa' : 'Direct award', pct: da, limit: daLim, over: da > daLim })
-  if (sb != null && sb > 0) benchRows.push({ label: isEs ? 'Un solo adjudicado' : 'Single award', pct: sb, limit: sbLim, over: sb > sbLim })
   if (hr != null) benchRows.push({ label: isEs ? 'Alto riesgo' : 'High-risk', pct: hr, limit: hrLim, over: hr > hrLim, note: isEs ? `media del modelo ${hrLim}%` : `model mean ${hrLim}%` })
 
   const totalSpend = stats.total_value_mxn || 0

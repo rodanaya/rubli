@@ -144,8 +144,8 @@ const ALL_INVESTIGATIONS: Investigation[] = [
     era: 'cross',
     contracts: 361599,
     yearSpan: '2011–2024',
-    brief: 'For 14 straight years, over 45% of Mexico\'s "competitive" procurement ended with exactly one winner — 362,000 contracts, peaking at 65.65% in 2014. The EU scoreboard rates anything above 20% unsatisfactory.',
-    brief_es: 'Durante 14 años seguidos, más del 45% de la contratación "competitiva" de México terminó con exactamente un ganador — 362,000 contratos, con un pico de 65.65% en 2014. El Tablero UE considera insatisfactorio todo lo que supere el 20%.',
+    brief: 'For 14 straight years, over 45% of Mexico\'s "competitive" procurement ended with exactly one winner — 362,000 contracts, peaking at 65.65% in 2014. CompraNet records winners, not bidders, so the count says how many firms won, not how many competed.',
+    brief_es: 'Durante 14 años seguidos, más del 45% de la contratación "competitiva" de México terminó con exactamente un ganador — 362,000 contratos, con un pico de 65.65% en 2014. CompraNet registra ganadores, no licitantes: la cifra dice cuántas empresas ganaron, no cuántas compitieron.',
   },
   {
     slug: 'marea-de-adjudicaciones',

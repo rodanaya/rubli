@@ -212,7 +212,7 @@
   },
   "grade": {
     "title": "CALIFICACIÓN DE COMPRAS",
-    "procurement": "Tasas de adjudicación directa y un solo adjudicado frente a las líneas del Tablero UE; tasa de alto riesgo frente a la meta de calibración de RUBLI."
+    "procurement": "Tasa de adjudicación directa frente a la línea del Tablero UE; tasa de un solo adjudicado sobre procedimientos competitivos, sin línea externa (CompraNet registra ganadores, no licitantes); tasa de alto riesgo frente a la meta de calibración de RUBLI."
   },
   "radar": {
     "title": "Todas las Administraciones: Huella de Compras",

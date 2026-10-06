@@ -21,6 +21,8 @@ export interface CategorySummaryItem {
   high_risk_pct: number | null
   direct_award_pct: number
   single_bid_pct: number
+  /** Single-award share of competitive procedures (D20) — the displayed rate. */
+  single_award_pct?: number | null
   top_vendor: CategoryTopVendor | null
 }
 

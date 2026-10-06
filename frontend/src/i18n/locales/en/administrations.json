@@ -212,7 +212,7 @@
   },
   "grade": {
     "title": "PROCUREMENT GRADE",
-    "procurement": "Direct-award and single-bidder rates against the EU Single Market Scoreboard lines; high-risk rate against RUBLI's calibration target."
+    "procurement": "Direct-award rate against the EU Single Market Scoreboard line; single-award rate of competitive procedures, with no external line (CompraNet records winners, not bidders); high-risk rate against RUBLI's calibration target."
   },
   "radar": {
     "title": "All Administrations: Procurement Fingerprint",

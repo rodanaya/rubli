@@ -19,7 +19,6 @@ import {
   RISK_COLORS,
   RISK_TEXT_COLORS,
   EU_DIRECT_AWARD_LIMIT,
-  EU_SINGLE_BID_LIMIT,
   MODEL_HR_BASELINE,
   getRiskLevelFromScore,
   getHighRiskShareLevel,
@@ -50,6 +49,8 @@ export interface CategoryLike {
   avg_risk: number
   direct_award_pct?: number
   single_bid_pct?: number
+  /** Single-award share of competitive procedures (D20) — the displayed rate. */
+  single_award_pct?: number | null
   high_risk_pct?: number
   vendor_count?: number
   institution_count?: number
@@ -95,7 +96,7 @@ export function CategoryStatStrip({
   const isEs = lang === 'es'
   const hr = clampPct(category.high_risk_pct)
   const da = clampPct(category.direct_award_pct)
-  const sb = clampPct(category.single_bid_pct)
+  const sb = clampPct(category.single_award_pct)
   const avgRisk = category.avg_risk != null ? Math.round(category.avg_risk * 100) : null
 
   const years = trends.map((t) => t.year).filter((y) => Number.isFinite(y))
@@ -104,9 +105,7 @@ export function CategoryStatStrip({
   const span = minY != null && maxY != null ? maxY - minY + 1 : null
 
   const daLimit = EU_DIRECT_AWARD_LIMIT * 100
-  const sbLimit = EU_SINGLE_BID_LIMIT * 100
   const daColor = da == null ? undefined : da > daLimit ? RISK_TEXT_COLORS.critical : da > daLimit / 2 ? RISK_TEXT_COLORS.high : undefined
-  const sbColor = sb == null ? undefined : sb > sbLimit ? RISK_TEXT_COLORS.critical : sb > sbLimit / 2 ? RISK_TEXT_COLORS.high : undefined
   const hrLvl = hr == null ? null : getHighRiskShareLevel(hr)
   const hrColor = hrLvl === 'critical' || hrLvl === 'high' ? RISK_TEXT_COLORS[hrLvl] : undefined
   const riskLvl = category.avg_risk != null ? getRiskLevelFromScore(category.avg_risk) : 'low'
@@ -136,8 +135,7 @@ export function CategoryStatStrip({
     sb == null || sb === 0 ? null : {
       label: isEs ? 'Un solo adjudicado' : 'Single award',
       value: `${Math.round(sb)}%`,
-      sub: sb > sbLimit ? `${(sb / sbLimit).toFixed(1)}× ${isEs ? 'UE' : 'EU'}` : (isEs ? `≤${sbLimit}% UE` : `≤${sbLimit}% EU`),
-      color: sbColor,
+      sub: isEs ? 'de los competitivos' : 'of competitive',
     },
     avgRisk == null ? null : {
       label: isEs ? 'Riesgo prom.' : 'Avg risk',
@@ -185,11 +183,10 @@ export function CategoryDiagnosticGrid({
   const hhiColor = hhi >= 2500 ? RISK_COLORS.critical : hhi >= 1500 ? RISK_COLORS.high : RISK_COLORS.medium
 
   // EU scoreboard deviation
-  const da = clampPct(category.direct_award_pct), sb = clampPct(category.single_bid_pct), hr = clampPct(category.high_risk_pct)
-  const daLim = EU_DIRECT_AWARD_LIMIT * 100, sbLim = EU_SINGLE_BID_LIMIT * 100, hrLim = MODEL_HR_BASELINE * 100
+  const da = clampPct(category.direct_award_pct), hr = clampPct(category.high_risk_pct)
+  const daLim = EU_DIRECT_AWARD_LIMIT * 100, hrLim = MODEL_HR_BASELINE * 100
   const benchRows: BenchRow[] = []
   if (da != null) benchRows.push({ label: isEs ? 'Adjudicación directa' : 'Direct award', pct: da, limit: daLim, over: da > daLim })
-  if (sb != null && sb > 0) benchRows.push({ label: isEs ? 'Un solo adjudicado' : 'Single award', pct: sb, limit: sbLim, over: sb > sbLim })
   if (hr != null) benchRows.push({ label: isEs ? 'Alto riesgo' : 'High-risk', pct: hr, limit: hrLim, over: hr > hrLim, note: isEs ? `media del modelo ${hrLim}%` : `model mean ${hrLim}%` })
 
   const topVendors = vendors.slice(0, 4)

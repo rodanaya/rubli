@@ -43,7 +43,6 @@ export function SectorDossierCard({
   const sledgeColor = intensityTextColor(row.avgRiskScore)
   const critFrac = row.varMxn > 0 ? Math.max(0, Math.min(1, row.criticalMxn / row.varMxn)) : 0
   const critPct = row.contracts > 0 ? (row.criticalCount / row.contracts) * 100 : 0
-  const sbHot = row.sbPct > 25
   const hasTraj = Boolean(row.trajectory && row.trajectory.length > 1)
   const dir = trajectoryDirection(row.trajectory)
 
@@ -192,8 +191,8 @@ export function SectorDossierCard({
           <span aria-hidden="true" style={{ width: 6, height: 6, borderRadius: 1, background: RISK_COLORS.critical, flexShrink: 0 }} />
           {isEs ? 'crítico · por contratos' : 'critical · by contracts'} {critPct.toFixed(1)}%
         </span>
-        <span className="whitespace-nowrap" style={{ color: sbHot ? RISK_TEXT_COLORS.critical : undefined }}>
-          {isEs ? 'un solo adjudicado' : 'single award'} {row.sbPct.toFixed(1)}%
+        <span className="whitespace-nowrap">
+          {isEs ? 'un solo adjudicado' : 'single award'} {row.sbPct.toFixed(1)}% {isEs ? 'de competitivos' : 'of competitive'}
         </span>
         <span className="whitespace-nowrap">
           {compactCount(row.contracts)} {isEs ? 'cont.' : 'contracts'} · {compactCount(row.vendors)} {isEs ? 'prov.' : 'vendors'}

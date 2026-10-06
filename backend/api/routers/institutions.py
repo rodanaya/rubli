@@ -42,6 +42,7 @@ from ..services.institution_service import institution_service
 from ..services.institution_canonical import canonical_id, canonical_expr, group_ids
 from ..models.asf import ASFInstitutionResponse, ASFInstitutionFinding
 from ..public_labels import DOCUMENTED_LINK_SQL, apply_public_labels
+from ..helpers.analysis_helpers import single_award_of_competitive
 
 logger = logging.getLogger(__name__)
 
@@ -348,6 +349,7 @@ def get_institution(institution_id: int):
             direct_award_rate=round(direct_award_rate, 2),
             direct_award_count=direct_award_count,
             single_bid_pct=round(single_bid_pct, 2) if single_bid_pct is not None else None,
+            single_award_pct=single_award_of_competitive(single_bid_pct, direct_award_rate) if single_bid_pct is not None else None,
             longest_tenured_vendors=longest_tenured,
             supplier_diversity=supplier_diversity,
         )
@@ -1394,6 +1396,7 @@ def _z2_compute_full(institution_id: int) -> Optional[VendorPoolResponse]:
             direct_award_pct=round(da_pct, 1),
             single_bid_count=sb_count,
             single_bid_pct=round(sb_pct, 1),
+            single_award_pct=round(min(100.0, sb_count / (ccount - da_count) * 100.0), 1) if ccount > da_count else None,
             ips_tier=int(a["ips_tier"]) if a and a["ips_tier"] is not None else None,
             primary_pattern=a["primary_pattern"] if a else None,
             in_ground_truth=int(a["in_ground_truth"]) if a and a["in_ground_truth"] is not None else 0,
@@ -1562,6 +1565,8 @@ def _z2_compute_degraded(institution_id: int) -> Optional[VendorPoolResponse]:
             direct_award_pct=_pct(da_count),
             single_bid_count=int(sb_count) if sb_count is not None else None,
             single_bid_pct=_pct(sb_count),
+            single_award_pct=(round(min(100.0, int(sb_count) / (ccount - int(da_count)) * 100.0), 1)
+                              if sb_count is not None and da_count is not None and ccount > int(da_count) else None),
             ips_tier=int(a["ips_tier"]) if a and a["ips_tier"] is not None else None,
             primary_pattern=a["primary_pattern"] if a else None,
             in_ground_truth=int(a["in_ground_truth"]) if a and a["in_ground_truth"] is not None else 0,
@@ -2094,6 +2099,7 @@ def get_cri_scatter(
                 "avg_risk": float(r["avg_risk"] or 0),
                 "direct_award_pct": float(r["direct_award_pct"] or 0),
                 "single_bid_pct": float(r["single_bid_pct"] or 0),
+                "single_award_pct": single_award_of_competitive(float(r["single_bid_pct"] or 0), float(r["direct_award_pct"] or 0)),
                 "high_risk_pct": float(r["high_risk_pct"] or 0),
             }
             for r in rows
@@ -2312,8 +2318,9 @@ def get_institution_officials(
                 parts.append(f"contracted with only {r['vendor_diversity']} unique vendor(s)")
             if r["hhi_vendors"] and r["hhi_vendors"] > 2500:
                 parts.append(f"highly concentrated vendors (HHI {r['hhi_vendors']:.0f})")
-            if r["single_bid_pct"] > 50:
-                parts.append(f"{r['single_bid_pct']:.0f}% single-bid procedures")
+            sa = single_award_of_competitive(r["single_bid_pct"] or 0, r["direct_award_pct"] or 0)
+            if sa is not None and sa > 50:
+                parts.append(f"{sa:.0f}% single-award competitive procedures")
             if r["direct_award_pct"] > 80:
                 parts.append(f"{r['direct_award_pct']:.0f}% direct awards")
             return ("This official " + ", ".join(parts) + ".") if parts else ""
@@ -2332,6 +2339,7 @@ def get_institution_officials(
                     "first_contract_year": r["first_contract_year"],
                     "last_contract_year": r["last_contract_year"],
                     "single_bid_pct": round(r["single_bid_pct"] or 0, 1),
+                    "single_award_pct": single_award_of_competitive(r["single_bid_pct"] or 0, r["direct_award_pct"] or 0),
                     "direct_award_pct": round(r["direct_award_pct"] or 0, 1),
                     "avg_risk_score": round(r["avg_risk_score"] or 0, 4),
                     "vendor_diversity": r["vendor_diversity"],

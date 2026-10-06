@@ -20,7 +20,6 @@ import {
   RISK_TEXT_COLORS,
   SECTOR_COLORS,
   EU_DIRECT_AWARD_LIMIT,
-  EU_SINGLE_BID_LIMIT,
   MODEL_HR_BASELINE,
 } from '@/lib/constants'
 import { formatCompactMXN, formatCompactUSD, formatNumber } from '@/lib/utils'
@@ -61,16 +60,16 @@ export function VendorStatStrip({
   const isEs = lang === 'es'
   const hr = ratePct(vendor.high_risk_pct)
   const da = ratePct(vendor.direct_award_pct)
-  const sb = ratePct(vendor.single_bid_pct)
+  // Single award of COMPETITIVE procedures (D20); null with no competitive procedure.
+  const comp = (vendor.total_contracts ?? 0) - (vendor.direct_award_count ?? 0)
+  const sb = comp > 0 ? Math.min(100, ((vendor.single_bid_count ?? 0) / comp) * 100) : null
   const span =
     vendor.first_contract_year && vendor.last_contract_year
       ? vendor.last_contract_year - vendor.first_contract_year + 1
       : null
 
   const daLimit = EU_DIRECT_AWARD_LIMIT * 100 // 30
-  const sbLimit = EU_SINGLE_BID_LIMIT * 100   // 10
   const daColor = da == null ? undefined : da > daLimit ? RISK_TEXT_COLORS.critical : da > daLimit / 2 ? RISK_TEXT_COLORS.high : undefined
-  const sbColor = sb == null ? undefined : sb > sbLimit ? RISK_TEXT_COLORS.critical : sb > sbLimit / 2 ? RISK_TEXT_COLORS.high : undefined
   const hrColor = hr == null ? undefined : hr >= 60 ? RISK_TEXT_COLORS.critical : hr >= 30 ? RISK_TEXT_COLORS.high : undefined
 
   const cells: Array<StatCell | null> = [
@@ -98,8 +97,7 @@ export function VendorStatStrip({
     sb == null ? null : {
       label: isEs ? 'Un solo adjudicado' : 'Single award',
       value: `${Math.round(sb)}%`,
-      sub: sb > sbLimit ? `${(sb / sbLimit).toFixed(1)}× ${isEs ? 'UE' : 'EU'}` : (isEs ? `≤${sbLimit}% UE` : `≤${sbLimit}% EU`),
-      color: sbColor,
+      sub: isEs ? 'de los competitivos' : 'of competitive',
     },
     {
       label: isEs ? 'Instituciones' : 'Institutions',
@@ -143,11 +141,9 @@ export function VendorDiagnosticGrid({
   // OECD benchmark deltas
   const hr = ratePct(vendor.high_risk_pct)
   const da = ratePct(vendor.direct_award_pct)
-  const sb = ratePct(vendor.single_bid_pct)
   const benchRows: BenchRow[] = []
-  const daLim = EU_DIRECT_AWARD_LIMIT * 100, sbLim = EU_SINGLE_BID_LIMIT * 100, hrLim = MODEL_HR_BASELINE * 100
+  const daLim = EU_DIRECT_AWARD_LIMIT * 100, hrLim = MODEL_HR_BASELINE * 100
   if (da != null) benchRows.push({ label: isEs ? 'Adjudicación directa' : 'Direct award', pct: da, limit: daLim, over: da > daLim })
-  if (sb != null) benchRows.push({ label: isEs ? 'Un solo adjudicado' : 'Single award', pct: sb, limit: sbLim, over: sb > sbLim })
   if (hr != null) benchRows.push({ label: isEs ? 'Alto riesgo' : 'High-risk', pct: hr, limit: hrLim, over: hr > hrLim, note: isEs ? `media del modelo ${hrLim}%` : `model mean ${hrLim}%` })
 
   const trend = useMemo(

@@ -24,6 +24,7 @@ import {
   RISK_COLORS,
   RISK_THRESHOLDS,
   getRiskLevelFromScore,
+  singleAwardOfCompetitive,
 } from '@/lib/constants'
 import { formatCompactMXN } from '@/lib/utils'
 import { PlateFrame } from '@/components/atlas/PlateFrame'
@@ -271,8 +272,8 @@ export function ArqueoMesaCategorias({ categories, lang }: ArqueoMesaCategoriasP
 
   const readoutText = hoveredCol
     ? lang === 'es'
-      ? `${hoveredCol.name_es} · ${formatCompactMXN(hoveredCol.total_value)} · riesgo ${(hoveredCol.avg_risk * 100).toFixed(1)}% · AD ${hoveredCol.direct_award_pct.toFixed(0)}% · un solo adj. ${hoveredCol.single_bid_pct.toFixed(0)}%`
-      : `${hoveredCol.name_en} · ${formatCompactMXN(hoveredCol.total_value)} · risk ${(hoveredCol.avg_risk * 100).toFixed(1)}% · DA ${hoveredCol.direct_award_pct.toFixed(0)}% · single award ${hoveredCol.single_bid_pct.toFixed(0)}%`
+      ? `${hoveredCol.name_es} · ${formatCompactMXN(hoveredCol.total_value)} · riesgo ${(hoveredCol.avg_risk * 100).toFixed(1)}% · AD ${hoveredCol.direct_award_pct.toFixed(0)}% · un solo adj. ${singleAwardOfCompetitive(hoveredCol.single_bid_pct, hoveredCol.direct_award_pct).toFixed(0)}% de competitivos`
+      : `${hoveredCol.name_en} · ${formatCompactMXN(hoveredCol.total_value)} · risk ${(hoveredCol.avg_risk * 100).toFixed(1)}% · DA ${hoveredCol.direct_award_pct.toFixed(0)}% · single award ${singleAwardOfCompetitive(hoveredCol.single_bid_pct, hoveredCol.direct_award_pct).toFixed(0)}% of competitive`
     : lang === 'es'
       ? 'pase el cursor por una columna · clic → dossier de la categoría'
       : 'hover a column · click → category dossier'

@@ -224,9 +224,10 @@ export const RISK_TEXT_COLORS = {
 // per section (the 25%/30% same-metric contradiction on /vendors/:id came from
 // doing exactly that). See docs/DESIGN_SYSTEM.md anti-pattern A7.
 //
-// Both lines come from the European Commission's Single Market Scoreboard,
-// which publishes them with numbers: a direct-award share at or above 10% and a
-// single-award share above 20% are each rated unsatisfactory. The "OECD 25-30%
+// The direct-award line comes from the European Commission's Single Market
+// Scoreboard: a direct-award share at or above 10% is rated unsatisfactory. Its
+// single-BIDDER line (20%) is NOT drawn: CompraNet records winners, not bidders,
+// so RUBLI's single-award rate is a different metric (D20, chair-plan C7). The "OECD 25-30%
 // ceiling" these constants used to carry could not be traced to any published
 // OECD instrument (QC pass, Sep 2026) — the OECD's 2023 framework lists
 // indicators without stating thresholds.
@@ -236,7 +237,6 @@ export const RISK_TEXT_COLORS = {
 export const HHI_CONCENTRATED = 2500
 
 export const EU_DIRECT_AWARD_LIMIT = 0.10
-export const EU_SINGLE_BID_LIMIT = 0.20
 
 /**
  * Single-award share of COMPETITIVE procedures, from two all-contract shares

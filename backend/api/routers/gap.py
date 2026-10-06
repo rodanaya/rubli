@@ -63,6 +63,10 @@ def gap_summary(db: sqlite3.Connection = Depends(get_db_dep)) -> Dict[str, Any]:
     by_level = ({(x["buyer_level"] or "unknown"): x["n"]
                  for x in db.execute("SELECT buyer_level, COUNT(*) n FROM gap_contracts GROUP BY 1")}
                 if has_level else {})
+    fed_da = (db.execute("""SELECT SUM(CASE WHEN CAST(is_direct_award AS INT)=1 THEN 1 ELSE 0 END)
+                FROM gap_contracts WHERE buyer_level='federal'""").fetchone()[0] or 0
+              if has_level else None)
+    fed_n = by_level.get("federal") or 0
     worst = [{"siglas": x["institution_siglas"], "avg_score": round(x["a"], 1), "count": x["n"]}
              for x in db.execute("""SELECT institution_siglas, AVG(gap_risk_score) a, COUNT(*) n
                FROM gap_contracts WHERE institution_siglas IS NOT NULL AND gap_risk_score IS NOT NULL
@@ -80,6 +84,9 @@ def gap_summary(db: sqlite3.Connection = Depends(get_db_dep)) -> Dict[str, Any]:
         "by_exception_article": by_exc,
         "by_sector": by_sector,
         "by_buyer_level": by_level,
+        # Federal-only direct award, matching the federal headline (None on old tables).
+        "federal_direct_award_count": fed_da,
+        "federal_direct_award_pct": round(100.0 * fed_da / fed_n, 1) if fed_da is not None and fed_n else None,
         "by_risk_level": {k: by_risk.get(k, 0) for k in ("critical", "high", "medium", "low")},
         "worst_institutions": worst,
         "grade_methodology": (

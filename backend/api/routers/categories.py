@@ -14,6 +14,7 @@ from fastapi import APIRouter, Query, HTTPException
 from ..dependencies import get_db
 from ..public_labels import NOT_SUPPRESSED_SQL, PATTERN_LABELS, suppressed_ids_json
 from ..administrations import ADMINISTRATIONS
+from ..helpers.analysis_helpers import single_award_of_competitive
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +110,7 @@ def get_categories_summary():
                 "high_risk_pct": round(r["high_risk_pct"], 1) if r["high_risk_pct"] is not None else None,
                 "direct_award_pct": r["direct_award_pct"] or 0,
                 "single_bid_pct": r["single_bid_pct"] or 0,
+                "single_award_pct": single_award_of_competitive(r["single_bid_pct"] or 0, r["direct_award_pct"] or 0),
                 "top_vendor": {
                     "id": r["top_vendor_id"],
                     "name": r["top_vendor_name"],
@@ -288,6 +290,7 @@ def get_category_vendor_institution(
                             "max_risk": round(r["max_risk"] or 0, 4),
                             "direct_award_pct": round(r["direct_award_pct"] or 0, 1),
                             "single_bid_pct": round(r["single_bid_pct"] or 0, 1),
+                "single_award_pct": single_award_of_competitive(r["single_bid_pct"] or 0, r["direct_award_pct"] or 0),
                         }
                         for r in prows
                     ],
@@ -341,6 +344,7 @@ def get_category_vendor_institution(
                 "max_risk": round(r["max_risk"] or 0, 4),
                 "direct_award_pct": round(r["direct_award_pct"] or 0, 1),
                 "single_bid_pct": round(r["single_bid_pct"] or 0, 1),
+                "single_award_pct": single_award_of_competitive(r["single_bid_pct"] or 0, r["direct_award_pct"] or 0),
             }
             for r in rows
         ],
@@ -411,6 +415,7 @@ def get_category_subcategories(category_id: int):
                 "avg_risk": round(r["avg_risk"] or 0, 4),
                 "direct_award_pct": round(r["direct_award_pct"] or 0, 1),
                 "single_bid_pct": round(r["single_bid_pct"] or 0, 1),
+                "single_award_pct": single_award_of_competitive(r["single_bid_pct"] or 0, r["direct_award_pct"] or 0),
                 "year_min": r["year_min"],
                 "year_max": r["year_max"],
                 "top_vendor_name": r["top_vendor_name"],
@@ -716,7 +721,7 @@ def get_category_competition(category_id: int):
         cur = conn.cursor()
         pre = _read_precomputed_signal(cur, f"category_competition:{category_id}")
         if pre is not None:
-            return pre
+            return _with_single_award(pre)
         cur.execute("SELECT id, name_es FROM categories WHERE id = ?", (category_id,))
         cat = cur.fetchone()
         if not cat:
@@ -793,7 +798,7 @@ def get_category_competition(category_id: int):
                 sector_da_avg = round(bm["da_avg"], 1)
                 sector_sb_avg = round(bm["sb_avg"] or 0, 1)
 
-    return {
+    return _with_single_award({
         "category_id": category_id,
         "category_name": cat["name_es"],
         "sector_id": sector_id,
@@ -802,7 +807,17 @@ def get_category_competition(category_id: int):
         "yearly_trend": yearly_trend,
         "sector_da_avg": sector_da_avg,
         "sector_sb_avg": sector_sb_avg,
-    }
+    })
+
+
+def _with_single_award(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Add competitive-denominator single-award fields (sa_pct per year,
+    sector_sa_avg) beside the all-contract sb_pct ones; applied to the
+    precomputed payload too so both paths carry them."""
+    for y in payload.get("yearly_trend") or []:
+        y["sa_pct"] = single_award_of_competitive(y.get("sb_pct"), y.get("da_pct"))
+    payload["sector_sa_avg"] = single_award_of_competitive(payload.get("sector_sb_avg"), payload.get("sector_da_avg"))
+    return payload
 
 
 @router.get("/{category_id}/price-distribution")
@@ -1026,6 +1041,7 @@ def get_category_top_vendors(
             "avg_risk": round(r["avg_risk"] or 0.0, 4),
             "direct_award_pct": round(r["direct_award_pct"] or 0.0, 1),
             "single_bid_pct": round(r["single_bid_pct"] or 0.0, 1),
+            "single_award_pct": single_award_of_competitive(r["single_bid_pct"] or 0.0, r["direct_award_pct"] or 0.0),
         })
 
     if hhi >= 0.25:
@@ -1114,6 +1130,7 @@ def get_category_top_vendors_fast(
                 "max_risk": (r["max_risk"] if has_risk else None),
                 "direct_award_pct": (r["direct_award_pct"] if has_risk else None),
                 "single_bid_pct": (r["single_bid_pct"] if has_risk else None),
+                "single_award_pct": (single_award_of_competitive(r["single_bid_pct"], r["direct_award_pct"]) if has_risk else None),
             }
             for r in rows
         ]

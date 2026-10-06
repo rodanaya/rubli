@@ -401,7 +401,6 @@ interface VendorBenchmarkBarsProps {
 
 function VendorBenchmarkBars({
   directAwardPct,
-  singleBidPct,
   highRiskPct,
   yearEndPct,
   yearEndSectorAvg,
@@ -418,16 +417,6 @@ function VendorBenchmarkBars({
       label: isEs ? 'Adjudicación directa' : 'Direct award rate',
       value: directAwardPct,
       benchmark: 0.30,
-      benchmarkLabel: isEs ? 'línea UE' : 'EU line',
-      maxDelta: MAX_DELTA,
-    })
-  }
-  if (singleBidPct != null) {
-    rows.push({
-      key: 'sb',
-      label: isEs ? 'Licitación sin competencia' : 'Single-award rate',
-      value: singleBidPct,
-      benchmark: 0.10,
       benchmarkLabel: isEs ? 'línea UE' : 'EU line',
       maxDelta: MAX_DELTA,
     })
@@ -472,8 +461,8 @@ function VendorBenchmarkBars({
       </div>
       <p className="text-[13px] font-mono text-text-muted mt-2 opacity-60">
         {isEs
-          ? 'Tablero UE: adjudicación directa ≤10%, un solo adjudicado ≤20%'
-          : 'EU scoreboard: direct award ≤10%, single award ≤20%'}
+          ? 'Tablero UE: adjudicación directa ≤10%. Un solo adjudicado no tiene línea externa: CompraNet registra ganadores, no licitantes.'
+          : 'EU scoreboard: direct award ≤10%. Single award has no external line: CompraNet records winners, not bidders.'}
       </p>
     </section>
   )

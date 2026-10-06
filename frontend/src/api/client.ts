@@ -999,6 +999,8 @@ export const institutionApi = {
       avg_risk: number
       direct_award_pct: number
       single_bid_pct: number
+      /** Single-award share of competitive procedures (D20) — the displayed rate. */
+      single_award_pct?: number | null
       high_risk_pct: number
     }>
     total: number
@@ -2497,6 +2499,8 @@ export const categoriesApi = {
         avg_risk: number
         direct_award_pct: number
         single_bid_pct: number
+        /** Single-award share of competitive procedures (D20) — the displayed rate. */
+        single_award_pct?: number | null
         year_min: number | null
         year_max: number | null
         top_vendor_name: string | null
@@ -2524,6 +2528,8 @@ export const categoriesApi = {
         max_risk: number
         direct_award_pct: number
         single_bid_pct: number
+        /** Single-award share of competitive procedures (D20) — the displayed rate. */
+        single_award_pct?: number | null
       }[]
     }
   },
@@ -2566,6 +2572,8 @@ export const categoriesApi = {
         avg_risk: number
         direct_award_pct: number
         single_bid_pct: number
+        /** Single-award share of competitive procedures (D20) — the displayed rate. */
+        single_award_pct?: number | null
       }[]
     }
   },

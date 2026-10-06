@@ -758,8 +758,21 @@ export default function Gap() {
           </div>
           <div className="border-l-2 pl-4" style={{ borderColor: RISK_COLORS.critical }}>
             <div className="text-[10.5px] font-mono uppercase tracking-[0.16em] text-text-muted mb-1">{lang === 'es' ? 'SIN CONCURSO' : 'NO CONTEST'}</div>
-            <div className="font-serif tabular-nums" style={{ color: RISK_COLORS.critical, fontWeight: 500, fontSize: 'clamp(28px,4vw,44px)', lineHeight: 1 }}>{summary.direct_award_pct.toFixed(1)}%</div>
-            <div className="mt-1.5 text-[12px] text-text-secondary leading-snug">{formatNumber(summary.direct_award_count)} {lang === 'es' ? 'adjudicaciones directas · sin licitación pública' : 'direct awards · no public tender'}</div>
+            {summary.federal_direct_award_pct != null && summary.federal_direct_award_count != null ? (
+              <>
+                <div className="font-serif tabular-nums" style={{ color: RISK_COLORS.critical, fontWeight: 500, fontSize: 'clamp(28px,4vw,44px)', lineHeight: 1 }}>{summary.federal_direct_award_pct.toFixed(1)}%</div>
+                <div className="mt-1.5 text-[12px] text-text-secondary leading-snug">
+                  {lang === 'es'
+                    ? `${formatNumber(summary.federal_direct_award_count)} adjudicaciones directas de compradores federales · sin licitación pública; todos los compradores: ${summary.direct_award_pct.toFixed(1)}% (${formatNumber(summary.direct_award_count)})`
+                    : `${formatNumber(summary.federal_direct_award_count)} direct awards by federal buyers · no public tender; all buyers: ${summary.direct_award_pct.toFixed(1)}% (${formatNumber(summary.direct_award_count)})`}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="font-serif tabular-nums" style={{ color: RISK_COLORS.critical, fontWeight: 500, fontSize: 'clamp(28px,4vw,44px)', lineHeight: 1 }}>{summary.direct_award_pct.toFixed(1)}%</div>
+                <div className="mt-1.5 text-[12px] text-text-secondary leading-snug">{formatNumber(summary.direct_award_count)} {lang === 'es' ? 'adjudicaciones directas · sin licitación pública' : 'direct awards · no public tender'}</div>
+              </>
+            )}
           </div>
           <div className="border-l-2 pl-4" style={{ borderColor: 'var(--color-text-muted)' }}>
             <div className="text-[10.5px] font-mono uppercase tracking-[0.16em] text-text-muted mb-1">{lang === 'es' ? 'VALOR MEJOR DISPONIBLE' : 'BEST AVAILABLE VALUE'}</div>

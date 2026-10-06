@@ -87,7 +87,8 @@ const FINDING_STYLE = {
 
 export interface CompetitionData {
   procedure_breakdown: { type: string; count: number; pct_contracts: number; value: number; pct_value: number }[]
-  yearly_trend: { year: number; contracts: number; da_pct: number; sb_pct: number }[]
+  /** sb_pct divides by all contracts; sa_pct by competitive procedures (D20) — sa_pct is drawn. */
+  yearly_trend: { year: number; contracts: number; da_pct: number; sb_pct: number; sa_pct?: number | null }[]
   sector_da_avg: number | null
   sector_sb_avg: number | null
   total_contracts: number
@@ -150,7 +151,7 @@ export function ProcedureSplit({ data, accent, lang }: { data: CompetitionData; 
   // shared 'pct' formatter prints its input as-is.
   const drift = (data.yearly_trend ?? [])
     .filter((d) => Number.isFinite(d.year))
-    .map((d) => ({ year: d.year, da: d.da_pct ?? 0, sb: d.sb_pct ?? 0 }))
+    .map((d) => ({ year: d.year, da: d.da_pct ?? 0, sb: d.sa_pct ?? 0 }))
     .sort((a, b) => a.year - b.year)
   const secDa = data.sector_da_avg
 
@@ -226,7 +227,7 @@ export function ProcedureSplit({ data, accent, lang }: { data: CompetitionData; 
             height={120}
             layers={[
               { kind: 'line', key: 'da', label: t(lang, 'Adj. directa', 'Direct award'), colorToken: 'risk-critical', emphasis: 'primary' },
-              { kind: 'line', key: 'sb', label: t(lang, 'Un solo adjudicado', 'Single award'), colorToken: 'risk-high', emphasis: 'secondary' },
+              { kind: 'line', key: 'sb', label: t(lang, 'Un solo adjudicado (de competitivos)', 'Single award (of competitive)'), colorToken: 'risk-high', emphasis: 'secondary' },
             ]}
             annotations={secDa != null ? [{ kind: 'hrule', y: secDa, label: t(lang, 'media del sector', 'sector avg'), tone: 'info' }] : undefined}
           />
@@ -452,6 +453,8 @@ export interface CapturePairRow {
   max_risk: number
   direct_award_pct: number
   single_bid_pct: number
+  /** Single-award share of competitive procedures (D20) — the displayed rate. */
+  single_award_pct?: number | null
 }
 
 export function CapturePairs({

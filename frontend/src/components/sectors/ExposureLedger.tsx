@@ -46,7 +46,7 @@ export interface LedgerRow {
   criticalMxn: number  // critical-only value
   totalMxn: number     // sector total spend
   daPct: number        // direct_award_pct (0-100)
-  sbPct: number        // single_bid_pct (0-100)
+  sbPct: number        // single award of competitive procedures (0-100, D20)
   contracts: number
   vendors: number
   // ── Non-value axes (rev 2) ──────────────────────────────────────────────

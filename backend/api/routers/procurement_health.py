@@ -304,8 +304,10 @@ def _compute_sector_phi(conn: sqlite3.Connection, sector_id: Optional[int] = Non
             "value": single_bid_rate,
             "light": _traffic_light("single_bid_rate", single_bid_rate),
             "label": "Single Bidding Rate",
-            "description": f"{single_bid_rate}% of competitive procedures had only 1 bidder",
-            "benchmark": "EU threshold: ≤10% green, >20% red",
+            "description": f"{single_bid_rate}% of competitive procedures ended with a single winner",
+            # No external line: the EU single-BIDDER indicator counts bidders,
+            # CompraNet records winners (D20).
+            "benchmark": "No external benchmark (CompraNet records winners, not bidders)",
         },
         "avg_bidders": {
             "value": avg_bidders,

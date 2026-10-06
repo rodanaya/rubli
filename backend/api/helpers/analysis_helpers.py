@@ -177,3 +177,14 @@ def pct_change(old: float, new: float) -> float:
     if old == 0:
         return 100.0 if new > 0 else 0.0
     return round((new - old) / old * 100, 1)
+
+
+def single_award_of_competitive(sb_pct_of_all: Optional[float], da_pct_of_all: Optional[float]) -> Optional[float]:
+    """Single-award share of COMPETITIVE procedures (0-100), from two shares of
+    ALL contracts (sb / (100 - da)). The stats tables divide single_bid by every
+    contract; the user-facing "single-award" rate is defined on competitive
+    procedures (D20). None when there is no competitive procedure.
+    Mirrors frontend `singleAwardOfCompetitive` in lib/constants.ts."""
+    if sb_pct_of_all is None or da_pct_of_all is None or da_pct_of_all >= 100:
+        return None
+    return round(min(100.0, sb_pct_of_all * 100.0 / (100.0 - da_pct_of_all)), 1)

@@ -15,6 +15,7 @@ from .base_service import BaseService
 from .query_builder import QueryBuilder
 from .pagination import paginate_query, PaginatedResult
 from .institution_canonical import not_absorbed
+from ..helpers.analysis_helpers import single_award_of_competitive
 
 logger = structlog.get_logger("rubli.services.institution")
 
@@ -150,6 +151,8 @@ class InstitutionService(BaseService):
             "high_risk_pct": round(row["high_risk_pct"], 2) if row["high_risk_pct"] else None,
             "direct_award_pct": round(row["direct_award_pct"], 2) if row["direct_award_pct"] else None,
             "single_bid_pct": round(row["single_bid_pct"], 2) if row["single_bid_pct"] else None,
+            "single_award_pct": single_award_of_competitive(row["single_bid_pct"] or 0, row["direct_award_pct"] or 0)
+            if row["single_bid_pct"] is not None else None,
             "vendor_count": row["vendor_count"],
             "classification_confidence": row["classification_confidence"],
             "data_quality_grade": row["data_quality_grade"],

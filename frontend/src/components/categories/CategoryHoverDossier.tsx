@@ -35,7 +35,6 @@ export function CategoryHoverDossier({
   const color = SECTOR_COLORS[item.sector_code] ?? SECTOR_COLORS.otros
   const riskCol = intensityColor(item.avg_risk)
   const sharePct = totalValue > 0 ? (item.total_value / totalValue) * 100 : 0
-  const sbHot = item.single_bid_pct > 25
   const daOver = item.direct_award_pct > DA_LIMIT_PCT
 
   return (
@@ -100,9 +99,11 @@ export function CategoryHoverDossier({
         <span className="whitespace-nowrap" style={{ color: daOver ? 'var(--color-text-secondary)' : undefined }}>
           {isEs ? 'AD' : 'DA'} {item.direct_award_pct.toFixed(0)}% · {isEs ? 'UE' : 'EU'} {DA_LIMIT_PCT.toFixed(0)}%
         </span>
-        <span className="whitespace-nowrap" style={{ color: sbHot ? 'var(--color-text-secondary)' : undefined }}>
-          1P {item.single_bid_pct.toFixed(1)}%
-        </span>
+        {item.single_award_pct != null && (
+          <span className="whitespace-nowrap">
+            1P {item.single_award_pct.toFixed(1)}% {isEs ? 'de competitivos' : 'of competitive'}
+          </span>
+        )}
       </div>
 
       <div className="mt-2.5 pt-2.5" style={{ borderTop: '1px solid var(--color-border)' }}>
