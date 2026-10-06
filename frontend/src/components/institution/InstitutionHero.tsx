@@ -1,0 +1,550 @@
+/**
+ * InstitutionHero — cover slug for the unified institution dossier.
+ *
+ * Built 2026-05-26 (DESIGNUS round 7, Phase 2 component 1/5). Mirrors
+ * VendorHero's NYT/ICIJ investigation aesthetic but scoped to institution
+ * semantics:
+ *
+ *   - Identity = institution name + siglas chip + sector accent
+ *   - Verdict = high-risk-contracts % (the institution-level signal),
+ *     not avg risk score (which is dominated by their LOW-risk routine
+ *     procurement and doesn't tell the institutional story)
+ *   - Lede = data-driven, frames the spending portrait
+ *   - TOC anchors point to: subject · timeline · suppliers · spending ·
+ *     risk · methodology
+ */
+import { useState, type ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Copy, Check } from 'lucide-react'
+import type { InstitutionDetailResponse } from '@/api/types'
+import { formatEntityName } from '@/lib/entity/format'
+import {
+  RISK_COLORS,
+  RISK_TEXT_COLORS,
+  SECTOR_COLORS,
+  SECTORS,
+  getRiskLevelFromScore,
+} from '@/lib/constants'
+import { procedureSeal } from '@/lib/institution-seal'
+import {
+  formatCompactMXN,
+  formatCompactUSD,
+  formatNumber,
+} from '@/lib/utils'
+
+const NBSP = String.fromCharCode(160) // no-break space
+
+// Dossier section anchors — the five narrative chapters were removed in the
+// 2026-06-03 operational rebuild; these are the real reference sections.
+const TOC_ANCHORS: Array<{ id: string; en: string; es: string; numeral?: string }> = [
+  { id: 'suppliers',   en: 'Suppliers',   es: 'Proveedores' },
+  { id: 'methodology', en: 'Methodology', es: 'Metodología' },
+]
+
+// institution_type is a machine enum from the DB (e.g. "state_enterprise_infra").
+// Render a localized label rather than the raw snake_case string; unknown values
+// fall back to a title-cased, de-underscored form.
+const INSTITUTION_TYPE_LABELS: Record<string, [es: string, en: string]> = {
+  municipal: ['Municipal', 'Municipal'],
+  state_agency: ['Organismo estatal', 'State agency'],
+  educational: ['Educativa', 'Educational'],
+  other: ['Otro', 'Other'],
+  federal_secretariat: ['Secretaría federal', 'Federal secretariat'],
+  health_institution: ['Institución de salud', 'Health institution'],
+  federal_agency: ['Organismo federal', 'Federal agency'],
+  state_enterprise_infra: ['Empresa estatal · infraestructura', 'State enterprise · infrastructure'],
+  social_program: ['Programa social', 'Social program'],
+  judicial: ['Judicial', 'Judicial'],
+  state_government: ['Gobierno estatal', 'State government'],
+  research_education: ['Investigación y educación', 'Research & education'],
+  state_enterprise_energy: ['Empresa productiva · energía', 'State enterprise · energy'],
+  state_enterprise_finance: ['Empresa estatal · finanzas', 'State enterprise · finance'],
+  autonomous_constitutional: ['Autónomo constitucional', 'Autonomous constitutional'],
+  social_security: ['Seguridad social', 'Social security'],
+  regulatory_agency: ['Organismo regulador', 'Regulatory agency'],
+  legislative: ['Legislativo', 'Legislative'],
+  military: ['Militar', 'Military'],
+}
+
+function institutionTypeLabel(type: string, lang: string): string {
+  const entry = INSTITUTION_TYPE_LABELS[type]
+  if (entry) return lang === 'es' ? entry[0] : entry[1]
+  return type.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+interface InstitutionHeroProps {
+  institution: InstitutionDetailResponse
+  actions?: ReactNode
+  showTOC?: boolean
+}
+
+export function InstitutionHero({
+  institution,
+  actions,
+  showTOC = true,
+}: InstitutionHeroProps) {
+  const { i18n } = useTranslation()
+  const isEs = i18n.language?.startsWith('es')
+  const lang: 'en' | 'es' = isEs ? 'es' : 'en'
+
+  const sectorCode = SECTORS.find((s) => s.id === institution.sector_id)?.code ?? 'otros'
+  const sectorAccent = SECTOR_COLORS[sectorCode] ?? SECTOR_COLORS.otros ?? '#64748b'
+  const sectorName = lang === 'es' ? SECTORS.find((s) => s.code === sectorCode)?.name : SECTORS.find((s) => s.code === sectorCode)?.nameEN
+
+  const editorialName = formatEntityName('institution', institution.name, 'full')
+  const lede = buildInstitutionLede({ institution, sectorName, lang })
+
+  return (
+    <header className="relative">
+      <div
+        aria-hidden="true"
+        className="absolute left-0 right-0"
+        style={{
+          top: 0,
+          height: 6,
+          background: sectorAccent,
+        }}
+      />
+
+      <div className="pt-8 pb-6">
+        {/* Row 1 — index strip + actions */}
+        <div className="flex items-baseline justify-between gap-4 mb-5">
+          <div
+            className="font-mono tabular-nums"
+            style={{
+              fontSize: 13,
+              letterSpacing: '0.20em',
+              textTransform: 'uppercase',
+              color: 'var(--color-text-muted)',
+              fontWeight: 500,
+            }}
+          >
+            INST · I-{String(institution.id).padStart(5, '0')}
+          </div>
+          {actions && (
+            <div className="flex items-center gap-2 flex-wrap">{actions}</div>
+          )}
+        </div>
+
+        {/* Row 2 — § kicker */}
+        <div
+          className="font-mono mb-4"
+          style={{
+            fontSize: 12,
+            fontStyle: 'normal',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: sectorAccent,
+            fontWeight: 500,
+          }}
+        >
+          § {lang === 'es' ? 'EL EXPEDIENTE · INSTITUCIÓN' : 'EL EXPEDIENTE · INSTITUTION DOSSIER'}
+        </div>
+
+        {/* Row 3 — headline + verdict card. Stacks on mobile; the fixed-width
+            DualSeal sits beside the headline only at md+ (avoids crushing the
+            headline into a ~130px column on phones). */}
+        <div className="grid gap-6 lg:gap-10 grid-cols-1 md:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="min-w-0">
+            <h1
+              className="text-balance mb-1.5"
+              style={{
+                fontFamily: '"EB Garamond", "Playfair Display", Georgia, serif',
+                fontStyle: 'normal',
+                fontWeight: 500,
+                fontSize: 'clamp(32px, 4.4vw, 48px)',
+                lineHeight: 1.04,
+                letterSpacing: '-0.012em',
+                color: 'var(--color-text-primary)',
+              }}
+            >
+              {editorialName}
+            </h1>
+            {institution.siglas && (
+              <div
+                style={{
+                  fontFamily: '"EB Garamond", Georgia, serif',
+                  fontSize: 16,
+                  fontWeight: 400,
+                  color: 'var(--color-text-secondary)',
+                  letterSpacing: '0.02em',
+                }}
+              >
+                {institution.siglas}
+              </div>
+            )}
+
+            {/* Metadata rule */}
+            <div className="mt-4" style={{ borderLeft: `2px solid ${sectorAccent}`, paddingLeft: 14 }}>
+              <InstitutionMetaRule
+                institution={institution}
+                sectorName={sectorName ?? null}
+                lang={lang}
+              />
+            </div>
+          </div>
+
+          {/* Dual verdict seal — model risk + process integrity (the two lenses) */}
+          <DualSeal institution={institution} lang={lang} />
+        </div>
+
+        {/* Hairline */}
+        <div aria-hidden="true" className="mt-6" style={{ height: 1, background: 'var(--color-border)' }} />
+
+        {/* Lede — roman serif at 18px for legibility (was 17px with a
+            name-splice drop-cap that read as a typo). Drop-cap now lands on the
+            lede's own first letter (the institution name). */}
+        <div className="mt-6" style={{ borderLeft: `2px solid ${sectorAccent}`, paddingLeft: 20, maxWidth: '66ch' }}>
+          {/* Drop cap via ::first-letter (PARALLAX D9b § Change 7): the text
+              node stays whole, so assistive tech reads "Instituto", not "nstituto". */}
+          <p
+            className="lede-dropcap"
+            style={{
+              fontFamily: '"EB Garamond", Georgia, serif',
+              fontSize: 18,
+              lineHeight: 1.6,
+              color: 'var(--color-text-secondary)',
+              letterSpacing: '0.003em',
+              ['--dropcap-color' as string]: sectorAccent,
+            }}
+          >
+            {lede}
+          </p>
+        </div>
+
+        {/* TOC */}
+        {showTOC && (
+          <OnThePageStrip sectorAccent={sectorAccent} lang={lang} />
+        )}
+      </div>
+    </header>
+  )
+}
+
+// ───────────────────── subcomponents ────────────────────────────────────────
+
+/**
+ * DualSeal — the two integrity lenses, side by side. The old VerdictCard
+ * hardcoded high-risk % (lens 1's quietest derivative) and mis-framed
+ * institutions whose pathology is procedural. This shows BOTH:
+ *   1. Model risk  — statistical similarity to known corruption cases.
+ *   2. Process integrity — the worst OECD/Prozorro deviation (adaptive).
+ * Low model-risk renders muted, never green (a procurement model cannot
+ * certify integrity — Bible §3.10).
+ */
+function DualSeal({
+  institution,
+  lang,
+}: {
+  institution: InstitutionDetailResponse
+  lang: 'en' | 'es'
+}) {
+  const isEs = lang === 'es'
+
+  // ── Lens 1 · Model risk ──
+  const avgRisk = institution.avg_risk_score ?? 0
+  const modelLevel = avgRisk > 0 ? getRiskLevelFromScore(avgRisk) : 'low'
+  const avgRisk100 = Math.round(avgRisk * 100)
+  const hrPct = Math.round(institution.high_risk_pct ?? institution.high_risk_percentage ?? 0)
+
+  // ── Lens 2 · Procedure — worst OECD/EU/Prozorro deviation ──
+  const top = procedureSeal(institution)
+  const { flagged, critical } = top
+  const hhi5 = top.key === 'conc' ? top.value : null
+  const sb = top.key === 'sb' ? top.value ?? 0 : 0
+  const da = top.key === 'da' ? top.value ?? 0 : 0
+  const integFill = critical ? RISK_COLORS.critical : flagged ? RISK_COLORS.high : 'var(--color-border)'
+  const integText = critical ? RISK_TEXT_COLORS.critical : flagged ? RISK_TEXT_COLORS.high : 'var(--color-text-muted)'
+  const integGrade = critical
+    ? (isEs ? 'DÉBIL' : 'WEAK')
+    : flagged
+      ? (isEs ? 'IRREGULAR' : 'IRREGULAR')
+      : (isEs ? 'SIN DESVIACIÓN' : 'NO DEVIATION')
+
+  let integBig: string
+  let integLabel: string
+  let integSub: string
+  if (top.key === 'conc') {
+    integBig = hhi5 != null ? formatNumber(Math.round(hhi5)) : '—'
+    integLabel = isEs ? 'HHI · concentración' : 'HHI · concentration'
+    integSub = hhi5 != null ? `${top.ratio.toFixed(1)}× ${isEs ? 'umbral 4,000' : '4,000 line'}` : ''
+  } else if (top.key === 'sb') {
+    integBig = `${Math.round(sb)}%`
+    integLabel = isEs ? 'un solo adjudicado' : 'single award'
+    integSub = flagged ? `${top.ratio.toFixed(1)}× ${isEs ? 'UE' : 'EU'}` : (isEs ? '≤ línea UE' : '≤ EU line')
+  } else {
+    integBig = `${Math.round(da)}%`
+    integLabel = isEs ? 'sin licitación' : 'no open bid'
+    integSub = flagged ? `${top.ratio.toFixed(1)}× ${isEs ? 'UE' : 'EU'}` : (isEs ? '≤ línea UE' : '≤ EU line')
+  }
+
+  return (
+    <aside aria-label={isEs ? 'Veredictos' : 'Verdicts'} className="flex-shrink-0 flex flex-row md:flex-col gap-3 w-full md:w-[188px]">
+      <SealCard
+        ruleColor={RISK_COLORS[modelLevel]}
+        textColor={RISK_TEXT_COLORS[modelLevel]}
+        big={`${avgRisk100}`}
+        bigUnit="/100"
+        label={isEs ? 'Riesgo del modelo' : 'Model risk'}
+        grade={isEs ? localizeLevel(modelLevel, 'es') : modelLevel.toUpperCase()}
+        sub={`${hrPct}% ${isEs ? 'alto riesgo' : 'high-risk'}`}
+      />
+      <SealCard
+        ruleColor={integFill}
+        textColor={integText}
+        big={integBig}
+        // "Process" is the boleta's Process-Integrity pillar; this seal is the procedure.
+        // The measure never splits across lines ("NO / OPEN BID"); the wrap falls after "·".
+        label={`${isEs ? 'Procedimiento' : 'Procedure'} · ${integLabel.replace(/ /g, NBSP)}`}
+        grade={integGrade}
+        sub={integSub}
+      />
+    </aside>
+  )
+}
+
+/** One seal plate — top rule (fill colour) + big numeral + grade + sub. */
+function SealCard({
+  ruleColor,
+  textColor,
+  big,
+  bigUnit,
+  label,
+  grade,
+  sub,
+}: {
+  ruleColor: string
+  textColor: string
+  big: string
+  bigUnit?: string
+  label: string
+  grade: string
+  sub: string
+}) {
+  return (
+    <div
+      className="relative flex-1 md:flex-none"
+      style={{ paddingTop: 9, paddingBottom: 10, paddingLeft: 16, paddingRight: 16, border: '1px solid var(--color-border)', borderRadius: 3 }}
+    >
+      <div
+        aria-hidden="true"
+        className="absolute top-0 left-0 right-0"
+        style={{ height: 2, background: ruleColor, borderTopLeftRadius: 3, borderTopRightRadius: 3 }}
+      />
+      <div className="text-center">
+        <div
+          className="tabular-nums"
+          style={{ fontFamily: '"Playfair Display", Georgia, serif', fontStyle: 'normal', fontWeight: 800, fontSize: 38, lineHeight: 1, color: textColor, letterSpacing: '-0.02em' }}
+        >
+          {big}
+          {bigUnit && (
+            <span className="font-mono" style={{ fontSize: 14, fontStyle: 'normal', fontWeight: 400, color: 'var(--color-text-muted)', marginLeft: 1 }}>
+              {bigUnit}
+            </span>
+          )}
+        </div>
+        <div
+          className="font-mono"
+          style={{ fontSize: 12, color: 'var(--color-text-muted)', letterSpacing: '0.10em', textTransform: 'uppercase', marginTop: 5 }}
+        >
+          {label}
+        </div>
+      </div>
+      <div aria-hidden="true" className="my-2 mx-auto" style={{ height: 1, width: '55%', background: 'var(--color-border)' }} />
+      <div
+        className="font-mono text-center"
+        style={{ fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase', color: textColor, fontWeight: 700 }}
+      >
+        {grade}
+      </div>
+      {sub && (
+        <div
+          className="font-mono text-center"
+          style={{ fontSize: 12, color: 'var(--color-text-secondary)', letterSpacing: '0.04em', marginTop: 3 }}
+        >
+          {sub}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function InstitutionMetaRule({
+  institution,
+  sectorName,
+  lang,
+}: {
+  institution: InstitutionDetailResponse
+  sectorName: string | null
+  lang: 'en' | 'es'
+}) {
+  const [siglasCopied, setSiglasCopied] = useState(false)
+  async function copySiglas() {
+    if (!institution.siglas) return
+    try {
+      await navigator.clipboard.writeText(institution.siglas)
+      setSiglasCopied(true)
+      setTimeout(() => setSiglasCopied(false), 1500)
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const tags: string[] = []
+  if (sectorName) tags.push(sectorName)
+  if (institution.institution_type) tags.push(institutionTypeLabel(institution.institution_type, lang))
+  if (institution.vendor_count) {
+    tags.push(
+      lang === 'es'
+        ? `${formatNumber(institution.vendor_count)} proveedores`
+        : `${formatNumber(institution.vendor_count)} vendors`,
+    )
+  }
+  if (institution.total_contracts) {
+    tags.push(
+      lang === 'es'
+        ? `${formatNumber(institution.total_contracts)} contratos`
+        : `${formatNumber(institution.total_contracts)} contracts`,
+    )
+  }
+
+  return (
+    <div className="space-y-1.5">
+      {institution.siglas && (
+        <div
+          className="font-mono tabular-nums flex items-center gap-1.5"
+          style={{ fontSize: 12, letterSpacing: '0.04em', color: 'var(--color-text-secondary)' }}
+        >
+          <span style={{ color: 'var(--color-text-muted)' }}>{lang === 'es' ? 'Siglas ·' : 'Siglas ·'}</span>
+          <button
+            type="button"
+            onClick={copySiglas}
+            className="inline-flex items-center gap-1 min-h-6 rounded-sm hover:text-text-primary transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+            aria-label={lang === 'es' ? 'Copiar siglas' : 'Copy siglas'}
+            style={{ background: 'none', border: 'none', padding: 0, color: 'inherit' }}
+          >
+            <span>{institution.siglas}</span>
+            {siglasCopied ? <Check className="h-3 w-3" aria-hidden="true" /> : <Copy className="h-3 w-3 opacity-50" aria-hidden="true" />}
+          </button>
+          {siglasCopied && (
+            <span
+              className="font-mono ml-1"
+              style={{ fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-accent-hover)' }}
+              role="status"
+            >
+              {lang === 'es' ? 'Copiado' : 'Copied'}
+            </span>
+          )}
+        </div>
+      )}
+      {tags.length > 0 && (
+        <div
+          className="font-mono"
+          style={{ fontSize: 12, letterSpacing: '0.04em', color: 'var(--color-text-secondary)' }}
+        >
+          {tags.map((tag, i) => (
+            <span key={i}>
+              {i > 0 && (
+                <span aria-hidden="true" className="mx-2" style={{ color: 'var(--color-text-muted)' }}>·</span>
+              )}
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function OnThePageStrip({ sectorAccent, lang }: { sectorAccent: string; lang: 'en' | 'es' }) {
+  return (
+    <nav
+      aria-label={lang === 'es' ? 'En esta página' : 'On this page'}
+      className="mt-10"
+    >
+      <div className="flex items-center justify-center gap-3 mb-3">
+        <div aria-hidden="true" style={{ height: 1, width: 80, background: 'var(--color-border)' }} />
+        <span
+          className="font-mono"
+          style={{
+            fontSize: 12,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-muted)',
+            fontWeight: 500,
+          }}
+        >
+          {lang === 'es' ? 'En esta página' : 'On this page'}
+        </span>
+        <div aria-hidden="true" style={{ height: 1, width: 80, background: 'var(--color-border)' }} />
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5">
+        {TOC_ANCHORS.map((a, i) => (
+          <a
+            key={a.id}
+            href={`#${a.id}`}
+            className="group font-mono inline-flex items-baseline gap-1.5 transition-colors"
+            style={{
+              fontSize: 13,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: 'var(--color-text-secondary)',
+              textDecoration: 'none',
+            }}
+          >
+            {i > 0 && (
+              <span aria-hidden="true" className="-ml-1.5 mr-1" style={{ color: 'var(--color-text-muted)' }}>·</span>
+            )}
+            {a.numeral && (
+              <span style={{ color: sectorAccent, fontWeight: 700, fontVariant: 'small-caps' }}>{a.numeral}.</span>
+            )}
+            <span className="group-hover:text-text-primary transition-colors" style={{ borderBottom: '1px solid transparent', paddingBottom: 2 }}>
+              {lang === 'es' ? a.es : a.en}
+            </span>
+          </a>
+        ))}
+      </div>
+      <div aria-hidden="true" className="mt-4" style={{ height: 1, background: 'var(--color-border)' }} />
+    </nav>
+  )
+}
+
+// ───────────────────── helpers ──────────────────────────────────────────────
+
+function localizeLevel(level: 'critical' | 'high' | 'medium' | 'low', lang: 'en' | 'es'): string {
+  if (lang !== 'es') return level.toUpperCase()
+  return level === 'critical' ? 'CRÍTICO'
+    : level === 'high' ? 'ALTO'
+    : level === 'medium' ? 'MEDIO'
+    : 'BAJO'
+}
+
+function buildInstitutionLede({
+  institution,
+  sectorName,
+  lang,
+}: {
+  institution: InstitutionDetailResponse
+  sectorName?: string
+  lang: 'en' | 'es'
+}): string {
+  const name = formatEntityName('institution', institution.name, 'full')
+  const spend = formatCompactMXN(institution.total_amount_mxn ?? 0)
+  // ES reads MXN natively (docs/DESIGN_SYSTEM.md currency rules): the USD aside is EN-only.
+  const usdAside = lang === 'es' ? '' : ` (≈${formatCompactUSD(institution.total_amount_mxn ?? 0)})`
+  const contracts = formatNumber(institution.total_contracts ?? 0)
+  const vendors = institution.vendor_count ? formatNumber(institution.vendor_count) : null
+  const hr = Math.round(institution.high_risk_pct ?? institution.high_risk_percentage ?? 0)
+  const da = Math.round(institution.direct_award_pct ?? institution.direct_award_rate ?? 0)
+
+  // Frame 1: high HR% — flag the institution as a procurement-pathology surface
+  if (hr >= 20 && vendors) {
+    return lang === 'es'
+      ? `${name} concentra ${spend}${usdAside} repartidos en ${contracts} contratos entre ${vendors} proveedores. ${hr}% de esos contratos fueron marcados de alto riesgo por el modelo, ${da}% adjudicados sin licitación pública${sectorName ? ` — dentro del sector ${sectorName}` : ''}.`
+      : `${name} concentrates ${spend}${usdAside} spread across ${contracts} contracts among ${vendors} suppliers. ${hr}% of those contracts were flagged high-risk by the model, ${da}% awarded without an open bid${sectorName ? ` — within the ${sectorName} sector` : ''}.`
+  }
+  // Frame 2: standard
+  return lang === 'es'
+    ? `${name} ha contratado ${spend}${usdAside} en ${contracts} contratos${vendors ? ` con ${vendors} proveedores` : ''}${sectorName ? `, dentro del sector ${sectorName}` : ''}. ${da}% adjudicación directa.`
+    : `${name} has contracted ${spend}${usdAside} across ${contracts} contracts${vendors ? ` with ${vendors} suppliers` : ''}${sectorName ? `, within the ${sectorName} sector` : ''}. ${da}% direct-award.`
+}

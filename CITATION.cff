@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use RUBLI in research or reporting, please cite it as below. Risk scores are indicators for prioritising investigation, not findings of wrongdoing."
+title: "RUBLI: open corruption-risk indicators for Mexican federal procurement"
+abstract: >-
+  RUBLI ingests Mexican federal procurement records (CompraNet, 2002-2025, and
+  post-CompraNet ComprasMX awards), resolves vendors and institutions, scores
+  each contract with a statistical risk indicator (model v0.8.5, an ElasticNet
+  logistic regression with positive-unlabelled correction), and ranks vendors
+  into an investigation queue. Code is Apache-2.0; derived data is CC BY 4.0.
+type: software
+authors:
+  - name: "RUBLI project"
+    email: rubli-project@proton.me
+    website: "https://rubli.xyz"
+  - alias: rodanaya
+repository-code: "https://github.com/rodanaya/rubli"
+url: "https://rubli.xyz"
+license: Apache-2.0
+version: "1.0.0"
+date-released: "2026-10-02"
+keywords:
+  - public procurement
+  - corruption risk
+  - Mexico
+  - CompraNet
+  - open data
+  - investigative journalism
+  - entity resolution
+  - positive-unlabelled learning

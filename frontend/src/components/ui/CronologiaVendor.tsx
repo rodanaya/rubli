@@ -1,0 +1,142 @@
+/**
+ * CronologiaVendor — Annotated horizontal contract timeline for a vendor.
+ * Pure div-based visualization (no chart library).
+ * Shows contract activity by year as a bar chart with annotation dots.
+ */
+import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { cn } from '@/lib/utils'
+
+interface TimelineYear {
+  year: number
+  contractCount: number
+  totalValue: number
+  avgRiskScore: number
+  hasAnomaly?: boolean
+  anomalyNote?: string
+}
+
+interface CronologiaVendorProps {
+  data: TimelineYear[]
+  vendorName: string
+  className?: string
+}
+
+function riskBarColor(score: number): string {
+  if (score >= 0.60) return '#f87171'   // critical — red
+  if (score >= 0.40) return '#fb923c'   // high — orange
+  if (score >= 0.25) return '#fbbf24'   // medium — amber (v0.8.5)
+  return '#52525b'                       // low — zinc-600
+}
+
+function formatCompact(val: number): string {
+  if (val >= 1_000_000_000) return `${(val / 1_000_000_000).toFixed(1)}B`
+  if (val >= 1_000_000) return `${(val / 1_000_000).toFixed(1)}M`
+  if (val >= 1_000) return `${(val / 1_000).toFixed(0)}K`
+  return String(val)
+}
+
+export default function CronologiaVendor({ data, vendorName, className }: CronologiaVendorProps) {
+  const { t } = useTranslation('common')
+  const [hoveredYear, setHoveredYear] = useState<number | null>(null)
+
+  const maxCount = useMemo(() => {
+    if (!data.length) return 1
+    return Math.max(...data.map((d) => d.contractCount), 1)
+  }, [data])
+
+  if (!data.length) {
+    return (
+      <div className={cn('rounded-lg border border-border bg-background-card p-4', className)}>
+        <p className="text-sm text-text-secondary mb-2">{t('cronologia.title')}</p>
+        <p className="text-xs text-text-secondary">{t('cronologia.noData', { vendor: vendorName })}</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className={cn('rounded-lg border border-border bg-background-card p-4', className)}>
+      <p className="text-sm text-text-secondary mb-3">{t('cronologia.title')}</p>
+
+      {/* Chart area — 120px tall */}
+      <div className="relative" style={{ height: '120px' }}>
+        <div className="flex items-end gap-[2px] h-full">
+          {data.map((d) => {
+            const barHeight = Math.max((d.contractCount / maxCount) * 100, 4)
+            const isHovered = hoveredYear === d.year
+            const barColor = riskBarColor(d.avgRiskScore)
+
+            return (
+              <div
+                key={d.year}
+                className="relative flex-1 flex flex-col items-center justify-end h-full group cursor-default"
+                onMouseEnter={() => setHoveredYear(d.year)}
+                onMouseLeave={() => setHoveredYear(null)}
+              >
+                {/* Anomaly dot */}
+                {d.hasAnomaly && (
+                  <div
+                    className="absolute -top-1 w-2 h-2 rounded-full bg-risk-high z-10"
+                    style={{ top: `${100 - barHeight - 8}%` }}
+                    title={d.anomalyNote}
+                  />
+                )}
+
+                {/* Bar */}
+                <div
+                  className="w-full rounded-t-sm transition-all duration-200"
+                  style={{
+                    height: `${barHeight}%`,
+                    backgroundColor: barColor,
+                    opacity: isHovered ? 1 : 0.75,
+                    minHeight: '3px',
+                  }}
+                />
+
+                {/* Tooltip */}
+                {isHovered && (
+                  <div
+                    className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap bg-background-elevated border border-border rounded px-2 py-1.5 shadow-lg pointer-events-none"
+                    style={{ minWidth: '110px' }}
+                  >
+                    <p className="text-[13px] font-bold text-text-primary">{d.year}</p>
+                    <p className="text-[12px] text-text-secondary">
+                      {d.contractCount} {t('cronologia.contracts')}
+                    </p>
+                    <p className="text-[12px] text-text-secondary">
+                      ${formatCompact(d.totalValue)} MXN
+                    </p>
+                    <p className="text-[12px] text-text-secondary">
+                      {t('cronologia.risk')}: {(d.avgRiskScore * 100).toFixed(0)}%
+                    </p>
+                    {d.hasAnomaly && d.anomalyNote && (
+                      <p className="text-[12px] text-risk-high mt-0.5">
+                        {d.anomalyNote}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Year labels */}
+      <div className="flex gap-[2px] mt-1">
+        {data.map((d) => (
+          <div key={d.year} className="flex-1 text-center">
+            <span
+              className={cn(
+                'text-[13px] font-mono',
+                hoveredYear === d.year ? 'text-text-secondary' : 'text-text-muted'
+              )}
+            >
+              {data.length > 15 ? (d.year % 5 === 0 ? String(d.year).slice(-2) : '') : String(d.year).slice(-2)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

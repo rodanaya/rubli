@@ -1,0 +1,944 @@
+/**
+ * CaseDossier — "El Expediente", the canonical case dossier at /cases/:slug.
+ *
+ * "El Cargo" (The Charge) — DESIGNUS synthesis 2026-07-07, narrative-first
+ * proposal. Restructures the page as a three-act investigation: THE CHARGE
+ * (a live-computed lede sentence), THE ACCOUNT (case + timeline + damage),
+ * THE IMPLICATED (actors + vendors, chip-resolved where possible). No new
+ * API calls — everything is a pure function of ScandalDetail + allCases.
+ *
+ *   WayfindingSpine    — back to the exact filtered docket + prev/next
+ *                        stepper honoring the index's active sort (El Hilo,
+ *                        kind 'case'); keyboard [ / ].
+ *   CaseDocketRail     — sticky filing ledger (folio, BRECHA gap, sector
+ *                        spine, COMPRANET reach, § index) — no longer
+ *                        duplicates the hero's fact ribbon.
+ *   Act I  The Charge  — leadFinding() computed thesis sentence.
+ *   § I    El caso     — lede + body, sector-tinted drop cap.
+ *   § II   La cronología — the impunity arc (Reuters Time of Evidence).
+ *   § III  El daño     — ScaleBlock + CostInArchive (NYT-Upshot dot field:
+ *                        this case's cost among all labelled cases).
+ *   § IV   Los actores — chip-resolved vendor actors (hard rule #1); named
+ *                        absence tag for unmatched vendors; institution/
+ *                        official/journalist stay prose (no id available).
+ *   § V    Los proveedores — vendor rows lead (role + match_method), ghost
+ *                        rows for actor-named-but-unlinked vendors, then a
+ *                        one-line COMPRANET footnote.
+ *   § VI   Las fuentes — cited journalism / audits / reports.
+ *   KeepReadingFooter  — same-sector onward routing.
+ *
+ * Raw-enum bug class (INFRASTRUCTURE_OVERRUN / MULTIPLE on prod) is dead:
+ * every label renders through casesVocab with a humanized fallback.
+ */
+import { useEffect, useMemo } from 'react'
+import { Link, useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import { useQuery } from '@tanstack/react-query'
+import { caseLibraryApi } from '@/api/client'
+import { AlertTriangle, ArrowLeft, ExternalLink } from 'lucide-react'
+
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { EntityIdentityChip } from '@/components/ui/EntityIdentityChip'
+import { RISK_COLORS, RISK_TEXT_COLORS, SECTORS, getSectorTextColor } from '@/lib/constants'
+import { formatCompactMXN } from '@/lib/utils'
+import type { ScandalDetail, ScandalSource, KeyActor, LinkedVendor } from '@/api/types'
+
+import { LedeParagraph, ScaleBlock } from '@/components/dossier/primitives'
+import { WayfindingSpine } from '@/components/nav/WayfindingSpine'
+import { DossierOriginProvider, useSiblingNav } from '@/lib/nav/wayfinding'
+
+import {
+  dispositionFor,
+  dispositionLabel,
+  folio,
+  fraudLabel,
+  leadFinding,
+  sexenioLabel,
+  type Lang,
+  type LeadFinding,
+} from '@/components/cases/casesVocab'
+import {
+  DispositionSeal,
+  FeatureSection,
+  MarginNote,
+  PaperGrain,
+  SeverityDots,
+  SeverityScale,
+} from '@/components/cases/CasesShared'
+import { CaseTimeline } from '@/components/cases/CaseTimeline'
+import {
+  CaseDocketRail,
+  CompranetVisibilityBanner,
+  CostInArchive,
+  KeepReadingFooter,
+  LinkedVendorList,
+} from '@/components/cases/DossierBlocks'
+
+/** Lowercase + strip accents/punctuation — actor↔vendor name-match join. */
+function normalizeVendorName(s: string): string {
+  return s
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+}
+
+// ─── Legal-status callout body copy ─────────────────────────────────────────
+
+function legalStatusBody(status: string, lang: Lang): string {
+  const es = lang === 'es'
+  switch (status) {
+    case 'convicted':
+      return es
+        ? 'Un tribunal emitió sentencia condenatoria contra al menos un actor vinculado a este caso.'
+        : 'A court of law returned a guilty verdict against at least one actor tied to this case.'
+    case 'prosecuted':
+      return es
+        ? 'Se han presentado cargos formales; el proceso judicial está en marcha.'
+        : 'Formal charges have been filed; trial proceedings are under way.'
+    case 'investigation':
+      return es
+        ? 'Autoridades están investigando, sin cargos formales hasta la fecha.'
+        : 'Authorities are investigating; no formal charges yet on record.'
+    case 'ongoing':
+      return es
+        ? 'El proceso sigue abierto; sin sentencia firme hasta la fecha.'
+        : 'Proceedings remain open; no final ruling to date.'
+    case 'impunity':
+      return es
+        ? 'Caso etiquetado por auditoría o investigación periodística; ningún actor enfrentó consecuencias penales pese a la evidencia disponible.'
+        : 'Case documented by audit or investigative journalism; no actor faced criminal consequences despite available evidence.'
+    case 'settled':
+      return es
+        ? 'El caso se cerró mediante acuerdo, sin sentencia penal.'
+        : 'The case closed by settlement, without a criminal verdict.'
+    case 'acquitted':
+      return es
+        ? 'Los actores señalados fueron absueltos en el proceso judicial.'
+        : 'Implicated actors were acquitted in court.'
+    case 'dismissed':
+      return es
+        ? 'El caso fue desestimado por autoridad judicial.'
+        : 'The case was dismissed by judicial authority.'
+    default:
+      return es
+        ? 'Estado judicial no determinado en fuentes disponibles.'
+        : 'Judicial status not determined in available sources.'
+  }
+}
+
+// ─── Act I — The Charge ─────────────────────────────────────────────────────
+// A live-computed, ranked lede sentence. Data comes from casesVocab's
+// leadFinding(); this component only composes the JSX and paints the
+// emphasis token(s) in accentKind.
+
+function renderChargeClause(text: string, emphasis: string, ink: string): React.ReactNode {
+  if (!emphasis) return text
+  const idx = text.indexOf(emphasis)
+  if (idx === -1) return text
+  return (
+    <>
+      {text.slice(0, idx)}
+      <span style={{ fontStyle: 'normal', fontWeight: 600, color: ink }}>
+        {text.slice(idx, idx + emphasis.length)}
+      </span>
+      {text.slice(idx + emphasis.length)}
+    </>
+  )
+}
+
+function CaseCharge({ finding, ink, lang }: { finding: LeadFinding; ink: string; lang: Lang }) {
+  return (
+    <div style={{ paddingTop: 20, maxWidth: '42ch' }}>
+      <div className="flex items-center gap-3 mb-2.5">
+        <span
+          className="font-mono uppercase flex-shrink-0"
+          style={{ fontSize: 10, letterSpacing: '0.18em', color: ink, fontWeight: 600 }}
+        >
+          {lang === 'es' ? 'ACTO I · EL CARGO' : 'ACT I · THE CHARGE'}
+        </span>
+        <span aria-hidden="true" className="h-px flex-1" style={{ background: `${finding.accentKind}33` }} />
+      </div>
+      <p
+        className="font-mono uppercase mb-2"
+        style={{ fontSize: 10, letterSpacing: '0.18em', color: ink, fontWeight: 600 }}
+      >
+        ▎{finding.eyebrow}
+      </p>
+      <p
+        style={{
+          fontFamily: '"EB Garamond", Georgia, serif',
+          fontStyle: 'normal',
+          fontWeight: 500,
+          fontSize: 'clamp(20px, 2.4vw, 27px)',
+          lineHeight: 1.34,
+          color: 'var(--color-text-primary)',
+          maxWidth: '34ch',
+        }}
+      >
+        {renderChargeClause(finding.primaryText, finding.emphasis[0] ?? '', ink)}
+        {finding.secondaryText && (
+          <>
+            {' — '}
+            {renderChargeClause(finding.secondaryText, finding.emphasis[1] ?? '', ink)}
+          </>
+        )}
+      </p>
+      <div aria-hidden="true" style={{ height: 1, width: '100%', background: 'var(--color-border)', margin: '14px 0' }} />
+    </div>
+  )
+}
+
+// ─── Hero ───────────────────────────────────────────────────────────────────
+
+function CaseHero({
+  scandal,
+  lang,
+  sectorAccent,
+  sectorName,
+  finding,
+  ink,
+}: {
+  scandal: ScandalDetail
+  lang: Lang
+  sectorAccent: string
+  sectorName: string | null
+  finding: LeadFinding
+  /** AA-safe ink for the charge's type (the 6px spine keeps `sectorAccent`). */
+  ink: string
+}) {
+  const name = lang === 'es' && scandal.name_es ? scandal.name_es : scandal.name_en
+  const yearStart = scandal.contract_year_start ?? scandal.discovery_year ?? null
+  const yearEnd = scandal.contract_year_end ?? scandal.discovery_year ?? null
+  const periodText =
+    yearStart && yearEnd
+      ? yearStart === yearEnd ? String(yearStart) : `${yearStart}–${yearEnd}`
+      : null
+
+  return (
+    <header className="relative">
+      <div aria-hidden="true" className="absolute left-0 right-0" style={{ top: 0, height: 6, background: sectorAccent }} />
+      <div className="pt-8 pb-5">
+        {/* Index strip */}
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-4">
+          <div
+            className="font-mono tabular-nums uppercase"
+            style={{ fontSize: 13, letterSpacing: '0.2em', color: 'var(--color-text-muted)', fontWeight: 500 }}
+          >
+            {folio(scandal.id)}
+            {scandal.is_verified ? (
+              <>
+                <span className="mx-2 opacity-40" aria-hidden="true">·</span>
+                <span style={{ color: 'var(--color-accent)', fontWeight: 600 }}>
+                  {lang === 'es' ? 'VERIFICADO' : 'VERIFIED'}
+                </span>
+              </>
+            ) : null}
+          </div>
+          {sectorName && (
+            <div
+              className="font-mono uppercase"
+              style={{ fontSize: 13, letterSpacing: '0.16em', color: 'var(--color-text-muted)' }}
+            >
+              {sectorName}
+            </div>
+          )}
+        </div>
+
+        {/* § kicker */}
+        <p
+          className="font-mono uppercase mb-3"
+          style={{ fontSize: 12, letterSpacing: '0.22em', color: 'var(--color-text-muted)', fontWeight: 500 }}
+        >
+          § {lang === 'es' ? 'El Expediente · Caso Etiquetado' : 'The Case File · Labelled Case'}
+        </p>
+
+        {/* Title */}
+        <h1
+          style={{
+            fontFamily: '"EB Garamond", Georgia, serif',
+            fontStyle: 'normal',
+            fontWeight: 500,
+            fontSize: 'clamp(32px, 4.6vw, 56px)',
+            color: 'var(--color-text-primary)',
+            lineHeight: 1.08,
+            letterSpacing: '-0.01em',
+            maxWidth: '24ch',
+          }}
+        >
+          {name}
+        </h1>
+
+        {/* Act I — the charge */}
+        <CaseCharge finding={finding} ink={ink} lang={lang} />
+
+        {/* Meta strip */}
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          <DispositionSeal status={scandal.legal_status} lang={lang} size="md" />
+          <span
+            className="font-mono uppercase"
+            style={{ fontSize: 13, letterSpacing: '0.14em', color: 'var(--color-text-secondary)' }}
+          >
+            {fraudLabel(scandal.fraud_type, lang)}
+          </span>
+          <span
+            className="font-mono uppercase"
+            style={{ fontSize: 13, letterSpacing: '0.14em', color: 'var(--color-text-secondary)' }}
+          >
+            {sexenioLabel(scandal, lang)}
+          </span>
+          {periodText && (
+            <span
+              className="font-mono tabular-nums"
+              style={{ fontSize: 13, letterSpacing: '0.14em', color: 'var(--color-text-secondary)' }}
+            >
+              {periodText}
+            </span>
+          )}
+          <span className="inline-flex items-baseline gap-2">
+            <span
+              className="font-mono uppercase"
+              style={{ fontSize: 12, letterSpacing: '0.18em', color: 'var(--color-text-muted)' }}
+            >
+              {lang === 'es' ? 'Gravedad' : 'Severity'}
+            </span>
+            <SeverityDots severity={scandal.severity} lang={lang} />
+          </span>
+        </div>
+      </div>
+    </header>
+  )
+}
+
+// ─── Provenance footer ──────────────────────────────────────────────────────
+
+function ProvenanceFooter({ lang }: { lang: Lang }) {
+  return (
+    <section id="methodology" className="py-8 scroll-mt-6">
+      <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: 20, textAlign: 'center' }}>
+        <h2
+          className="font-mono mb-3 uppercase"
+          style={{ fontSize: 12, letterSpacing: '0.18em', color: 'var(--color-text-muted)', fontWeight: 500 }}
+        >
+          § {lang === 'es' ? 'Metodología y procedencia' : 'Methodology and provenance'}
+        </h2>
+        <p
+          style={{ fontFamily: '"EB Garamond", Georgia, serif', fontStyle: 'normal', fontSize: 14, color: 'var(--color-text-secondary)', maxWidth: '64ch', margin: '0 auto', lineHeight: 1.6 }}
+        >
+          {lang === 'es'
+            ? 'Casos compilados de periodismo investigativo, auditorías de la ASF y procesos judiciales públicos. Los vínculos a proveedores se construyen con coincidencia exacta de RFC o nombre. La presencia en esta biblioteca no constituye una determinación de culpabilidad.'
+            : 'Cases compiled from investigative journalism, ASF audits, and public judicial proceedings. Vendor links are constructed from exact RFC or name match. Inclusion in this library is not a determination of guilt.'}
+        </p>
+        <Link
+          to="/methodology"
+          className="mt-4 inline-block py-1 font-mono hover:opacity-70 transition-opacity uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+          style={{ fontSize: 12, letterSpacing: '0.14em', color: 'var(--color-text-secondary)', textDecoration: 'none' }}
+        >
+          {lang === 'es' ? 'Ver metodología completa' : 'See full methodology'} ↗
+        </Link>
+      </div>
+    </section>
+  )
+}
+
+// ─── Actors ─────────────────────────────────────────────────────────────────
+
+function ActorList({
+  actors,
+  linkedVendors,
+  lang,
+}: {
+  actors: KeyActor[]
+  linkedVendors: LinkedVendor[]
+  lang: Lang
+}) {
+  const ROLE_LABEL: Record<string, { en: string; es: string }> = {
+    vendor: { en: 'Vendor', es: 'Proveedor' },
+    official: { en: 'Official', es: 'Funcionario' },
+    institution: { en: 'Institution', es: 'Institución' },
+    journalist: { en: 'Journalist', es: 'Periodista' },
+  }
+  return (
+    <ul className="space-y-2.5 list-none p-0 m-0 max-w-2xl">
+      {actors.map((actor, i) => {
+        const match =
+          actor.role === 'vendor'
+            ? linkedVendors.find((v) => normalizeVendorName(v.vendor_name) === normalizeVendorName(actor.name))
+            : undefined
+        const resolved = match?.vendor_id != null
+
+        return (
+          <li
+            key={`${actor.name}-${i}`}
+            className="flex items-baseline gap-3"
+            style={{ borderLeft: '2px solid var(--color-border)', paddingLeft: 14 }}
+          >
+            <span
+              className="font-mono tabular-nums flex-shrink-0"
+              style={{ fontSize: 12, letterSpacing: '0.12em', color: 'var(--color-text-muted)', width: 24 }}
+            >
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <div className="flex-1 min-w-0">
+              {resolved && match ? (
+                <EntityIdentityChip
+                  type="vendor"
+                  id={match.vendor_id!}
+                  name={actor.name}
+                  riskScore={match.avg_risk_score}
+                  size="sm"
+                />
+              ) : (
+                <p
+                  style={{
+                    fontFamily: '"EB Garamond", Georgia, serif',
+                    fontStyle: 'normal',
+                    fontWeight: 500,
+                    fontSize: 16,
+                    color: 'var(--color-text-primary)',
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {actor.name}
+                </p>
+              )}
+              {actor.role === 'vendor' && !resolved && (
+                <p
+                  className="font-mono uppercase mt-0.5"
+                  style={{ fontSize: 10, letterSpacing: '0.12em', color: 'var(--color-text-muted)' }}
+                >
+                  → {lang === 'es' ? 'sin registro COMPRANET' : 'no COMPRANET record'}
+                </p>
+              )}
+              {/* Actor titles/notes are source-record content, authored in
+                  Spanish only (no _en twin in the DB) — lang="es" keeps screen
+                  readers pronouncing them correctly on the EN page. */}
+              {actor.title && (
+                <p lang="es" style={{ fontFamily: '"EB Garamond", Georgia, serif', fontStyle: 'normal', fontSize: 12.5, color: 'var(--color-text-secondary)' }}>
+                  {actor.title}
+                </p>
+              )}
+              {actor.note && (
+                <p lang="es" className="mt-1" style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 12.5, color: 'var(--color-text-muted)', lineHeight: 1.45 }}>
+                  {actor.note}
+                </p>
+              )}
+            </div>
+            <span
+              className="font-mono flex-shrink-0 uppercase"
+              style={{ fontSize: 10, letterSpacing: '0.12em', color: 'var(--color-accent)', fontWeight: 700 }}
+            >
+              {ROLE_LABEL[actor.role]?.[lang] ?? actor.role}
+            </span>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+// ─── Sources ────────────────────────────────────────────────────────────────
+
+function SourceList({ sources, lang }: { sources: ScandalSource[]; lang: Lang }) {
+  const TYPE_LABEL: Record<string, { en: string; es: string }> = {
+    journalism: { en: 'Journalism', es: 'Periodismo' },
+    audit: { en: 'Audit', es: 'Auditoría' },
+    legal: { en: 'Legal', es: 'Documento legal' },
+    academic: { en: 'Academic', es: 'Académico' },
+    official: { en: 'Official', es: 'Oficial' },
+    report: { en: 'Report', es: 'Informe' },
+  }
+  return (
+    <ul className="space-y-2 list-none p-0 m-0 max-w-2xl">
+      {sources.map((s, i) => {
+        const inner = (
+          <div className="flex items-baseline gap-3 py-2" style={{ borderBottom: '1px solid var(--color-border)' }}>
+            <span
+              className="font-mono tabular-nums flex-shrink-0"
+              style={{ fontSize: 12, color: 'var(--color-text-muted)', width: 22, letterSpacing: '0.1em' }}
+            >
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <div className="flex-1 min-w-0">
+              <p style={{ fontFamily: '"EB Garamond", Georgia, serif', fontSize: 14.5, lineHeight: 1.35, color: 'var(--color-text-primary)' }}>
+                {s.title}
+              </p>
+              <div className="mt-0.5 flex items-baseline gap-2 flex-wrap">
+                <span
+                  className="font-mono uppercase"
+                  style={{ fontSize: 13, letterSpacing: '0.14em', color: 'var(--color-accent)', fontWeight: 700 }}
+                >
+                  {TYPE_LABEL[s.type]?.[lang] ?? s.type}
+                </span>
+                <span style={{ fontFamily: '"EB Garamond", Georgia, serif', fontStyle: 'normal', fontSize: 12.5, color: 'var(--color-text-secondary)' }}>
+                  {s.outlet}
+                </span>
+                {s.date && (
+                  <span className="font-mono tabular-nums" style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
+                    {s.date}
+                  </span>
+                )}
+              </div>
+            </div>
+            {s.url && <ExternalLink className="h-3.5 w-3.5 flex-shrink-0" style={{ color: 'var(--color-text-muted)' }} aria-hidden="true" />}
+          </div>
+        )
+        return (
+          <li key={`${s.title}-${i}`}>
+            {s.url ? (
+              <a
+                href={s.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block hover:bg-background-card/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                {inner}
+              </a>
+            ) : (
+              inner
+            )}
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+// ─── Skeleton ───────────────────────────────────────────────────────────────
+
+function DossierSkeleton() {
+  return (
+    <div className="px-4 sm:px-8 py-10">
+      <div className="max-w-[1010px] mx-auto space-y-8">
+        <Skeleton className="h-2 w-full" />
+        <Skeleton className="h-16 w-3/4" />
+        <div className="space-y-8 lg:space-y-0 lg:grid lg:grid-cols-[210px_1fr] lg:gap-10">
+          <Skeleton className="h-72" />
+          <Skeleton className="h-72" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Main page ──────────────────────────────────────────────────────────────
+
+export default function CaseDossier() {
+  const { slug } = useParams<{ slug: string }>()
+  const navigate = useNavigate()
+  const { i18n } = useTranslation()
+  const lang: Lang = i18n.language?.startsWith('es') ? 'es' : 'en'
+
+  const validSlug = typeof slug === 'string' && slug.length > 0
+
+  const { data: scandal, isLoading, isError } = useQuery({
+    queryKey: ['case-dossier', slug],
+    queryFn: () => caseLibraryApi.getBySlug(slug!),
+    enabled: validSlug,
+    staleTime: 10 * 60 * 1000,
+    retry: false,
+  })
+
+  // Full docket — severity-in-archive context + keep-reading routing.
+  // Same key as the index's unfiltered list, so it is usually cache-warm.
+  const { data: allCases } = useQuery({
+    queryKey: ['cases', 'list', {}],
+    queryFn: () => caseLibraryApi.getAll({}),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  // El Hilo — stepper follows the order the index published.
+  const nav = useSiblingNav(
+    'case',
+    slug,
+    '/cases',
+    lang === 'es' ? 'El Padrón' : 'the docket',
+  )
+
+  // Keyboard [ / ] prev-next.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
+      if (e.key === '[' && nav.prevTo) navigate(nav.prevTo)
+      if (e.key === ']' && nav.nextTo) navigate(nav.nextTo)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [nav.prevTo, nav.nextTo, navigate])
+
+  const primarySector = useMemo(() => {
+    if (!scandal) return null
+    const id = scandal.sector_id ?? scandal.sector_ids?.[0]
+    if (!id) return null
+    return SECTORS.find((s) => s.id === id) ?? null
+  }, [scandal])
+
+  const severityDistribution = useMemo(() => {
+    const dist: Record<number, number> = {}
+    for (const c of allCases ?? []) {
+      dist[c.severity] = (dist[c.severity] ?? 0) + 1
+    }
+    return dist
+  }, [allCases])
+
+  if (!validSlug) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+        <h2 className="text-lg font-semibold mb-2">{lang === 'es' ? 'Caso inválido' : 'Invalid case'}</h2>
+        <Button onClick={() => navigate('/cases')}>
+          <ArrowLeft className="h-4 w-4 mr-2" />{lang === 'es' ? 'Volver al padrón' : 'Back to the docket'}
+        </Button>
+      </div>
+    )
+  }
+
+  if (isLoading) return <DossierSkeleton />
+
+  if (isError || !scandal) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+        <div className="flex items-center justify-center h-16 w-16 rounded-full bg-background-card border border-border mb-5">
+          <AlertTriangle className="h-8 w-8 text-risk-high" aria-hidden="true" />
+        </div>
+        <h2 className="text-lg font-semibold mb-2">{lang === 'es' ? 'Caso no encontrado' : 'Case not found'}</h2>
+        <Button onClick={() => navigate('/cases')}>
+          <ArrowLeft className="h-4 w-4 mr-2" />{lang === 'es' ? 'Volver al padrón' : 'Back to the docket'}
+        </Button>
+      </div>
+    )
+  }
+
+  const sectorAccent = primarySector?.color ?? RISK_COLORS.critical
+  // Vivid sector hexes run every MARK on this page; as TYPE on the warm-white
+  // page seven of the twelve fail AA (energia 1.82:1). Type takes the darker
+  // twin — same hue, same reading, AA-safe (D5b Change 1). Computed once here
+  // and passed down; never re-derived in a block.
+  const sectorInk = primarySector ? getSectorTextColor(primarySector.code) : RISK_TEXT_COLORS.critical
+  const sectorName = primarySector ? (lang === 'es' ? primarySector.name : primarySector.nameEN) : null
+  const disposition = dispositionFor(scandal.legal_status)
+  const isImpunity = scandal.legal_status === 'impunity'
+  const accentKind = isImpunity ? disposition.ink : sectorAccent
+  const accentInk = isImpunity ? disposition.ink : sectorInk
+  const finding = leadFinding(scandal, allCases, lang)
+  const name = lang === 'es' && scandal.name_es ? scandal.name_es : scandal.name_en
+
+  const summary = (lang === 'es' && scandal.summary_es ? scandal.summary_es : scandal.summary_en) ?? ''
+  const sentences = summary.split(/(?<=[.!?])\s+/)
+  const ledeText = sentences[0] ?? summary
+  const bodyText = sentences.slice(1).join(' ').trim()
+
+  const headlineAmount = scandal.amount_mxn_high ?? scandal.amount_mxn_low ?? null
+  const low = scandal.amount_mxn_low ?? null
+  const high = scandal.amount_mxn_high ?? null
+  const rangeText =
+    low != null && high != null && low !== high
+      ? lang === 'es'
+        ? `Estimado entre ${formatCompactMXN(low)} y ${formatCompactMXN(high)}.`
+        : `Estimated between ${formatCompactMXN(low)} and ${formatCompactMXN(high)}.`
+      : null
+
+  const hasTimeline = scandal.contract_year_start != null || scandal.discovery_year != null
+  const hasActors = (scandal.key_actors ?? []).length > 0
+  const hasSources = (scandal.sources ?? []).length > 0
+  const vendors = scandal.linked_vendors ?? []
+  const visibilityNone = scandal.compranet_visibility === 'none'
+
+  // §V ghost rows — vendor-role actors (§IV) with no linked_vendors entry at
+  // all (not even an unmatched one). Closes the actor↔vendor cross-reference
+  // gap: a named vendor actor never silently disappears from the record.
+  const ghostVendors = (scandal.key_actors ?? []).filter(
+    (a) =>
+      a.role === 'vendor' &&
+      !vendors.some((v) => normalizeVendorName(v.vendor_name) === normalizeVendorName(a.name)),
+  )
+  const accountMovement = { en: 'The account', es: 'El relato' }
+  const implicatedMovement = { en: 'The implicated', es: 'Los implicados' }
+
+  // Sequential § numbering across conditionally-rendered sections.
+  const ROMAN = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
+  let sectionIdx = 0
+  const numeralFor: Record<string, string> = {}
+  const railSections: { id: string; numeral: string; label: string }[] = []
+  const registerSection = (id: string, label: string, render: boolean) => {
+    if (!render) return
+    const numeral = ROMAN[sectionIdx++]
+    numeralFor[id] = numeral
+    railSections.push({ id, numeral, label })
+  }
+  registerSection('caso', lang === 'es' ? 'El caso' : 'The case', true)
+  registerSection('cronologia', lang === 'es' ? 'La cronología' : 'The timeline', hasTimeline)
+  registerSection('dano', lang === 'es' ? 'El daño' : 'The damage', true)
+  registerSection('actores', lang === 'es' ? 'Los actores' : 'The actors', hasActors)
+  registerSection('proveedores', lang === 'es' ? 'Los proveedores' : 'The vendors', true)
+  registerSection('fuentes', lang === 'es' ? 'Las fuentes' : 'The sources', hasSources)
+
+  return (
+    <DossierOriginProvider value={{ route: `/cases/${scandal.slug}`, label: name }}>
+      <div className="relative" style={{ background: 'var(--color-background)', minHeight: '100vh' }}>
+        <PaperGrain />
+        {/* Reading frame (D5 Change 7, Day 2d pattern): the padding sits on the
+            outer box so the frame itself is exactly 1,010px of content —
+            rail 210 + gap 40 + figure 760. The old 1,180px box left ~250px of
+            dead paper to the right of every section. */}
+        <div className="relative px-4 sm:px-8 py-6" style={{ zIndex: 1 }}>
+         <div className="max-w-[1010px] mx-auto">
+          <WayfindingSpine nav={nav} lang={lang} accent={sectorAccent} />
+
+          <CaseHero scandal={scandal} lang={lang} sectorAccent={sectorAccent} sectorName={sectorName} finding={finding} ink={accentInk} />
+
+          <div className="lg:grid lg:grid-cols-[210px_minmax(0,760px)] lg:gap-10 items-start">
+            {/* Docket rail — sticky on desktop, stacked above on mobile */}
+            <div className="lg:sticky lg:top-16 mb-6 lg:mb-0">
+              <CaseDocketRail
+                scandal={scandal}
+                totalCases={allCases?.length ?? null}
+                sectorName={sectorName}
+                sectorColor={sectorAccent}
+                ink={sectorInk}
+                sections={railSections}
+                lang={lang}
+              />
+            </div>
+
+            {/* Story column — figures span 760, running prose keeps the
+                global 68ch measure (Day 2d shape). */}
+            <div className="max-w-[760px]">
+              {/* § I — El caso */}
+              <FeatureSection
+                id="caso"
+                numeral={numeralFor['caso']}
+                title={{ en: 'The case', es: 'El caso' }}
+                meta={lang === 'es' ? 'Qué pasó' : 'What happened'}
+                lang={lang}
+                accent={sectorAccent}
+                ink={sectorInk}
+                movement={accountMovement}
+              >
+                <LedeParagraph sectorAccent={sectorAccent}>{ledeText}</LedeParagraph>
+                {bodyText && (
+                  <p
+                    className="mt-5"
+                    style={{
+                      fontFamily: '"EB Garamond", Georgia, serif',
+                      fontSize: 16,
+                      lineHeight: 1.7,
+                      color: 'var(--color-text-secondary)',
+                      maxWidth: '64ch',
+                    }}
+                  >
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        float: 'left',
+                        fontFamily: '"Playfair Display", Georgia, serif',
+                        fontSize: '3.1em',
+                        lineHeight: 0.82,
+                        paddingRight: 8,
+                        paddingTop: 4,
+                        color: sectorAccent,
+                        fontWeight: 700,
+                      }}
+                    >
+                      {bodyText.charAt(0)}
+                    </span>
+                    {bodyText.slice(1)}
+                  </p>
+                )}
+              </FeatureSection>
+
+              {/* § II — La cronología */}
+              {hasTimeline && (
+                <FeatureSection
+                  id="cronologia"
+                  numeral={numeralFor['cronologia']}
+                  title={{ en: 'The timeline', es: 'La cronología' }}
+                  meta={lang === 'es' ? 'El arco de impunidad' : 'The impunity arc'}
+                  lang={lang}
+                  accent={sectorAccent}
+                  ink={sectorInk}
+                >
+                  <CaseTimeline scandal={scandal} sectorAccent={sectorAccent} lang={lang} />
+                </FeatureSection>
+              )}
+
+              {/* § III — El daño. Charter invariant 14: the § header states
+                  the finding — the meta fragment carries the amount. */}
+              <FeatureSection
+                id="dano"
+                numeral={numeralFor['dano']}
+                title={{ en: 'The damage', es: 'El daño' }}
+                meta={
+                  headlineAmount != null
+                    ? formatCompactMXN(headlineAmount)
+                    : lang === 'es' ? 'Monto y resolución' : 'Amount and resolution'
+                }
+                lang={lang}
+                accent={sectorAccent}
+                ink={sectorInk}
+              >
+                {/* Row 1: the number beside its range note. Row 2: the cost
+                    field spans the story column on its own — squeezed into the
+                    flex cell beside ScaleBlock it rendered ~400px wide with
+                    5.3px labels (D5 Change 6). */}
+                {headlineAmount != null && (
+                  <>
+                    <div className="flex flex-wrap items-start gap-5">
+                      <ScaleBlock
+                        mxn={headlineAmount}
+                        sectorAccent={accentKind}
+                        ink={accentInk}
+                        lang={lang}
+                      />
+                      {rangeText && (
+                        <p
+                          className="flex-1 min-w-[240px]"
+                          style={{
+                            fontFamily: '"EB Garamond", Georgia, serif',
+                            fontStyle: 'normal',
+                            fontSize: 13.5,
+                            color: 'var(--color-text-muted)',
+                            maxWidth: '44ch',
+                          }}
+                        >
+                          {rangeText}
+                        </p>
+                      )}
+                    </div>
+                    <CostInArchive
+                      amount={headlineAmount}
+                      sectorId={scandal.sector_id ?? scandal.sector_ids?.[0] ?? null}
+                      sectorName={sectorName}
+                      accentKind={accentKind}
+                      ink={accentInk}
+                      allCases={allCases}
+                      lang={lang}
+                    />
+                  </>
+                )}
+                {/* amount/ruling notes are analyst content authored in English
+                    only — lang="en" keeps screen readers correct on /es. */}
+                {scandal.amount_note && (
+                  <MarginNote kicker={lang === 'es' ? 'Nota · Monto' : 'Note · Amount'}>
+                    <span lang="en">{scandal.amount_note}</span>
+                  </MarginNote>
+                )}
+
+                <SeverityScale severity={scandal.severity} distribution={severityDistribution} lang={lang} />
+
+                {/* Legal status callout */}
+                <div
+                  className="mt-6"
+                  style={{ borderLeft: `3px solid ${disposition.ring ? 'var(--color-accent)' : disposition.fill}`, paddingLeft: 18 }}
+                >
+                  <p
+                    className="font-mono mb-1.5 uppercase"
+                    style={{ fontSize: 13, letterSpacing: '0.16em', color: disposition.ink, fontWeight: 700 }}
+                  >
+                    {dispositionLabel(scandal.legal_status, lang)}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: '"EB Garamond", Georgia, serif',
+                      fontStyle: 'normal',
+                      fontSize: 15.5,
+                      lineHeight: 1.55,
+                      color: 'var(--color-text-secondary)',
+                      maxWidth: '60ch',
+                    }}
+                  >
+                    {legalStatusBody(scandal.legal_status, lang)}
+                  </p>
+                </div>
+                {scandal.legal_status_note && (
+                  <MarginNote kicker={lang === 'es' ? 'Nota · Fallo' : 'Note · Ruling'}>
+                    <span lang="en">{scandal.legal_status_note}</span>
+                  </MarginNote>
+                )}
+              </FeatureSection>
+
+              {/* § IV — Los actores */}
+              {hasActors && (
+                <FeatureSection
+                  id="actores"
+                  numeral={numeralFor['actores']}
+                  title={{ en: 'The actors', es: 'Los actores' }}
+                  meta={
+                    lang === 'es'
+                      ? `${scandal.key_actors.length} en el expediente`
+                      : `${scandal.key_actors.length} in the file`
+                  }
+                  lang={lang}
+                  accent={sectorAccent}
+                  ink={sectorInk}
+                  movement={implicatedMovement}
+                >
+                  <ActorList actors={scandal.key_actors} linkedVendors={vendors} lang={lang} />
+                </FeatureSection>
+              )}
+
+              {/* § V — Los proveedores */}
+              <FeatureSection
+                id="proveedores"
+                numeral={numeralFor['proveedores']}
+                title={{ en: 'The vendors', es: 'Los proveedores' }}
+                meta={
+                  vendors.length > 0
+                    ? lang === 'es'
+                      ? `${vendors.length} vinculados`
+                      : `${vendors.length} linked`
+                    : undefined
+                }
+                lang={lang}
+                accent={sectorAccent}
+                ink={sectorInk}
+                movement={hasActors ? undefined : implicatedMovement}
+              >
+                {vendors.length > 0 || ghostVendors.length > 0 ? (
+                  <LinkedVendorList vendors={vendors} ghostActors={ghostVendors} lang={lang} />
+                ) : !visibilityNone ? (
+                  <p
+                    style={{
+                      fontFamily: '"EB Garamond", Georgia, serif',
+                      fontStyle: 'normal',
+                      fontSize: 14.5,
+                      color: 'var(--color-text-muted)',
+                      maxWidth: '60ch',
+                    }}
+                  >
+                    {lang === 'es'
+                      ? 'Sin proveedores vinculados al expediente en la base de verdad de terreno.'
+                      : 'No vendors linked to this file in the ground-truth base.'}
+                  </p>
+                ) : null}
+                <CompranetVisibilityBanner scandal={scandal} lang={lang} />
+              </FeatureSection>
+
+              {/* § VI — Las fuentes */}
+              {hasSources && (
+                <FeatureSection
+                  id="fuentes"
+                  numeral={numeralFor['fuentes']}
+                  title={{ en: 'The sources', es: 'Las fuentes' }}
+                  meta={lang === 'es' ? 'Qué se cita' : 'What is cited'}
+                  lang={lang}
+                  accent={sectorAccent}
+                  ink={sectorInk}
+                >
+                  <SourceList sources={scandal.sources} lang={lang} />
+                </FeatureSection>
+              )}
+            </div>
+          </div>
+
+          <KeepReadingFooter current={scandal} allCases={allCases} lang={lang} />
+          <ProvenanceFooter lang={lang} />
+         </div>
+        </div>
+      </div>
+    </DossierOriginProvider>
+  )
+}

@@ -1,0 +1,85 @@
+/**
+ * EvidenceIndex — «Las marcas de evidencia» (§3.5 network-la-trama-fable spec).
+ *
+ * Horizontal wrap strip that reads the graph's evidence marks (E1..E4) into
+ * the record: an ochre "tent" glyph per mark + one EB Garamond clause.
+ * Clicking a mark focuses its vendor (edge marks focus the higher-pagerank
+ * endpoint) — mirrors the ICIJ Pandora annotated-diagram numbered overlay.
+ */
+import type { JSX } from 'react'
+import type { EvidenceEntry } from '@/lib/network/evidence'
+import { cn } from '@/lib/utils'
+
+interface EvidenceIndexProps {
+  entries: EvidenceEntry[]
+  onFocusVendor: (vendorId: number) => void
+  lang: 'en' | 'es'
+}
+
+export function EvidenceIndex({ entries, onFocusVendor, lang }: EvidenceIndexProps): JSX.Element | null {
+  if (entries.length === 0) return null
+
+  return (
+    <div className="mt-3 pt-3" style={{ borderTop: '0.5px solid var(--color-border)' }}>
+      <h2
+        className="font-mono uppercase mb-2"
+        style={{ fontSize: 13, letterSpacing: '0.16em', color: 'var(--color-text-muted)' }}
+      >
+        {lang === 'es' ? '§ Marcas de evidencia' : '§ Evidence marks'}
+      </h2>
+      {/* D4 § 5 — a two-column grid instead of a wrap of 320px boxes: the
+          clauses fill the plate's width instead of ragging down its left. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-2.5">
+        {entries.map((entry) => {
+          const clause = lang === 'es' ? entry.clause_es : entry.clause_en
+          const ariaLabel =
+            lang === 'es'
+              ? `Enfocar firma señalada por la marca ${entry.id}: ${clause}`
+              : `Focus the firm flagged by mark ${entry.id}: ${clause}`
+          return (
+            <button
+              key={entry.id}
+              type="button"
+              onClick={() => onFocusVendor(entry.focusVendorId)}
+              aria-label={ariaLabel}
+              className={cn(
+                'flex w-full items-start gap-2 text-left',
+                'hover:opacity-80 transition-opacity cursor-pointer',
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+              )}
+            >
+              <span
+                className="flex-shrink-0 flex items-center justify-center font-mono"
+                style={{
+                  // D4 § 1: same glyph as the plate's tent, so the index and
+                  // the plate read as one key (was 11px/8px against 16px/10px).
+                  width: 16,
+                  height: 16,
+                  marginTop: 1,
+                  borderRadius: 1,
+                  fontWeight: 700,
+                  background: 'var(--color-accent)',
+                  color: '#ffffff',
+                  fontSize: 10,
+                  lineHeight: 1,
+                }}
+              >
+                {entry.id}
+              </span>
+              <span
+                style={{
+                  fontFamily: '"EB Garamond", Georgia, serif',
+                  fontSize: 13,
+                  lineHeight: 1.35,
+                  color: 'var(--color-text-secondary)',
+                }}
+              >
+                {clause}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}

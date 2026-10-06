@@ -1,0 +1,218 @@
+# RUBLI Production Deployment
+# Uses the optimized deploy database (~2.4 GB vs 6 GB)
+#
+# Usage:
+#   docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+#
+# Prerequisites:
+#   1. Copy .env.prod.example → .env.prod and set CORS_ORIGINS + ACME_EMAIL
+#   2. Ensure backend/RUBLI_DEPLOY.db exists (run: python backend/scripts/create_deploy_db.py)
+#   3. Point rubli.xyz DNS A record → server IP before starting (Caddy needs domain reachable)
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rubli-backend
+    volumes:
+      - ./backend/RUBLI_DEPLOY.db:/app/RUBLI_DEPLOY.db
+    environment:
+      - PYTHONPATH=/app
+      - DATABASE_PATH=/app/RUBLI_DEPLOY.db
+      # Production rules: write endpoints fail closed without RUBLI_WRITE_KEY and
+      # the JWT secret is mandatory. Unset, the backend runs with dev semantics.
+      - RUBLI_ENV=production
+      # Set CORS_ORIGINS in .env.prod (e.g. https://rubli.xyz,http://rubli.xyz)
+      # IMPORTANT: if CORS_ORIGINS is unset the backend Python fallback applies
+      # (localhost:3009 only).  Always set this in .env.prod for production.
+      - CORS_ORIGINS=${CORS_ORIGINS}
+      - RUBLI_WRITE_KEY=${RUBLI_WRITE_KEY:?RUBLI_WRITE_KEY must be set in .env.prod}
+      # JWT signing secret — MUST be injected from .env.prod. Without it the
+      # backend (auth_jwt.py) falls back to a literal that is public in the
+      # source repo → forgeable tokens. Fail the deploy if it is unset.
+      - RUBLI_JWT_SECRET=${RUBLI_JWT_SECRET:?RUBLI_JWT_SECRET must be set in .env.prod}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+          cpus: '3'
+    networks:
+      - rubli-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      # SECURITY: Write key is NOT passed as a build arg — Vite bakes build args into the
+      # JS bundle where any visitor can read them with browser devtools.  Instead, the key
+      # is injected at container startup via an entrypoint script (see frontend/Dockerfile).
+    environment:
+      # Injected at nginx startup — never baked into the JS bundle.
+      - RUBLI_WRITE_KEY=${RUBLI_WRITE_KEY:-}
+    container_name: rubli-frontend
+    # No host port binding — Caddy proxies to this container internally
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '1'
+    networks:
+      - rubli-network
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: rubli-caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data        # Persists TLS certificates across restarts
+      - caddy_config:/config
+    environment:
+      - ACME_EMAIL=${ACME_EMAIL:-admin@rubli.xyz}
+    depends_on:
+      - frontend
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '1'
+    networks:
+      - rubli-network
+
+  aria-cron:
+    # SECURITY: Docker socket removed.
+    # Previously this service mounted /var/run/docker.sock:ro and used
+    #   `docker exec rubli-backend sh /app/scripts/aria_cron.sh`
+    # to trigger the ARIA pipeline.  Mounting the Docker socket grants
+    # container-breakout-level access (full Docker API including image pulls,
+    # container creation, and volume access), which violates least-privilege.
+    #
+    # Replacement: the cron container triggers the pipeline via an HTTP POST
+    # to the backend's internal /api/v1/aria/run-pipeline endpoint, which is
+    # only reachable inside rubli-network (not exposed to the public internet).
+    # Authentication is enforced via the X-Rubli-Key header (RUBLI_WRITE_KEY).
+    image: alpine:3.19
+    container_name: rubli-aria-cron
+    # No volume mounts — no socket, no DB access.
+    environment:
+      - RUBLI_WRITE_KEY=${RUBLI_WRITE_KEY:?RUBLI_WRITE_KEY must be set in .env.prod}
+      - BACKEND_URL=http://rubli-backend:8001
+    # Run ARIA pipeline daily at 03:00 UTC via internal HTTP call.
+    # Uses sh + while-sleep loop (no cron daemon needed, simpler than alpine/cron).
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        # Install wget (busybox wget is built-in to alpine, no extra install needed)
+        echo "ARIA cron scheduler started — will trigger daily at 03:00 UTC via HTTP"
+        while true; do
+          # Calculate seconds until next 03:00 UTC (pure awk — works on BusyBox/Alpine)
+          now=$$(date -u +%s)
+          next=$$(awk 'BEGIN{t=systime(); m=t-(t%86400); r=m+10800; if(r<=t)r+=86400; print r}')
+          wait_secs=$$(( $$next - $$now ))
+          echo "Next ARIA run in $${wait_secs}s"
+          sleep $$wait_secs
+          echo "$$(date -u '+%Y-%m-%d %H:%M:%S UTC') — Triggering ARIA daily pipeline via HTTP"
+          wget -q -O - --header="X-Rubli-Key: $${RUBLI_WRITE_KEY}" \
+               --post-data="" \
+               "$${BACKEND_URL}/api/v1/aria/run" \
+            && echo "ARIA trigger sent" \
+            || echo "ARIA HTTP trigger failed — check backend logs"
+        done
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+    deploy:
+      resources:
+        limits:
+          memory: 64M
+          cpus: '0.25'
+    networks:
+      - rubli-network
+
+  backup-cron:
+    image: keinos/sqlite3:latest
+    container_name: rubli-backup-cron
+    volumes:
+      - ./backend/RUBLI_DEPLOY.db:/db/RUBLI_DEPLOY.db:ro
+      - rubli_backups:/backups
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Backup cron started — daily at 02:00 UTC"
+        while true; do
+          now=$$(date -u +%s)
+          target=$$(awk 'BEGIN{t=systime(); m=t-(t%86400); r=m+7200; if(r<=t)r+=86400; print r}')
+          wait_secs=$$(( $$target - $$now ))
+          echo "Next backup in $${wait_secs}s"
+          sleep $$wait_secs
+          stamp=$$(date -u +%Y%m%d_%H%M%S)
+          echo "$$(date -u) — Starting backup rubli_$${stamp}.db"
+          cp /db/RUBLI_DEPLOY.db "/backups/rubli_$${stamp}.db" && \
+            echo "Backup complete: rubli_$${stamp}.db ($(du -sh /backups/rubli_$${stamp}.db | cut -f1))" || \
+            echo "Backup FAILED"
+          # Rotate: keep only last 7 days
+          find /backups -name 'rubli_*.db' -mtime +7 -delete 2>/dev/null || true
+          echo "Rotation done — listing backups:"
+          ls -lh /backups/rubli_*.db 2>/dev/null || echo "(no backups yet)"
+        done
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.25'
+    networks:
+      - rubli-network
+
+volumes:
+  caddy_data:
+  caddy_config:
+  rubli_backups:
+
+networks:
+  rubli-network:
+    driver: bridge

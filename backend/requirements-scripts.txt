@@ -1,0 +1,17 @@
+# RUBLI pipeline extras: model training, anomaly detection, entity resolution.
+# Not needed for the API server or the test suite.
+#   pip install -r requirements-scripts.txt
+-r requirements.txt
+
+# ML / model training
+scikit-learn>=1.3.0        # Logistic regression, IsolationForest, calibration, metrics
+optuna>=3.0.0              # Hyperparameter tuning (calibrate_risk_model_v6_enhanced.py)
+shap>=0.45.0               # SHAP explanations (compute_shap_explanations.py)
+pyod>=2.0.0                # Anomaly detection ensemble (compute_ml_anomalies_pyod.py)
+
+# Entity resolution (hyperion/splink)
+splink>=4.0.0
+rapidfuzz>=3.0.0
+
+# Network analysis
+networkx>=3.0              # Vendor community detection

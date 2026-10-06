@@ -1,0 +1,190 @@
+{
+  "kicker": "INSTITUTIONS · WHERE THE HIGH-RISK MONEY IS",
+  "meta": "FEDERAL · 2002–2025 · v0.8.5",
+  "headline": {
+    "beforeNone": "Of {{total}} {{who}}, ",
+    "accentNone": "none reaches Excellent",
+    "afterNone": " — and {{failing}} operate at Deficient or worse.",
+    "beforeSome": "Of {{total}} {{who}}, only ",
+    "accentSome": "{{n}} reach Excellent",
+    "afterSome": " — and {{failing}} operate at Deficient or worse."
+  },
+  "lede": "The {{name}} concentrates {{money}} in high- and critical-risk contracts — the highest exposure {{where}}. Position on the plate below is the integrity score; stroke height is money at risk.",
+  "podiumAriaLabel": "#{{rank}}: {{name}}, score {{score}}",
+  "tableKicker": "Full Table",
+  "tableHeadline": "Complete ranking — {{total}} institutions",
+  "acts": {
+    "one": "LEADERS OF THE PACK",
+    "two": "THE FULL RANKING"
+  },
+  "champions": {
+    "kicker": "THE HONOR ROLL",
+    "headline": "Honor roll — with reservations",
+    "sub": "These agencies rank highest on openness, price fairness and vendor diversity. They prove it is possible."
+  },
+  "redFlags": {
+    "kicker": "THE RED FLAGS",
+    "headline": "Five institutions that failed the test",
+    "sub": "Bottom-ranked agencies. Each one scores below 40 on the five pillars — a verdict of systemic capture risk."
+  },
+  "histogram": {
+    "kicker": "THE SHAPE OF ACCOUNTABILITY",
+    "headline": "Score distribution across {{total}} federal institutions",
+    "sub": "Every institution fits in one of five bands. The median is {{median}}.",
+    "bandLabel": "{{min}}–{{max}}",
+    "ariaLabel": "Score distribution histogram showing institutions grouped by 20-point score bands"
+  },
+  "pillarRadar": {
+    "ariaLabel": "Pillar breakdown for {{name}}",
+    "title": "Five-pillar breakdown",
+    "openness": "Competitive Openness",
+    "price": "Process Integrity",
+    "vendors": "Tail Risk (P90)",
+    "process": "External Flags",
+    "external": "Vendor Independence"
+  },
+  "boleta": {
+    "title": "The scorecard — five pillars",
+    "ariaLabel": "Pillar scorecard for {{name}}"
+  },
+  "peerPercentileLine": "Worse than {{pct}}% of its sector",
+  "confidenceLine": "Confidence: {{band}}",
+  "p90Line": "P90 risk indicator {{score}}",
+  "moneyAtRiskLine": "{{money}} at risk",
+  "weakestPillarLine": "Weakest pillar: {{label}} — {{value}}/{{max}}",
+  "expandRow": "Show pillar breakdown — {{name}}",
+  "collapseRow": "Hide pillar breakdown — {{name}}",
+  "openDossier": "Open full dossier",
+  "finding": {
+    "critical": "Only {{pct}}% of institutions reach Satisfactory or better. {{failing}} are flagged at the Critical level.",
+    "normal": "Only {{pct}}% of {{total}} evaluated institutions reach the Satisfactory level or better."
+  },
+  "filters": {
+    "searchPlaceholder": "Search institutions…",
+    "sectorLabel": "Sector",
+    "allSectors": "All sectors",
+    "allTiers": "All levels",
+    "adjustFilters": "Try adjusting your filters or search query.",
+    "search": "Search institutions",
+    "tier": "Level",
+    "results": "{{num}} institutions"
+  },
+  "scope": {
+    "label": "Scope",
+    "federal": "Federal (APF)",
+    "subnational": "Subnational",
+    "all": "All",
+    "federalOnly": "Federal (APF)",
+    "disclaimerFederal": "Federal scope — the validated federal-administration buyers (IMSS · PEMEX · CFE · secretariats). Grades are absolute, not a curve: no Mexican federal buyer earns 'Excellent' on merit. The Honor Roll and Red Flags exclude institutions with fewer than 30 contracts.",
+    "disclaimerSubnational": "State and municipal institutions, ranked on their own board — their small samples and locally-set procedures cannot be benchmarked against federal-procurement norms. Never co-mingled with the federal ranking.",
+    "disclaimerAll": "Every institution in COMPRANET, federal and subnational together. Use the separate boards for comparable rankings."
+  },
+  "stats": {
+    "totalScored": "Scored Institutions",
+    "medianScore": "Median Score",
+    "topPerformer": "Top Performer",
+    "worstPerformer": "Worst Performer",
+    "outOfHundred": "/ 100",
+    "evaluated": "Evaluated institutions",
+    "critical": "Deficient or critical",
+    "median": "Median score",
+    "tiers": "Levels",
+    "tiersRange": "Excellent → Critical"
+  },
+  "statsAriaLabel": "General statistics",
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{page}} of {{total}}",
+    "ariaLabel": "Pagination",
+    "previousAriaLabel": "Previous page",
+    "nextAriaLabel": "Next page"
+  },
+  "hallazgo": "FINDING",
+  "columns": {
+    "institution": "Institution",
+    "grade": "Level",
+    "score": "Score",
+    "pillars": "Pillars",
+    "weakPillar": "Weak pillar",
+    "moneyAtRisk": "Money at risk",
+    "trend": "Trend",
+    "percentile": "National %ile"
+  },
+  "tiers": {
+    "Excelente": "Excellent",
+    "Satisfactorio": "Satisfactory",
+    "Regular": "Adequate",
+    "Deficiente": "Deficient",
+    "Critico": "Critical"
+  },
+  "distribution": {
+    "title": "Distribution by transparency level",
+    "ariaLabel": "Distribution by transparency level"
+  },
+  "trend": {
+    "improving": "Improving",
+    "stable": "Stable",
+    "declining": "Declining",
+    "none": "No trend data"
+  },
+  "percentileLabel": "Percentile {{n}}",
+  "worstPerformerBadge": "Worst",
+  "tableAriaLabel": "Institution ranking",
+  "rowAriaLabel": "#{{rank}} {{name}}, score {{score}}, level {{tier}}",
+  "empty": "No institutions match your current filters.",
+  "loadingShort": "Loading…",
+  "error": "Failed to load institution rankings. Please try again.",
+  "sortAriaLabel": "Sort by {{label}}",
+  "dossierLinkAriaLabel": "Open full institution dossier for {{name}}",
+  "dossierLinkTitle": "Open full dossier",
+  "methodologyFootnote": "RUBLI Procurement Health Index v0.8.5 · COMPRANET 2002–2025 · OECD / IMF methodology · Source: COMPRANET / SHCP",
+  "tabs": {
+    "ranking": "Ranking",
+    "fichas": "Scorecards",
+    "reporte": "Report",
+    "ariaLabel": "Institution views"
+  },
+  "exposure": {
+    "kicker": "Money-at-Risk",
+    "headline": "The biggest exposures the integrity score can't see",
+    "sub": "Ranked by value flowing through high- and critical-risk contracts — a distinct axis from transparency. Institutions with 100+ contracts."
+  },
+  "plate": {
+    "eyebrow": "PLATE · I — THE SPECTRAL REGISTER",
+    "emptyExcelente": "No federal institution reaches this band",
+    "medianTag": "MEDIAN {{score}}",
+    "tooltipScore": "Score {{score}}/100",
+    "tooltipContracts": "{{n}} contracts",
+    "unavailableSubnational": "The Spectral Register plots only the federal board — state and municipal institutions have incomparable sample sizes and procedures. Switch to Federal scope to see the plate.",
+    "unavailableAll": "The Spectral Register plots only the federal board. Switch to Federal scope to see the plate.",
+    "emptyExcelenteBand": "No federal institution reaches the Excellent band (80–100).",
+    "bandsLegend": "Bands, left to right"
+  },
+  "methodologyLink": "Methodology",
+  "zeroMoneyAtRisk": "No high- or critical-risk contracts",
+  "thinSample": "Below the {{n}}-contract reliability floor — listed here, excluded from the headline, the plate, the honor roll and the red flags",
+  "confidenceBands": {
+    "wide": "low",
+    "medium": "medium",
+    "narrow": "high",
+    "high": "very high"
+  },
+  "lastContract": "last contract {{year}}",
+  "lastContractTitle": "No contracts since {{year}} — outside the 2018+ officials window",
+  "lowestInSector": "Lowest in its sector",
+  "weakestShort": "Weakest",
+  "redSignalsLine_one": "{{count}} red signal",
+  "redSignalsLine_other": "{{count}} red signals",
+  "listStatus": "{{num}} institutions · page {{page}} of {{total}} · sorted by {{label}}",
+  "scopeWho": {
+    "federal": "federal buyers",
+    "subnational": "state and municipal buyers",
+    "all": "buyers on CompraNet"
+  },
+  "scopeWhere": {
+    "federal": "on the federal register",
+    "subnational": "on the subnational board",
+    "all": "across CompraNet"
+  }
+}

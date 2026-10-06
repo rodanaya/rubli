@@ -1,0 +1,36 @@
+name: Data error report / Reporte de error en datos
+description: A contract, vendor or institution record looks wrong (amount, name, date, sector, risk indicator).
+labels: [data]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        RUBLI republishes public CompraNet / ComprasMX records. Please do **not** include personal data
+        of private individuals (names of personas físicas, personal RFCs, addresses).
+        Risk scores are statistical indicators, not findings of wrongdoing.
+  - type: dropdown
+    id: entity
+    attributes:
+      label: Record type
+      options: [Contract, Vendor, Institution, ComprasMX gap award, Other]
+    validations:
+      required: true
+  - type: input
+    id: ids
+    attributes:
+      label: Contract / vendor / institution ID or URL
+      placeholder: https://rubli.xyz/contracts/1234567 · vendor 12345
+    validations:
+      required: true
+  - type: textarea
+    id: wrong
+    attributes:
+      label: What is wrong, and what is correct?
+      description: e.g. amount off by 1,000×, two vendors that are the same company, wrong sector.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source for the correct value
+      description: Link to the official record (CompraNet/ComprasMX expediente, DOF, SAT list, ASF report).

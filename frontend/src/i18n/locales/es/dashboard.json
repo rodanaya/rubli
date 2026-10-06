@@ -1,0 +1,16 @@
+{
+  "patterns": {
+    "typology": {
+      "ofContracts": "de contratos",
+      "footnote": "1 ● ≈ 2% de contratos clasificados · severity = nivel de riesgo estructural"
+    }
+  },
+  "competition.mexicoLabel": "México",
+  "competition.oecdMin": "Línea del Tablero UE",
+  "competition.gapLabel": "Brecha",
+  "storyCarouselTitle": "La Historia en Datos",
+  "pauseCarousel": "Pausar",
+  "playCarousel": "Reproducir",
+  "prevSlide": "Anterior",
+  "nextSlide": "Siguiente"
+}

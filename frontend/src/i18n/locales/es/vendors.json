@@ -1,0 +1,174 @@
+{
+  "notFound": "Proveedor No Encontrado",
+  "notFoundDescription": "El proveedor solicitado no pudo ser encontrado.",
+  "backToVendors": "Volver a Proveedores",
+  "tabs": {
+    "overview": "Resumen",
+    "risk": "Análisis de Riesgo",
+    "history": "Historial de Contratos",
+    "network": "Red",
+    "external": "Registros Externos",
+    "aria": "ARIA",
+    "periodista": "Periodista"
+  },
+  "coBidding": {
+    "title": "Patrón de Co-licitación Detectado",
+    "description": "Este proveedor aparece frecuentemente en los mismos procedimientos con socios específicos.",
+    "suspiciousPatterns": "patrón(es) sospechoso(s) detectado(s).",
+    "topPartners": "Principales Socios de Co-licitación",
+    "sharedProcedures": "procedimientos compartidos",
+    "detectedPatterns": "Patrones Detectados",
+    "coverBidding": "Posible Oferta de Cobertura",
+    "bidRotation": "Posible Rotación de Ofertas",
+    "noPatternsTitle": "No se detectaron patrones significativos de co-licitación",
+    "noPatternsDescription": "Requiere ≥3 procedimientos competitivos compartidos con otro proveedor",
+    "analysisTitle": "Análisis de Co-licitación",
+    "proceduresAnalyzed": "procedimientos analizados",
+    "coverBidder": "¿oferente de cobertura?",
+    "alwaysWins": "¿siempre gana?",
+    "wins": "victorias:",
+    "sameWinner": "mismo ganador",
+    "ofTime": "de las veces",
+    "involves": "Involucra:",
+    "heuristicNote": "Este es un análisis heurístico independiente. Nota: la concentración de co-licitación (cobid_herfindahl) está incluida en el modelo v0.8.5 con coeficiente +0.272. Las tasas brutas de co-licitación aquí son una vista complementaria.",
+    "roleDecoy": "Señuelo",
+    "roleDominant": "Dominante",
+    "roleRotation": "Rotación",
+    "roleModerate": "Co-licitante",
+    "thisVendorWinsLabel": "Este proveedor",
+    "partnerWinsLabel": "Socio"
+  },
+  "groundTruth": {
+    "documentedIn": "Documentado en",
+    "documented": "Documentado:",
+    "couldNotCheck": "No se pudo verificar el estado del caso"
+  },
+  "badges": {
+    "sfpSanctioned": "Sancionado por SFP",
+    "efosStageDef": "SAT EFOS Definitivo (Confirmado)",
+    "efosStagePresunto": "SAT EFOS Presunto (Presunto)"
+  },
+  "flags": {
+    "highDirectAward": "{{pct}}% de contratos fueron adjudicaciones directas (sin licitación competitiva)",
+    "highSingleBid": "{{pct}}% de los procedimientos competitivos tuvieron solo este proveedor licitando",
+    "suspiciousCoBidding": "Patrones sospechosos de co-licitación detectados (análisis heurístico — concentración cobid_herfindahl incluida en modelo v0.8.5 con coeficiente +0.272)",
+    "highClustering": "Alta concentración de red ({{pct}}%) — los socios licitadores forman un grupo muy unido",
+    "primaryDriver": "Factor principal: {{factor}} (z={{z}} — {{z}} desviaciones estándar sobre el promedio sectorial)",
+    "sectionLabel": "POR QUÉ ESTE PROVEEDOR ESTÁ MARCADO",
+    "disclaimer": "Las alertas son indicadores estadísticos de riesgo, no prueba de irregularidades. Úselas solo para priorizar investigaciones."
+  },
+  "vendorFlags": {
+    "groundTruth": {
+      "headline": "Documentado en un caso de corrupción conocido",
+      "detail_one": "Este proveedor aparece en {{count}} caso de la base de entrenamiento del modelo {{version}}.",
+      "detail_other": "Este proveedor aparece en {{count}} casos de la base de entrenamiento del modelo {{version}}."
+    },
+    "unverifiedLead": {
+      "headline": "Aparece en una pista no verificada",
+      "detail": "Este proveedor solo aparece en una pista de caso sin fuente ni verificación. No es un caso etiquetado."
+    },
+    "efosDefinitivo": {
+      "headline": "Empresa fantasma confirmada por el SAT (EFOS Definitivo)",
+      "detail": "La autoridad tributaria mexicana ha listado definitivamente este RFC bajo el Art. 69-B como empresa fantasma emisora de facturas simuladas."
+    },
+    "efosPresunto": {
+      "headline": "Presunta empresa fantasma (EFOS Presunto)",
+      "detail": "Listada por el SAT como presunta empresa fantasma y actualmente bajo investigación."
+    },
+    "sfp": {
+      "headline": "{{n}} sanción(es) de la SFP en registro",
+      "detail": "Sancionada por la Secretaría de la Función Pública.",
+      "headlineName": "{{n}} posible(s) coincidencia(s) con sanciones de la SFP — solo por nombre",
+      "detailName": "Mismo nombre que una entidad sancionada por la Secretaría de la Función Pública. La fuente no proporcionó el RFC, así que la identidad no está confirmada.",
+      "detailAmbiguous": "Este nombre lo comparten varios proveedores del padrón; la sanción podría corresponder a otra empresa."
+    },
+    "ariaT1": {
+      "headline": "ARIA Nivel 1 — nivel más alto del indicador de riesgo (salida del modelo, no una investigación)",
+      "detail": "Patrón principal: {{pattern}}"
+    },
+    "ariaT2": {
+      "headline": "ARIA Nivel 2 — revisión prioritaria",
+      "detail": "Patrón principal: {{pattern}}"
+    },
+    "riskCritical": {
+      "headline": "Puntaje de riesgo crítico ({{pct}}/100) — mayor similitud con patrones de casos etiquetados"
+    },
+    "riskHigh": {
+      "headline": "Puntaje de riesgo alto ({{pct}}/100) — fuerte similitud con patrones de casos etiquetados"
+    },
+    "highDirectAward": {
+      "headline": "{{pct}}% adjudicaciones directas — evita la licitación competitiva"
+    },
+    "highSingleBid": {
+      "headline": "{{pct}}% licitador único en procedimientos competitivos"
+    },
+    "highClustering": {
+      "headline": "Alta concentración de red ({{pct}}%) — los socios licitadores forman un grupo muy unido"
+    },
+    "coBidding": {
+      "headline": "Patrones sospechosos de co-licitación detectados"
+    },
+    "primaryDriver": {
+      "headline": "Factor principal: {{factor}} ({{z}}σ sobre la norma sectorial)"
+    },
+    "fpStructural": {
+      "headline": "Monopolio estructural — el indicador de riesgo no es una anomalía",
+      "detail": "Este proveedor es el único abastecedor en un mercado regulado (p.ej. gases medicinales, farmacéuticos de especialidad). Las altas tasas de adjudicación directa y concentración son esperadas y no indican irregularidades."
+    },
+    "institutionalCapture": {
+      "headline": "{{pct}}% de adjudicaciones provienen de una sola institución ({{inst}})",
+      "detail": "La concentración de contratos con un solo comprador puede indicar captura regulatoria (patrón P6). Verifique si las licitaciones fueron competitivas durante el período."
+    }
+  },
+  "waterfall": {
+    "description": "Las barras positivas aumentan el riesgo (rojo). Las barras negativas son protectoras (gris). La longitud de la barra refleja la contribución de cada factor a la puntuación total.",
+    "totalScore": "Puntuación Total",
+    "contribution": "contribución",
+    "modelCoefficient": "Coeficiente del modelo",
+    "riskIncreasing": "Factor que aumenta el riesgo",
+    "riskReducing": "Factor que reduce el riesgo"
+  },
+  "shap": {
+    "protectiveFactors": "Factores protectores (reducen el riesgo):"
+  },
+  "noContributingFactors": "No se encontraron factores de riesgo contribuyentes.",
+  "yearEnd": {
+    "title": "Concentración de Fin de Año",
+    "vendorPct": "Este proveedor",
+    "sectorAvg": "Promedio sectorial",
+    "description": "Los contratos de diciembre evitan los ciclos normales de revisión — una anomalía de tiempo asociada con el vaciado de presupuesto."
+  },
+  "aria": {
+    "notInQueue": "Este proveedor no está en la cola de investigación ARIA.",
+    "notInQueueNote": "Solo los proveedores con un IPS significativo aparecen aquí.",
+    "ipsBanner": "IPS (Puntaje de Prioridad de Investigación)",
+    "ipsBreakdown": "Desglose del IPS",
+    "patternConfidences": "Confianza en Patrones",
+    "signals": "Señales",
+    "burstScore": "Puntaje de Ráfaga",
+    "fpPenalty": "Penalización por Falso Positivo",
+    "riskScoreLabel": "Puntaje de Riesgo (v0.8.5)"
+  },
+  "sectorPercentile": "Top {{pct}}% en sector",
+  "vendorGroupTooltip": "Este proveedor pertenece a un grupo de red relacionado",
+  "riskBadge": {
+    "critical": "CRIT",
+    "high": "ALTO",
+    "medium": "MED",
+    "low": "BAJO"
+  },
+  "share": "Compartir",
+  "lede": {
+    "eyebrow": "PERFIL DE PROVEEDOR",
+    "directAward": "{{pct}}% adjudicación directa",
+    "riskDetected": "Riesgo {{level}} detectado por modelo v0.8.5",
+    "contractsAnalyzed": "{{n}} contratos analizados",
+    "contractsSuffix": "Total: {{value}} · {{n}} contratos",
+    "riskLabels": {
+      "critical": "CRÍTICO",
+      "high": "ALTO",
+      "medium": "MEDIO",
+      "low": "BAJO"
+    }
+  }
+}

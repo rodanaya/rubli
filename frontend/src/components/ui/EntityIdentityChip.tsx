@@ -1,0 +1,336 @@
+/**
+ * EntityIdentityChip — the unifying primitive that renders ANY entity in the
+ * platform with one consistent grammar.
+ *
+ * Per internal planning note SITE_SKELETON (not published): the platform has 9 entity types (vendor,
+ * institution, sector, category, case, pattern, network, investigation,
+ * story). Before this primitive, each of 28+ surfaces invented its own
+ * vendor/institution/category cell — different name casing, different
+ * risk encoding, different navigation target. The 6-agent audit found
+ * 5 distinct vendor name renderings + 6 risk visual treatments across
+ * the same set of pages.
+ *
+ * This component is the single funnel:
+ *   <EntityIdentityChip type="vendor" id={29277} name={v.name}
+ *     riskScore={v.avg_risk_score} ariaTier={v.tier}
+ *     flags={['gt', 'efos']} />
+ *
+ * Renders: type icon · formatted name · right-aligned context badge.
+ * Click → navigates to the canonical dossier route /{type}/:id.
+ *
+ * `variant="name"` — the one sanctioned rule-1 exception (PARALLAX D7b § Change 7):
+ * a bare Link with the formatted full name, the canonical href and the
+ * wayfinding state, no icon/dot/badge/padding/hover tint, inheriting the
+ * caller's font. Used where the name column IS the figure's typography — the
+ * /sectors Confound Plate and Audited Register (Garamond names). Everything
+ * else renders the chip (the default), so `to={`/sectors/…`}` literals stay
+ * grep-enforceable at 0.
+ */
+import type { CSSProperties, FocusEventHandler, MouseEventHandler, ReactNode } from 'react'
+import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import {
+  Building2, Landmark, Layers, Tag, FileWarning,
+  Fingerprint, Network as NetworkIcon, Briefcase, FileText,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { formatEntityName, type EntityType } from '@/lib/entity/format'
+import { getRiskLevelFromScore, RISK_TEXT_COLORS } from '@/lib/constants'
+import { useDossierOrigin, type WayfindingLinkState } from '@/lib/nav/wayfinding'
+
+const ICON_FOR_TYPE = {
+  vendor: Building2,
+  institution: Landmark,
+  sector: Layers,
+  category: Tag,
+  case: FileWarning,
+  pattern: Fingerprint,
+  network: NetworkIcon,
+  investigation: Briefcase,
+  story: FileText,
+} as const
+
+/**
+ * Canonical route for an entity dossier. Vendors resolve to the single
+ * /vendors/:id dossier. (The /thread/:id narrative format was retired
+ * 2026-06-07 and folded into that dossier; /thread now redirects there.)
+ */
+function dossierHref(type: EntityType, id: string | number): string {
+  const idStr = String(id)
+  switch (type) {
+    case 'vendor':
+      return `/vendors/${idStr}`
+    case 'institution':
+      return `/institutions/${idStr}`
+    case 'sector':
+      return `/sectors/${idStr}`
+    case 'category':
+      return `/categories/${idStr}`
+    case 'case':
+      return `/cases/${idStr}`
+    case 'pattern':
+      return `/patterns/${idStr}`
+    case 'network':
+      return `/network/community/${idStr}`
+    case 'investigation':
+      return `/investigation/${idStr}`
+    case 'story':
+      return `/stories/${idStr}`
+  }
+}
+
+const RISK_COLOR_CLASS: Record<'critical' | 'high' | 'medium' | 'low', string> = {
+  critical: 'text-risk-critical',
+  high: 'text-risk-high',
+  medium: 'text-risk-medium',
+  low: 'text-text-muted',
+}
+
+const RISK_DOT_BG: Record<'critical' | 'high' | 'medium' | 'low', string> = {
+  critical: 'bg-risk-critical',
+  high: 'bg-risk-high',
+  medium: 'bg-risk-medium',
+  low: 'bg-text-muted',
+}
+
+/**
+ * Screen-reader label for the risk dot (PARALLAX D1 § Change 7). The dot used
+ * to carry an `aria-label` on a role-less <span> — which assistive tech is
+ * free to ignore — and the label was English-only.
+ */
+const RISK_LEVEL_LABEL: Record<'critical' | 'high' | 'medium' | 'low', { en: string; es: string }> = {
+  critical: { en: 'critical', es: 'crítico' },
+  high:     { en: 'high',     es: 'alto' },
+  medium:   { en: 'medium',   es: 'medio' },
+  low:      { en: 'low',      es: 'bajo' },
+}
+
+const TIER_LABEL: Record<1 | 2 | 3 | 4, string> = {
+  1: 'T1', 2: 'T2', 3: 'T3', 4: 'T4',
+}
+
+const TIER_BG: Record<1 | 2 | 3 | 4, string> = {
+  1: 'bg-risk-critical/10 border-risk-critical/30',
+  2: 'bg-risk-high/10 border-risk-high/30',
+  3: 'bg-risk-medium/10 border-risk-medium/30',
+  4: 'bg-text-muted/10 text-text-muted border-border',
+}
+
+/**
+ * Badge TYPE ink (D6b C8). The fill and the border keep the vivid mark colour;
+ * the 12px label takes the AA-safe reading ink, because --color-risk-critical
+ * (#ef4444) on the badge's 10%-tinted ground measured 3.33:1 on GT and 3.76:1
+ * on T1 -- the platform's lowest type contrast. RISK_TEXT_COLORS is the same
+ * ink /captura's seals and risk words already use.
+ */
+const BADGE_INK: Record<1 | 2 | 3, string> = {
+  1: RISK_TEXT_COLORS.critical,
+  2: RISK_TEXT_COLORS.high,
+  3: RISK_TEXT_COLORS.medium,
+}
+
+/** Optional status flags shown as badges. EFOS/SFP/GT/Ghost/FP. */
+type FlagKind = 'gt' | 'efos' | 'sfp' | 'ghost' | 'fp_structural'
+
+const FLAG_LABEL: Record<FlagKind, string> = {
+  gt: 'GT', efos: 'EFOS', sfp: 'SFP', ghost: 'Ghost', fp_structural: 'Estructural',
+}
+
+const FLAG_TONE: Record<FlagKind, string> = {
+  gt: 'bg-risk-critical/15',
+  efos: 'bg-risk-critical/15',
+  sfp: 'bg-risk-high/15',
+  ghost: 'bg-risk-high/15',
+  fp_structural: 'bg-text-muted/15 text-text-muted',
+}
+
+/** Flag badge type ink — see BADGE_INK. `fp_structural` keeps its muted class. */
+const FLAG_INK: Partial<Record<FlagKind, string>> = {
+  gt: RISK_TEXT_COLORS.critical,
+  efos: RISK_TEXT_COLORS.critical,
+  sfp: RISK_TEXT_COLORS.high,
+  ghost: RISK_TEXT_COLORS.high,
+}
+
+export interface EntityIdentityChipProps {
+  type: EntityType
+  id: string | number
+  name: string | null | undefined
+
+  /** Sizes: xs=20px height (compact lists), sm=24px (table rows), md=32px (cards) */
+  size?: 'xs' | 'sm' | 'md'
+
+  /** Optional risk score (0-1). If provided, renders a risk dot. */
+  riskScore?: number | null
+
+  /** Optional ARIA tier (1-4). If provided, renders a tier badge. */
+  ariaTier?: 1 | 2 | 3 | 4 | null
+
+  /** Optional status flags. Max 2 rendered (highest priority first). */
+  flags?: FlagKind[]
+
+  /** Sector code for vendor/institution/category — sets a left-edge color dot. */
+  sectorCode?: string | null
+
+  /** @deprecated Narrative (/thread/:id) retired 2026-06-07; vendors now have a single /vendors/:id dossier. Accepted for back-compat but ignored. */
+  narrative?: boolean
+
+  /** Hide the type icon (when context already implies the type, e.g. inside a vendor list). */
+  hideIcon?: boolean
+
+  /**
+   * Editorial-dossier opt-in: render the full (untruncated) entity name and
+   * allow it to wrap to two lines instead of single-line ellipsis. Use in
+   * narrative surfaces (institutional-capture list, co-bidding partners)
+   * where legibility of full Mexican entity names beats compact density.
+   */
+  fullName?: boolean
+
+  className?: string
+
+  /** 'chip' (default) or 'name' — see the file header. */
+  variant?: 'chip' | 'name'
+  /** name variant only: the link's accessible name (e.g. the row's full reading). */
+  ariaLabel?: string
+  /** name variant only: the caller's inline type (the chip ignores it). */
+  style?: CSSProperties
+  onFocus?: FocusEventHandler<HTMLAnchorElement>
+  onBlur?: FocusEventHandler<HTMLAnchorElement>
+  onMouseEnter?: MouseEventHandler<HTMLAnchorElement>
+  onMouseLeave?: MouseEventHandler<HTMLAnchorElement>
+  /** name variant only: content other than the name (a "view dossier ↗" line,
+   *  a phone row's figure) — the link stays the canonical dossier link. */
+  children?: ReactNode
+}
+
+export function EntityIdentityChip({
+  type,
+  id,
+  name,
+  size = 'sm',
+  riskScore,
+  ariaTier,
+  flags,
+  sectorCode,
+  hideIcon = false,
+  fullName = false,
+  className,
+  variant = 'chip',
+  ariaLabel,
+  style,
+  onFocus,
+  onBlur,
+  onMouseEnter,
+  onMouseLeave,
+  children,
+}: EntityIdentityChipProps) {
+  const { i18n } = useTranslation()
+  const isEs = i18n.language?.startsWith('es')
+  const Icon = ICON_FOR_TYPE[type]
+  const displayName = formatEntityName(type, name, fullName ? 'full' : size)
+  const href = dossierHref(type, id)
+
+  // El Hilo (P2): when this chip lives inside a dossier, stamp that dossier's
+  // identity onto the link state so the destination can offer "← Volver a X".
+  // Self-links (a chip pointing at its own host dossier) carry no origin.
+  const origin = useDossierOrigin()
+  const linkState: WayfindingLinkState | undefined =
+    origin && origin.route !== href ? { wfOrigin: origin } : undefined
+
+  if (variant === 'name') {
+    const fullDisplay = formatEntityName(type, name, 'full')
+    return (
+      <Link
+        to={href}
+        state={linkState}
+        title={fullDisplay}
+        aria-label={ariaLabel}
+        className={cn('rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60', className)}
+        style={style}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        {children ?? fullDisplay}
+      </Link>
+    )
+  }
+
+  // fullName mode lets the chip grow vertically (2-line wrap) rather than
+  // forcing a fixed single-line height that triggers ellipsis.
+  const heightCls = fullName
+    ? (size === 'xs' ? 'min-h-5 text-[13px]' : size === 'sm' ? 'min-h-6 text-xs' : 'min-h-8 text-sm')
+    : size === 'xs' ? 'h-5 text-[13px]' : size === 'sm' ? 'h-6 text-xs' : 'h-8 text-sm'
+  const iconSize = size === 'xs' ? 'h-3 w-3' : size === 'sm' ? 'h-3.5 w-3.5' : 'h-4 w-4'
+  const dotSize = size === 'xs' ? 'h-1.5 w-1.5' : 'h-2 w-2'
+  // PARALLAX D1 § Change 7: xs was 13px against sm's 12px — the smaller size
+  // rendered the LARGER badge. Inversion fixed.
+  const tierSize = size === 'xs' ? 'text-[12px] px-1 py-px' : 'text-[12px] px-1 py-0.5'
+
+  const riskLevel = typeof riskScore === 'number' ? getRiskLevelFromScore(riskScore) : null
+  const riskDotLabel = riskLevel
+    ? `${isEs ? 'Riesgo' : 'Risk'}: ${isEs ? RISK_LEVEL_LABEL[riskLevel].es : RISK_LEVEL_LABEL[riskLevel].en}`
+    : ''
+  const flagsToShow = (flags ?? []).slice(0, 2)
+
+  return (
+    <Link
+      to={href}
+      state={linkState}
+      className={cn(
+        fullName ? 'flex w-full items-center' : 'inline-flex items-center',
+        'gap-1.5 rounded-sm px-1.5 transition-colors',
+        'hover:bg-background-elevated/60 focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-1',
+        heightCls,
+        className,
+      )}
+      // PARALLAX D1 § Change 7: the tooltip showed the raw COMPRANET name
+      // (all-caps, trailing legal suffixes); it now matches what is rendered.
+      title={displayName || (name ?? '')}
+    >
+      {sectorCode && (
+        <span
+          className={cn('rounded-full flex-shrink-0', dotSize)}
+          style={{ backgroundColor: `var(--color-sector-${sectorCode}, var(--color-text-muted))` }}
+          aria-hidden="true"
+        />
+      )}
+      {!hideIcon && <Icon className={cn(iconSize, 'flex-shrink-0 text-text-muted')} aria-hidden="true" />}
+      <span
+        className={cn(
+          'font-medium',
+          fullName ? 'break-words leading-snug min-w-0' : 'truncate',
+          riskLevel ? RISK_COLOR_CLASS[riskLevel] : 'text-text-primary',
+        )}
+      >
+        {displayName}
+      </span>
+      {ariaTier && (
+        <span
+          className={cn('flex-shrink-0 rounded-sm border font-mono font-bold tracking-wider uppercase', tierSize, TIER_BG[ariaTier])}
+          style={ariaTier === 4 ? undefined : { color: BADGE_INK[ariaTier] }}
+        >
+          {TIER_LABEL[ariaTier]}
+        </span>
+      )}
+      {riskLevel && !ariaTier && (
+        <span
+          className={cn('flex-shrink-0 rounded-full', dotSize, RISK_DOT_BG[riskLevel])}
+          role="img"
+          aria-label={riskDotLabel}
+          title={`${riskDotLabel} (${riskScore?.toFixed(2)})`}
+        />
+      )}
+      {flagsToShow.map((flag) => (
+        <span
+          key={flag}
+          className={cn('flex-shrink-0 rounded-sm font-mono font-bold uppercase', tierSize, FLAG_TONE[flag])}
+          style={FLAG_INK[flag] ? { color: FLAG_INK[flag] } : undefined}
+        >
+          {FLAG_LABEL[flag]}
+        </span>
+      ))}
+    </Link>
+  )
+}

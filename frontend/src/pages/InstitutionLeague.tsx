@@ -1,0 +1,1585 @@
+/**
+ * Institution Transparency League
+ *
+ * League-table style ranking of 2,563 scored institutions by their
+ * overall transparency score (0-100) derived from 5 pillars:
+ *   Openness, Price, Vendors, Process, External Alerts
+ *
+ * 5-tier system (i18n-aware):
+ *   Excelente/Excellent, Satisfactorio/Satisfactory, Regular/Adequate,
+ *   Deficiente/Deficient, Critico/Critical
+ *
+ * Editorial dark-mode design: warm-stone palette, prominent numeric scores,
+ * crimson accent for accountability.
+ */
+
+import React, { useMemo, useCallback, lazy, Suspense, useState, useRef, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
+import {
+  TIER_STYLES,
+  TIER_GRADE_MAP,
+  TIER_NAMES,
+  gradeToTierKey,
+  type TierKey,
+  type TierStyle,
+} from '@/lib/tiers'
+import { useSearchParams, Link } from 'react-router-dom'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { Act } from '@/components/layout/Act'
+import {
+  ArrowUp,
+  ArrowDown,
+  ArrowUpDown,
+  TrendingUp,
+  TrendingDown,
+  MoveRight,
+  Crown,
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Trophy,
+  Flag,
+} from 'lucide-react'
+import { scorecardApi } from '@/api/client'
+import { SECTORS, SECTOR_COLORS, RISK_TEXT_COLORS, getSectorName, getSectorTextColor } from '@/lib/constants'
+import {
+  INSTITUTION_PILLARS,
+  pillarLabel,
+} from '@/lib/institution-pillars'
+import { formatNumber, formatDualCurrency, formatCompactMXN } from '@/lib/utils'
+import { formatEntityName } from '@/lib/entity/format'
+import { usePublishSiblingList, useOriginRowFlash } from '@/lib/nav/wayfinding'
+import { useLeagueField } from '@/hooks/useLeagueField'
+import { useIsMobile } from '@/hooks/useIsMobile'
+import { EntityIdentityChip } from '@/components/ui/EntityIdentityChip'
+import { SpectralRegister, SpectralRegisterUnavailableNote } from '@/components/institution/SpectralRegister'
+import { PillarBoleta, getWeakestPillar } from '@/components/institution/PillarBoleta'
+import { pillarDeficitInk, displayPercentile, worseThanSectorPct } from '@/lib/institution-pillars'
+
+// Reverse-lookup: sector display name (Spanish or English) → canonical code,
+// so we can resolve a SECTOR_COLORS swatch from the `sector_name` returned by
+// the scorecards API (which sends the localized name_es, not the code).
+const SECTOR_NAME_TO_CODE: Record<string, string> = SECTORS.reduce<Record<string, string>>(
+  (acc, s) => {
+    acc[s.name.toLowerCase()] = s.code
+    acc[s.nameEN.toLowerCase()] = s.code
+    acc[s.code.toLowerCase()] = s.code
+    return acc
+  },
+  {},
+)
+
+function getSectorColorFromName(sectorName: string | null | undefined): string {
+  if (!sectorName) return SECTOR_COLORS.otros
+  const code = SECTOR_NAME_TO_CODE[sectorName.toLowerCase()] ?? 'otros'
+  return SECTOR_COLORS[code] ?? SECTOR_COLORS.otros
+}
+
+// The scorecards API returns the localized ES `sector_name` (name_es). Resolve
+// it back to a sector code so we can render the locale-correct label via
+// getSectorName(code, lang) — never the raw Spanish string on the EN locale.
+function localizedSectorName(sectorName: string | null | undefined, lang: string): string {
+  if (!sectorName) return ''
+  const code = SECTOR_NAME_TO_CODE[sectorName.toLowerCase()] ?? 'otros'
+  return getSectorName(code, lang === 'es' ? 'es' : 'en')
+}
+
+const ReportCard = lazy(() => import('./ReportCard'))
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+interface InstitutionScorecardItem {
+  institution_id: number
+  institution_name: string
+  ramo_code: number | null
+  sector_name: string | null
+  total_score: number
+  grade: string
+  grade_label: string
+  grade_color: string
+  national_percentile: number | null
+  pillar_openness: number
+  pillar_price: number
+  pillar_vendors: number
+  pillar_process: number
+  pillar_external: number
+  top_risk_driver: string | null
+  confidence_band: string | null
+  p90_risk_score: number | null
+  trend_direction: string | null
+  peer_percentile_sector: number | null
+  signal_count_red: number | null
+  money_at_risk_mxn: number | null
+  total_contracts: number | null
+  last_contract_year?: number | null
+}
+
+interface ScorecardListResponse {
+  data: InstitutionScorecardItem[]
+  total: number
+  page: number
+  per_page: number
+  total_pages: number
+  grade_distribution: Record<string, number>
+}
+
+interface InstitutionStats {
+  total_scored: number
+  median_score: number
+  top_institution_id: number | null
+  top_institution_name: string | null
+  top_institution_score: number | null
+  worst_institution_id: number | null
+  worst_institution_name: string | null
+  worst_institution_score: number | null
+  grade_distribution: Record<string, number>
+}
+
+type SortKey =
+  | 'total_score'
+  | 'national_percentile'
+  | 'institution_name'
+  | 'money_at_risk'
+  | 'pillar_openness'
+  | 'pillar_price'
+  | 'pillar_vendors'
+  | 'pillar_process'
+  | 'pillar_external'
+
+// 5-tier color system imported from lib/tiers (shared across institution surfaces).
+// Local TierInfo extends TierStyle with the i18n label resolved at consumption time.
+interface TierInfo extends TierStyle {
+  label: string
+}
+
+/** Hook that returns an i18n-aware tier-info resolver. */
+function useTierInfo() {
+  const { t } = useTranslation('institutionleague')
+  return useCallback((grade: string): TierInfo => {
+    const key = gradeToTierKey(grade)
+    return { ...TIER_STYLES[key], label: t(`tiers.${key}`) }
+  }, [t])
+}
+
+/** Hook that returns the full TierInfo for a given tier key. */
+function useTierByKey() {
+  const { t } = useTranslation('institutionleague')
+  return useCallback((key: TierKey): TierInfo => {
+    return { ...TIER_STYLES[key], label: t(`tiers.${key}`) }
+  }, [t])
+}
+
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
+
+function TrendIcon({ direction }: { direction: string | null }) {
+  const { t } = useTranslation('institutionleague')
+  if (direction === 'improving') return <TrendingUp className="h-3.5 w-3.5 text-accent-data" aria-label={t('trend.improving')} />
+  // The API emits 'deteriorating' (compute_scorecards.py); 'declining' kept for old rows.
+  if (direction === 'deteriorating' || direction === 'declining') return <TrendingDown className="h-3.5 w-3.5 text-risk-critical" aria-label={t('trend.declining')} />
+  if (direction === 'stable') return <MoveRight className="h-3.5 w-3.5 text-text-muted" aria-label={t('trend.stable')} />
+  // The dash means missing data only — never "stable".
+  return <span className="font-mono text-[13px] text-text-muted"><span aria-hidden="true">—</span><span className="sr-only">{t('trend.none')}</span></span>
+}
+
+/**
+ * Weak-pillar cell — the single legible fact that replaced PillarSparkBars'
+ * five illegible 14px heat cells. `{letter} {v}/{max}`, deficit-band colored.
+ */
+function WeakPillarCell({ item, long = false }: { item: InstitutionScorecardItem; long?: boolean }) {
+  const { t, i18n } = useTranslation('institutionleague')
+  const lang = i18n.language
+  const weakest = getWeakestPillar(item, lang)
+  const color = pillarDeficitInk(weakest.frac)
+  return (
+    <span
+      className={`font-mono text-[13px] tabular-nums ${long ? 'whitespace-normal' : 'whitespace-nowrap'}`}
+      style={{ color }}
+      title={long ? undefined : weakest.label}
+    >
+      {/* The long (card) form wraps between words; the value never splits. */}
+      {long ? `${t('weakestShort')} · ${weakest.label}` : weakest.pillar.letter}{' '}
+      <span className="whitespace-nowrap">{weakest.value.toFixed(0)}/{weakest.pillar.max}</span>
+    </span>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// ChampionCard — editorial "honor roll" card for top performers
+// Gold accent, score as the visual anchor, verdict-style tier badge
+// ---------------------------------------------------------------------------
+
+function ChampionCard({
+  rank,
+  item,
+}: {
+  rank: number
+  item: InstitutionScorecardItem
+}) {
+  const { t } = useTranslation('institutionleague')
+  const getTier = useTierInfo()
+  const tier = getTier(item.grade)
+  const sectorColor = getSectorColorFromName(item.sector_name)
+
+  return (
+    <EntityIdentityChip
+      type="institution"
+      id={item.institution_id}
+      name={item.institution_name}
+      variant="name"
+      className="relative w-full text-left group transition-colors grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-4 gap-y-0.5 sm:flex sm:items-center px-3 py-2.5 hover:bg-background-elevated/60"
+      ariaLabel={t('podiumAriaLabel', { rank, name: formatEntityName('institution', item.institution_name, 'full'), score: item.total_score })}
+    >
+      {/* Rank — quiet mono caption */}
+      <span
+        className="text-[13px] font-mono font-bold tabular-nums w-6 flex-shrink-0 text-text-muted"
+      >
+        {rank}
+      </span>
+
+      {/* Institution name — full name, wraps to 2 lines; demoted weight */}
+      <span className="flex-1 min-w-0 whitespace-normal break-words leading-tight text-text-secondary text-[13px] group-hover:text-text-primary transition-colors">
+        {formatEntityName('institution', item.institution_name, 'full')}
+      </span>
+
+      {/* Sector dot */}
+      {item.sector_name && (
+        <span
+          aria-hidden="true"
+          className="hidden sm:block h-1.5 w-1.5 rounded-full flex-shrink-0"
+          style={{ backgroundColor: sectorColor }}
+        />
+      )}
+
+      {/* Score · tier — a second mono line on phones, fixed columns from sm */}
+      <span className="col-start-2 flex items-baseline gap-3 sm:contents">
+        <span className="font-mono tabular-nums text-[13px] text-text-muted flex-shrink-0 sm:w-12 sm:text-right">
+          {item.total_score.toFixed(1)}
+        </span>
+        <span
+          className="text-[13px] font-mono font-bold uppercase tracking-[0.12em] flex-shrink-0 sm:w-24 sm:text-right"
+          style={{ color: tier.ink }}
+        >
+          {tier.label}
+        </span>
+      </span>
+    </EntityIdentityChip>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// ActaCard — «Las Actas»: the verdict card for bottom performers.
+// Keeps the 60px EB Garamond rank numeral (the best thing on the
+// page); replaces PillarSparkBars + RiskDriverPill with a single computed
+// worst-pillar deficit line, merged with the prosecutorial fields the API
+// returns but no surface previously rendered (peer_percentile_sector,
+// money_at_risk_mxn, signal_count_red).
+// ---------------------------------------------------------------------------
+
+function ActaCard({
+  rank,
+  item,
+}: {
+  rank: number
+  item: InstitutionScorecardItem
+}) {
+  const { t, i18n } = useTranslation('institutionleague')
+  const lang = i18n.language
+  const getTier = useTierInfo()
+  const tier = getTier(item.grade)
+  const sectorColor = getSectorColorFromName(item.sector_name)
+  const weakest = getWeakestPillar(item, lang)
+  const weakestColor = pillarDeficitInk(weakest.frac)
+
+  const agateParts: string[] = [
+    t('weakestPillarLine', { label: weakest.label, value: weakest.value.toFixed(0), max: weakest.pillar.max }),
+  ]
+  if (item.peer_percentile_sector != null) {
+    const worse = worseThanSectorPct(item.peer_percentile_sector)
+    agateParts.push(worse == null ? t('lowestInSector') : t('peerPercentileLine', { pct: worse }))
+  }
+  if (item.money_at_risk_mxn != null) {
+    agateParts.push(item.money_at_risk_mxn === 0 ? t('zeroMoneyAtRisk') : t('moneyAtRiskLine', { money: formatCompactMXN(item.money_at_risk_mxn) }))
+  }
+  if (item.signal_count_red != null) {
+    agateParts.push(t('redSignalsLine', { count: item.signal_count_red }))
+  }
+
+  return (
+    <EntityIdentityChip
+      type="institution"
+      id={item.institution_id}
+      name={item.institution_name}
+      variant="name"
+      className="relative block w-full text-left group transition-colors
+        border border-border bg-background-elevated/40
+        hover:bg-risk-critical/8
+        hover:border-risk-critical/40"
+      style={{
+        borderLeft: '4px solid var(--color-risk-critical)',
+        borderTopLeftRadius: 0,
+        borderBottomLeftRadius: 0,
+      }}
+      ariaLabel={t('rowAriaLabel', { rank, name: formatEntityName('institution', item.institution_name, 'full'), score: item.total_score, tier: tier.label })}
+    >
+      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-4 sm:gap-6 px-4 sm:px-6 py-4">
+
+        {/* Rank — cinematic Playfair numeral, left-anchored */}
+        <div className="flex items-baseline gap-2 min-w-[58px]">
+          <span
+            className="leading-none tabular-nums"
+            style={{
+              fontFamily: '"EB Garamond", "Playfair Display", Georgia, serif',
+              fontWeight: 700,
+              fontStyle: 'normal',
+              fontSize: '60px',
+              color: RISK_TEXT_COLORS.critical,
+              letterSpacing: '-0.04em',
+            }}
+          >
+            {rank}
+          </span>
+        </div>
+
+        {/* Identity column — institution name in Garamond italic, sector chip below */}
+        <div className="min-w-0 flex flex-col gap-1.5">
+          <p
+            className="text-text-primary leading-snug"
+            style={{
+              fontFamily: '"EB Garamond", "Playfair Display", Georgia, serif',
+              fontStyle: 'normal',
+              fontWeight: 500,
+              fontSize: '18px',
+              letterSpacing: '-0.005em',
+            }}
+          >
+            {formatEntityName('institution', item.institution_name, 'full')}
+          </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Tier verdict pill — inline */}
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[13px] font-mono font-bold uppercase tracking-[0.12em]"
+              style={{
+                backgroundColor: `color-mix(in srgb, ${tier.color} 12%, transparent)`,
+                border: `1px solid color-mix(in srgb, ${tier.color} 35%, transparent)`,
+                color: tier.ink,
+              }}
+            >
+              <span
+                aria-hidden="true"
+                className="h-1 w-1 rounded-full flex-shrink-0"
+                style={{ backgroundColor: tier.color }}
+              />
+              {tier.label}
+            </span>
+            <span className="text-text-muted text-[12px] font-mono tabular-nums tracking-wide">
+              {item.total_score.toFixed(1)}<span> / 100</span>
+            </span>
+            {item.sector_name && (
+              <span
+                className="text-[13px] font-mono uppercase tracking-[0.12em] truncate flex items-center gap-1.5"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                <span
+                  aria-hidden="true"
+                  className="h-1 w-1 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: sectorColor }}
+                />
+                {localizedSectorName(item.sector_name, lang)}
+              </span>
+            )}
+          </div>
+          {/* Worst-pillar deficit line — merges the old top_risk_driver pill
+              and the five-cell PillarSparkBars into one computed, legible fact,
+              plus the peer-percentile / money-at-risk / red-signal agate. */}
+          <p
+            className="text-[13px] font-mono tracking-wide leading-relaxed"
+            style={{ color: weakestColor }}
+          >
+            {agateParts.join(' · ')}
+          </p>
+        </div>
+
+        {/* Trailing affordance — trend + chevron, sits at far right */}
+        <div className="flex items-center gap-2 flex-shrink-0 text-text-muted">
+          <TrendIcon direction={item.trend_direction} />
+          <ChevronRight className="h-4 w-4 opacity-60 group-hover:opacity-100 transition-opacity" aria-hidden="true" />
+        </div>
+      </div>
+    </EntityIdentityChip>
+  )
+}
+
+
+// ---------------------------------------------------------------------------
+// Sort header button
+// ---------------------------------------------------------------------------
+
+// The shared SortHeaderTh sets its own sans 13px label; this table's headers
+// are mono bold, so the page keeps its own th with the same contract:
+// aria-sort on the <th>, a 24px ringed <button> inside.
+function SortTh({
+  label,
+  sortKey,
+  currentKey,
+  currentDir,
+  onSort,
+  thClassName = '',
+  className = '',
+}: {
+  label: string
+  sortKey: SortKey
+  currentKey: SortKey
+  currentDir: 'asc' | 'desc'
+  onSort: (k: SortKey) => void
+  thClassName?: string
+  className?: string
+}) {
+  const { t } = useTranslation('institutionleague')
+  const active = sortKey === currentKey
+  return (
+    <th
+      scope="col"
+      className={`px-2 py-2 ${thClassName}`}
+      aria-sort={active ? (currentDir === 'desc' ? 'descending' : 'ascending') : 'none'}
+    >
+    <button
+      type="button"
+      onClick={() => onSort(sortKey)}
+      className={`flex items-center gap-1 min-h-6 rounded-sm hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${active ? 'text-accent-data' : 'text-text-muted'} ${className}`}
+      aria-label={t('sortAriaLabel', { label })}
+    >
+      <span className="text-[12px] font-mono font-bold tracking-[0.06em] uppercase">{label}</span>
+      {active ? (
+        currentDir === 'desc' ? (
+          <ArrowDown className="h-3 w-3 flex-shrink-0" aria-hidden="true" />
+        ) : (
+          <ArrowUp className="h-3 w-3 flex-shrink-0" aria-hidden="true" />
+        )
+      ) : (
+        <ArrowUpDown className="h-3 w-3 flex-shrink-0 opacity-40" aria-hidden="true" />
+      )}
+    </button>
+    </th>
+  )
+}
+
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Main component
+// ---------------------------------------------------------------------------
+
+export default function InstitutionLeague() {
+  const { t, i18n } = useTranslation('institutionleague')
+  const lang = i18n.language
+  // Canonical pillar legend (letter = concept), bilingual tooltip.
+  const pillarLegendTitle = INSTITUTION_PILLARS
+    .map((p) => `${p.letter}=${pillarLabel(p, lang)}`)
+    .join(' · ')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const getTier = useTierInfo()
+  const getTierByKey = useTierByKey()
+
+  // Filter / sort state from URL
+  const page = Number(searchParams.get('page') || 1)
+  const sectorFilter = searchParams.get('sector') || ''
+  const gradeFilter = searchParams.get('grade') || ''
+  const search = searchParams.get('q') || ''
+  const sortBy = (searchParams.get('sort') || 'total_score') as SortKey
+  const sortOrder = (searchParams.get('order') || 'desc') as 'asc' | 'desc'
+  // Scope — Federal (validated is_federal classifier, default) vs the separate
+  // Subnational board (state/municipal), never co-mingled. `all` includes both.
+  // Legacy `all=1` links map to the All scope.
+  const scope = (searchParams.get('scope')
+    || (searchParams.get('all') === '1' ? 'all' : 'federal')) as 'federal' | 'subnational' | 'all'
+  // Reliability gate: the headline (Honor Roll / Red Flags) excludes tiny-sample
+  // institutions whose scores are noise; the full table still lists everyone.
+  const RELIABLE_MIN = 30
+  const PER_PAGE = 50
+
+  const updateParams = useCallback(
+    (updates: Record<string, string | undefined>) => {
+      const next = new URLSearchParams(searchParams)
+      Object.entries(updates).forEach(([k, v]) => {
+        if (v === undefined || v === '') next.delete(k)
+        else next.set(k, v)
+      })
+      setSearchParams(next)
+    },
+    [searchParams, setSearchParams],
+  )
+
+  // After a pill / sort / page click the list re-renders (and Act I unmounts
+  // above it when a filter is set): move focus to the results heading so it
+  // is never left off-screen (PARALLAX D9b § Change 7).
+  const focusResultsNext = useRef(false)
+  useEffect(() => {
+    if (!focusResultsNext.current) return
+    focusResultsNext.current = false
+    document.getElementById('league-table-heading')?.focus()
+  }, [searchParams])
+  const updateAndFocus = (updates: Record<string, string | undefined>) => {
+    // Only arm the focus move when the URL will actually change — a stale flag
+    // would steal focus from the search box on the next keystroke.
+    focusResultsNext.current = Object.entries(updates).some(([k, v]) => (searchParams.get(k) ?? '') !== (v ?? ''))
+    updateParams(updates)
+  }
+
+  const handleSort = (key: SortKey) => {
+    focusResultsNext.current = true // a sort click always changes sort or order
+    if (key === sortBy) {
+      updateParams({ order: sortOrder === 'desc' ? 'asc' : 'desc', page: '1' })
+    } else {
+      updateParams({ sort: key, order: 'desc', page: '1' })
+    }
+  }
+
+  // Data fetching — the headline numbers (h1, FINDING, plate caption/median)
+  // count the same floored population the plate draws and the honor roll /
+  // red flags use (PARALLAX D9b § Change 2); the table below lists everyone.
+  const { data: statsData } = useQuery<InstitutionStats>({
+    queryKey: ['institution-scorecard-stats', scope, RELIABLE_MIN],
+    queryFn: () => scorecardApi.getInstitutionStats({ scope, min_contracts: RELIABLE_MIN }),
+    staleTime: 10 * 60 * 1000,
+  })
+
+  const { data: listData, isLoading, isError } = useQuery<ScorecardListResponse>({
+    queryKey: ['institution-scorecards', scope, page, sectorFilter, gradeFilter, search, sortBy, sortOrder],
+    queryFn: () =>
+      scorecardApi.getInstitutions({
+        page,
+        per_page: PER_PAGE,
+        sort_by: sortBy,
+        order: sortOrder,
+        grade: gradeFilter || undefined,
+        sector: sectorFilter || undefined,
+        search: search || undefined,
+        scope,
+      }),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (prev) => prev,
+  })
+
+  // Top 5 champions — reliability-gated (>=30 contracts) so tiny-sample noise
+  // does not headline the Honor Roll.
+  const { data: championsData } = useQuery<ScorecardListResponse>({
+    queryKey: ['institution-scorecards-top5', scope],
+    queryFn: () =>
+      scorecardApi.getInstitutions({ page: 1, per_page: 5, sort_by: 'total_score', order: 'desc', scope, min_contracts: RELIABLE_MIN }),
+    staleTime: 30 * 60 * 1000,
+  })
+
+  // Bottom 5 red flags — reliability-gated, the editorial lead.
+  const { data: redFlagsData } = useQuery<ScorecardListResponse>({
+    queryKey: ['institution-scorecards-bottom5', scope],
+    queryFn: () =>
+      scorecardApi.getInstitutions({ page: 1, per_page: 5, sort_by: 'total_score', order: 'asc', scope, min_contracts: RELIABLE_MIN }),
+    staleTime: 30 * 60 * 1000,
+  })
+
+  // Top 5 by Money-at-Risk — the EXPOSURE lens (the outliers the integrity
+  // score structurally cannot rank). Reliability-gated.
+  const { data: exposureData } = useQuery<ScorecardListResponse>({
+    queryKey: ['institution-scorecards-var', scope],
+    queryFn: () =>
+      scorecardApi.getInstitutions({ page: 1, per_page: 5, sort_by: 'money_at_risk', order: 'desc', scope, min_contracts: 100 }),
+    staleTime: 30 * 60 * 1000,
+  })
+
+  const championItems = championsData?.data ?? []
+  const redFlagItems = redFlagsData?.data ?? []
+  const exposureItems = exposureData?.data ?? []
+
+  // Row expansion for pillar radar
+  const [expandedRowId, setExpandedRowId] = useState<number | null>(null)
+  const items = listData?.data ?? []
+  const total = listData?.total ?? 0
+  const totalPages = listData?.total_pages ?? 1
+  const SORT_LABEL_KEY: Partial<Record<SortKey, string>> = {
+    total_score: 'columns.score',
+    national_percentile: 'columns.percentile',
+    institution_name: 'columns.institution',
+    money_at_risk: 'columns.moneyAtRisk',
+  }
+  const sortLabel = t(SORT_LABEL_KEY[sortBy] ?? 'columns.score')
+
+  // Row rank calculation: rank of first item on current page
+  const firstItemRank = (page - 1) * PER_PAGE + 1
+
+  // Below lg the ranking renders as cards (PARALLAX D9 § Change 8); one
+  // rowModel feeds both layouts so they print the same fields.
+  const cardRows = useIsMobile(1023)
+  const rowModel = (item: InstitutionScorecardItem, idx: number) => {
+    const rank = firstItemRank + idx
+    const tier = getTier(item.grade)
+    // Worst performers: bottom 5 when sorted by score ascending
+    const isWorstPerformer = sortBy === 'total_score' && sortOrder === 'asc' && idx < 5
+    // Top 3 medals (only when sorted by score descending on the first page)
+    const isTopMedalist = sortBy === 'total_score' && sortOrder === 'desc' && rank <= 3
+    // Critico always reads as dominant — red wash, thicker left border.
+    const isCritico = item.grade === 'F' || item.grade === 'F-'
+    const isExpanded = expandedRowId === item.institution_id
+    return {
+      item,
+      rank,
+      tier,
+      isWorstPerformer,
+      isTopMedalist,
+      isCritico,
+      isExpanded,
+      panelId: `boleta-${item.institution_id}`,
+      tint: `${isWorstPerformer || isCritico ? 'bg-risk-critical/10' : ''} ${isExpanded ? 'bg-background-elevated' : ''}`,
+      // Medal colours are marks (the crown only); the numeral is text.
+      medalColor: rank === 1 ? '#facc15' : rank === 2 ? '#d4d4d8' : '#d97706',
+      rankInk: isWorstPerformer || isCritico
+        ? RISK_TEXT_COLORS.critical
+        : isTopMedalist
+          ? 'var(--color-text-primary)'
+          : 'var(--color-text-secondary)',
+    }
+  }
+  type RowModel = ReturnType<typeof rowModel>
+  const renderRank = (m: RowModel) => (
+    <>
+      <div className="flex items-center justify-end gap-1">
+        {m.isTopMedalist && (
+          <Crown className="h-3 w-3 flex-shrink-0" style={{ color: m.medalColor }} aria-hidden="true" />
+        )}
+        <span className="text-[13px] font-mono font-bold leading-none tabular-nums" style={{ color: m.rankInk }}>
+          {m.rank}
+        </span>
+      </div>
+      {m.isWorstPerformer && (
+        <div className="mt-0.5 text-[11px] font-mono font-bold uppercase tracking-[0.12em] whitespace-nowrap leading-none" style={{ color: RISK_TEXT_COLORS.critical }}>
+          {t('worstPerformerBadge')}
+        </div>
+      )}
+    </>
+  )
+  const renderExpand = (m: RowModel) => (
+    <button
+      type="button"
+      onClick={() => setExpandedRowId(m.isExpanded ? null : m.item.institution_id)}
+      className="flex-shrink-0 inline-flex items-center justify-center min-h-6 min-w-6 rounded hover:bg-background-elevated text-text-muted hover:text-text-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+      aria-label={t(m.isExpanded ? 'collapseRow' : 'expandRow', { name: formatEntityName('institution', m.item.institution_name, 'full') })}
+      aria-expanded={m.isExpanded}
+      aria-controls={m.isExpanded ? m.panelId : undefined}
+    >
+      <ChevronDown className={`h-3 w-3 transition-transform ${m.isExpanded ? 'rotate-180' : ''}`} aria-hidden="true" />
+    </button>
+  )
+  // Scores span every contract 2002–2025; a buyer silent since before the
+  // 2018+ officials window is marked so its grade is read as history.
+  const RECENT_FROM = 2018
+  const renderThin = (item: InstitutionScorecardItem) => (
+    <>
+      {item.total_contracts != null && item.total_contracts < RELIABLE_MIN && (
+        // Thin sample: listed, never hidden — the reader sees why it ranks here.
+        <span className="font-mono text-[12px] tabular-nums text-text-muted whitespace-nowrap flex-shrink-0" title={t('thinSample', { n: RELIABLE_MIN })}>
+          n = {item.total_contracts}<span className="sr-only">: {t('thinSample', { n: RELIABLE_MIN })}</span>
+        </span>
+      )}
+      {item.last_contract_year != null && item.last_contract_year < RECENT_FROM && (
+        <span className="font-mono text-[12px] tabular-nums text-text-muted whitespace-nowrap flex-shrink-0" title={t('lastContractTitle', { year: item.last_contract_year })}>
+          {t('lastContract', { year: item.last_contract_year })}<span className="sr-only">: {t('lastContractTitle', { year: item.last_contract_year })}</span>
+        </span>
+      )}
+    </>
+  )
+  const renderMoney = (item: InstitutionScorecardItem) =>
+    item.money_at_risk_mxn == null
+      ? '—'
+      : item.money_at_risk_mxn > 0
+        ? formatCompactMXN(item.money_at_risk_mxn)
+        : (
+          // A zero is a fact (no high/critical-risk contracts), not missing data.
+          <span className="text-text-muted" title={t('zeroMoneyAtRisk')}>
+            0<span className="sr-only"> — {t('zeroMoneyAtRisk')}</span>
+          </span>
+        )
+  const renderTierTile = (m: RowModel) => (
+    <span
+      className="inline-flex items-center justify-center px-2 py-1 rounded-sm font-mono uppercase tabular-nums leading-none"
+      style={{
+        backgroundColor: m.tier.bg,
+        border: `1px solid ${m.tier.border}`,
+        color: m.tier.ink,
+        fontSize: '11px',
+        fontWeight: 800,
+        letterSpacing: '0.08em',
+      }}
+    >
+      {m.tier.label}
+    </span>
+  )
+
+  // ── Wayfinding (El Hilo P1+) — publish the current league page as the
+  // institution sibling list (Prev/Next steps within the loaded page, honouring
+  // the active sort/filter); flash the origin row on browser-back. backTo
+  // carries the page + filters so "back" restores this exact view.
+  const leagueSearch = searchParams.toString()
+  usePublishSiblingList(
+    items.length
+      ? {
+          kind: 'institution',
+          items: items.map((it) => ({ id: String(it.institution_id), label: it.institution_name })),
+          backTo: leagueSearch ? `/institutions?${leagueSearch}` : '/institutions',
+          backLabel: lang?.startsWith('es') ? 'el ranking' : 'the ranking',
+        }
+      : null,
+  )
+  useOriginRowFlash('institution', items.length > 0)
+
+  // Whether filters are active (don't show podium when filtered)
+  const hasFilters = !!(sectorFilter || gradeFilter || search)
+
+  // Editorial headline from stats
+  const editorialHeadline = useMemo(() => {
+    if (!statsData?.grade_distribution) return null
+    const dist = statsData.grade_distribution
+    const totalScored = statsData.total_scored
+    const aboveB = (dist['S'] ?? 0) + (dist['A'] ?? 0) + (dist['B+'] ?? 0) + (dist['B'] ?? 0)
+    const aboveBPct = totalScored > 0 ? ((aboveB / totalScored) * 100).toFixed(0) : '0'
+    const failingCount = (dist['F'] ?? 0) + (dist['F-'] ?? 0)
+    if (failingCount > 0) {
+      return t('finding.critical', { pct: aboveBPct, failing: failingCount })
+    }
+    return t('finding.normal', { pct: aboveBPct, total: formatNumber(totalScored) })
+  }, [statsData, t])
+
+  // "At-risk" headline stat = the bottom two tiers (Deficiente D/D- + Crítico
+  // F/F-). Under the reformed ABSOLUTE grades no federal buyer reaches the
+  // Crítico floor, so counting only F/F- would read a misleading "0"; the
+  // honest figure is everyone graded Deficient or worse.
+  const failingCount = useMemo(() => {
+    const d = statsData?.grade_distribution
+    if (!d) return 0
+    return (d['D'] ?? 0) + (d['D-'] ?? 0) + (d['F'] ?? 0) + (d['F-'] ?? 0)
+  }, [statsData])
+
+  // Excelente headcount (tier S+A) — drives the plate's empty-band annotation
+  // and the computed headline (none-reaches vs only-N-reach).
+  const excelenteCount = useMemo(() => {
+    const d = statsData?.grade_distribution
+    if (!d) return 0
+    const grades = TIER_GRADE_MAP['Excelente'] ?? []
+    return grades.reduce((sum, g) => sum + (d[g] ?? 0), 0)
+  }, [statsData])
+
+  // Top-exposure institution for the lede (highest money-at-risk).
+  const topExposure = exposureItems[0]
+
+  // Full federal field for the Spectral Register plate (paged, federal-only).
+  const { data: fieldData } = useLeagueField(scope)
+
+  const sectorOptions = useMemo(
+    () => SECTORS.map((s) => ({ value: s.code, label: s.name })),
+    [],
+  )
+
+  // Map current gradeFilter (backend grade value like "S") back to its tier name for display
+  const activeTierName = useMemo(() => {
+    if (!gradeFilter) return ''
+    for (const [tierName, grades] of Object.entries(TIER_GRADE_MAP)) {
+      if (grades.includes(gradeFilter)) return tierName
+    }
+    return ''
+  }, [gradeFilter])
+
+  // Only 'ranking' and 'reporte' are valid tabs (the legacy 'fichas'/Scorecards
+  // tab was retired Day-11 — redundant with the Ranking row-expand). Any unknown
+  // tab value (e.g. a stale ?tab=fichas bookmark) normalizes to ranking so the
+  // TabBar always reflects a valid tab.
+  const tabParam = searchParams.get('tab') || ''
+  const activeTab = ['ranking', 'reporte'].includes(tabParam) ? tabParam : 'ranking'
+  const tabHref = (tab: string) => {
+    const next = new URLSearchParams(searchParams)
+    next.delete('page')
+    if (tab === 'ranking') next.delete('tab')
+    else next.set('tab', tab)
+    const qs = next.toString()
+    return qs ? `/institutions?${qs}` : '/institutions'
+  }
+
+  if (activeTab === 'reporte') {
+    return (
+      <div className="min-h-screen bg-background text-text-primary">
+        <TabBar activeTab={activeTab} hrefFor={tabHref} />
+        <ErrorBoundary fallback={null}>
+          <Suspense fallback={<div className="flex items-center justify-center h-64 text-text-muted text-sm">{t('loadingShort')}</div>}>
+            <ReportCard />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
+    )
+  }
+
+  const totalInstitutions = statsData?.total_scored ?? 0
+
+  return (
+    <div className="min-h-screen bg-background text-text-primary">
+      <TabBar activeTab={activeTab} hrefFor={tabHref} />
+      <div data-frame className="max-w-[1010px] mx-auto px-4 sm:px-6 pt-6">
+        {/* Utility header — same pattern as /aria, /workspace, /cases,
+            /sectors. Institution Ranking is a working surface
+            (compare 100+ institutions, drill into one). */}
+        <header className="mb-5 pb-4 border-b border-border">
+          {/* Folio strip — archival eyebrow matching /aria, /atlas pattern.
+              "Folio·VII" anchors this page in the broader RUBLI catalog;
+              the ranking is a section of an ongoing accountability series,
+              not a standalone tool. */}
+          <div
+            className="mb-3 flex items-center gap-3"
+            style={{
+              fontFamily: '"IBM Plex Mono", "JetBrains Mono", monospace',
+              fontSize: '12px',
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--color-text-muted)',
+              fontWeight: 400,
+            }}
+          >
+            <span style={{ color: 'var(--color-accent-hover)', fontStyle: 'normal', fontWeight: 500 }}>
+              Folio·VII
+            </span>
+            <span style={{ width: 22, height: 1, background: 'rgba(160, 104, 32, 0.45)' }} />
+            <span style={{ fontStyle: 'normal', fontWeight: 300 }}>
+              {t('kicker')}
+            </span>
+            <span aria-hidden style={{ opacity: 0.5 }}>·</span>
+            <span style={{ fontStyle: 'normal', fontWeight: 300 }}>{t('meta')}</span>
+          </div>
+          {/* Asymmetric editorial hero — narrative measure on the left, a
+              bordered scorecard rail on the right. Replaces the old layout
+              where narrow text + a full-width triptych left the entire right
+              half of the xl container as dead space. */}
+          <div
+            className="mt-1 grid gap-x-12 gap-y-6 items-start lg:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]"
+            role="group"
+            aria-label={t('statsAriaLabel')}
+          >
+            <div>
+              <h1
+                className="text-text-primary"
+                style={{
+                  fontFamily: '"EB Garamond", "Playfair Display", Georgia, serif',
+                  fontStyle: 'normal',
+                  fontWeight: 500,
+                  fontSize: 'clamp(28px, 4vw, 40px)',
+                  lineHeight: 1.02,
+                  letterSpacing: '-0.012em',
+                }}
+              >
+                {excelenteCount === 0 ? (
+                  <>
+                    {t('headline.beforeNone', { total: formatNumber(totalInstitutions), who: t(`scopeWho.${scope}`) })}
+                    <span style={{ color: 'var(--color-accent)' }}>{t('headline.accentNone')}</span>
+                    {t('headline.afterNone', { failing: formatNumber(failingCount) })}
+                  </>
+                ) : (
+                  <>
+                    {t('headline.beforeSome', { total: formatNumber(totalInstitutions), who: t(`scopeWho.${scope}`) })}
+                    <span style={{ color: 'var(--color-accent)' }}>{t('headline.accentSome', { n: formatNumber(excelenteCount) })}</span>
+                    {t('headline.afterSome', { failing: formatNumber(failingCount) })}
+                  </>
+                )}
+              </h1>
+              {topExposure && (
+                <p className="text-sm sm:text-[15px] text-text-secondary mt-3 leading-relaxed">
+                  {t('lede', {
+                    name: formatEntityName('institution', topExposure.institution_name, 'md'),
+                    money: formatDualCurrency(topExposure.money_at_risk_mxn ?? 0),
+                    where: t(`scopeWhere.${scope}`),
+                  })}
+                </p>
+              )}
+            </div>
+
+          </div>
+
+          {/* Federal scope segmented control + disclaimer.
+              Lifted out of the Act II filter row so it sits next to the
+              Honor Roll / Red Flags it actually governs. State-level
+              institutions have tiny sample sizes and incomparable
+              procedures; including them puts state secretarías at the top
+              of the league and buries the federal agencies that matter
+              for reform (IMSS, ISSSTE, PEMEX, etc.). */}
+          <div className="mt-4 pt-3 border-t border-border/60">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[12px] font-mono font-bold uppercase tracking-[0.15em] text-text-muted">
+                  {t('scope.label')}
+                </span>
+                <div
+                  role="radiogroup"
+                  aria-label={t('scope.label')}
+                  className="inline-flex rounded-sm border border-border bg-background overflow-hidden"
+                >
+                  {(['federal', 'subnational', 'all'] as const).map((sc, i, all) => (
+                    <button
+                      key={sc}
+                      type="button"
+                      role="radio"
+                      aria-checked={scope === sc}
+                      // One Tab stop; ←/→ move the selection (roving tabindex).
+                      tabIndex={scope === sc ? 0 : -1}
+                      onKeyDown={(e) => {
+                        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft' && e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return
+                        e.preventDefault()
+                        const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1
+                        const j = (i + step + all.length) % all.length
+                        const next = all[j]
+                        updateParams({ scope: next === 'federal' ? undefined : next, all: undefined, page: '1' })
+                        ;(e.currentTarget.parentElement?.children[j] as HTMLElement | undefined)?.focus()
+                      }}
+                      onClick={() => updateParams({ scope: sc === 'federal' ? undefined : sc, all: undefined, page: '1' })}
+                      className={`px-3 py-1 text-[12px] font-mono uppercase tracking-[0.12em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${
+                        i < 2 ? 'border-r border-border' : ''
+                      } ${
+                        scope === sc
+                          ? 'bg-accent-data/15 text-text-primary font-bold'
+                          : 'text-text-muted hover:text-text-secondary'
+                      }`}
+                    >
+                      {t(`scope.${sc}`)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <p className="text-[13px] font-mono leading-relaxed text-text-muted mt-2">
+              {t(scope === 'federal'
+                ? 'scope.disclaimerFederal'
+                : scope === 'subnational'
+                  ? 'scope.disclaimerSubnational'
+                  : 'scope.disclaimerAll')}
+            </p>
+          </div>
+        </header>
+      {/* Editorial finding — clean left-bordered callout, no decorative icon.
+          The verdict is editorial, not ornamental. Border + kicker carry the
+          accountability tone; the sentence is the story. */}
+      {editorialHeadline && (
+        <div
+          className="mb-6 pl-5 py-1"
+          style={{
+            borderLeft: `3px solid ${
+              failingCount > 0
+                ? 'var(--color-risk-critical)'
+                : 'var(--color-accent)'
+            }`,
+          }}
+        >
+          <p
+            className="text-[12px] font-mono font-bold uppercase tracking-[0.18em] mb-1.5"
+            style={{
+              color: failingCount > 0
+                ? RISK_TEXT_COLORS.critical
+                : 'var(--color-accent-hover)',
+            }}
+          >
+            {t('hallazgo')}
+          </p>
+          <p
+            className="text-text-primary leading-snug"
+            style={{
+              fontFamily: '"EB Garamond", "Playfair Display", Georgia, serif',
+              fontStyle: 'normal',
+              fontWeight: 500,
+              fontSize: 'clamp(17px, 1.6vw, 21px)',
+              letterSpacing: '-0.005em',
+            }}
+          >
+            {editorialHeadline}
+          </p>
+        </div>
+      )}
+
+      <div className="space-y-10"><Act number="I" label={t('acts.one')}>
+
+      <div className="space-y-8">
+
+        {/* ─── LA PLACA — the Spectral Register: the whole federal field on one
+            integrity axis (position = score, stroke height = money-at-risk).
+            Absorbs the old HeroStatRail, Exposure list, and ScoreHistogram. */}
+        {scope === 'federal' ? (
+          fieldData && fieldData.length > 0 ? (
+            <SpectralRegister
+              items={fieldData}
+              median={statsData?.median_score ?? null}
+              totalScored={statsData?.total_scored ?? fieldData.length}
+              failingCount={failingCount}
+            />
+          ) : null
+        ) : (
+          <SpectralRegisterUnavailableNote scope={scope} />
+        )}
+
+        {/* ─── ACT I — THE VERDICT ──────────────────────────────────────────
+            Red Flags lead (dominant grid). Bright Spots is a quieter
+            counterweight that follows. Editorial logic: this is an
+            anti-corruption platform, the worst offenders are the lead.
+            Stats triptych moved to the page header (already there). The
+            distribution-bar / histogram are demoted to Act III. */}
+
+        {/* Red Flags — DOMINANT verdict cards */}
+        {!hasFilters && redFlagItems.length >= 3 && (
+          <section aria-labelledby="redflags-heading" className="space-y-4">
+            <div className="border-l-2 border-risk-critical pl-4">
+              <p className="text-[12px] font-mono font-bold tracking-[0.15em] uppercase mb-1 flex items-center gap-2" style={{ color: RISK_TEXT_COLORS.critical }}>
+                <Flag className="h-3 w-3" aria-hidden="true" />
+                {t('redFlags.kicker')}
+              </p>
+              <h2
+                id="redflags-heading"
+                className="text-2xl sm:text-3xl font-serif font-bold text-text-primary leading-tight"
+                style={{ fontFamily: '"EB Garamond", "Playfair Display", Georgia, serif', fontStyle: 'normal', fontWeight: 500 }}
+              >
+                {t('redFlags.headline')}
+              </h2>
+              <p className="text-text-secondary text-sm mt-2">
+                {t('redFlags.sub')}
+              </p>
+            </div>
+            <div className="space-y-1">
+              {redFlagItems.slice(0, 5).map((item, idx) => (
+                <ActaCard key={item.institution_id} rank={idx + 1} item={item} />
+              ))}
+            </div>
+          </section>
+        )}
+
+
+        {/* Bright Spots — quieter counterweight, demoted below Red Flags.
+            Rendered as a flat list (one institution per row) rather than a
+            card grid: the Red Flags are the story, the champions are the
+            footnote. */}
+        {!hasFilters && championItems.length >= 3 && (
+          <section aria-labelledby="champions-heading" className="space-y-3 pt-2">
+            <div className="border-l border-border pl-4">
+              <p className="text-[12px] font-mono font-bold tracking-[0.15em] uppercase text-text-muted mb-1 flex items-center gap-2">
+                <Trophy className="h-3 w-3" aria-hidden="true" />
+                {t('champions.kicker')}
+              </p>
+              <h2
+                id="champions-heading"
+                className="text-lg font-serif font-bold text-text-secondary leading-tight"
+              >
+                {t('champions.headline')}
+              </h2>
+            </div>
+            <ol className="rounded-sm border border-border/60 bg-background-elevated/20 divide-y divide-border/40">
+              {championItems.slice(0, 5).map((item, idx) => (
+                // inline maxWidth: the Day 2c `main :where(li)` measure is
+                // unlayered, so a max-w-none utility would lose to it.
+                <li key={item.institution_id} style={{ maxWidth: 'none' }}>
+                  <ChampionCard rank={idx + 1} item={item} />
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+
+        </div>
+      </Act>
+
+      <Act number="II" label={t('acts.two')}>
+      <div className="space-y-5">
+
+        {/* ─── ACT II — THE LEAGUE ──────────────────────────────────────────
+            Editorial filter pills replace generic dropdowns. Tier pills
+            communicate the 5-tier system visually; sector pills surface
+            all 12 sector colors at a glance. Search input full-width
+            below. Result count anchors the table headline. */}
+
+        {/* Search input — full-width above the pill rows */}
+        {/* Below sm the count drops under the input so the placeholder is never cut. */}
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
+          <div className="relative w-full sm:flex-1">
+            <label htmlFor="league-search" className="sr-only">{t('filters.search')}</label>
+            <input
+              id="league-search"
+              type="search"
+              name="q"
+              autoComplete="off"
+              spellCheck={false}
+              value={search}
+              onChange={(e) => updateParams({ q: e.target.value || undefined, page: '1' })}
+              placeholder={t('filters.searchPlaceholder')}
+              className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-data/50 font-mono"
+            />
+          </div>
+          <span className="text-text-muted text-[12px] font-mono tabular-nums tracking-wide flex-shrink-0">
+            {t('filters.results', { num: formatNumber(total) })}
+          </span>
+        </div>
+
+        {/* Tier filter pills — horizontal scroll on narrow widths */}
+        <div className="space-y-1.5">
+          <p className="text-[13px] font-mono font-bold uppercase tracking-[0.15em] text-text-muted">
+            {t('filters.tier')}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              aria-pressed={!activeTierName}
+              onClick={() => updateAndFocus({ grade: undefined, page: '1' })}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-full border text-[13px] font-mono uppercase tracking-[0.08em] transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${
+                !activeTierName
+                  ? 'bg-accent-data/15 border-accent-data/40 text-text-primary font-bold'
+                  : 'border-border bg-background text-text-muted hover:text-text-secondary hover:border-border-hover'
+              }`}
+            >
+              {t('filters.allTiers')}
+            </button>
+            {TIER_NAMES.map((tierName) => {
+              const tier = getTierByKey(tierName)
+              const isActive = activeTierName === tierName
+              return (
+                <button
+                  key={tierName}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => {
+                    const grades = TIER_GRADE_MAP[tierName]
+                    const gradeVal = grades ? grades[0] : undefined
+                    updateAndFocus({ grade: gradeVal || undefined, page: '1' })
+                  }}
+                  className="flex-shrink-0 px-3 py-1.5 rounded-full border text-[13px] font-mono uppercase tracking-[0.08em] transition-colors whitespace-nowrap flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                  style={{
+                    borderColor: isActive ? tier.color : 'var(--color-border)',
+                    backgroundColor: isActive ? `${tier.color}1f` : 'transparent',
+                    color: isActive ? tier.ink : 'var(--color-text-muted)',
+                  }}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: tier.color }}
+                  />
+                  {tier.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Sector filter pills — all 12 sectors with their canonical colors */}
+        <div className="space-y-1.5">
+          <p className="text-[13px] font-mono font-bold uppercase tracking-[0.15em] text-text-muted">
+            {t('filters.sectorLabel')}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              aria-pressed={!sectorFilter}
+              onClick={() => updateAndFocus({ sector: undefined, page: '1' })}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-full border text-[13px] font-mono uppercase tracking-[0.08em] transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${
+                !sectorFilter
+                  ? 'bg-accent-data/15 border-accent-data/40 text-text-primary font-bold'
+                  : 'border-border bg-background text-text-muted hover:text-text-secondary hover:border-border-hover'
+              }`}
+            >
+              {t('filters.allSectors')}
+            </button>
+            {sectorOptions.map((s) => {
+              const isActive = sectorFilter === s.value
+              const color = SECTOR_COLORS[s.value] ?? SECTOR_COLORS.otros
+              return (
+                <button
+                  key={s.value}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => updateAndFocus({ sector: isActive ? undefined : s.value, page: '1' })}
+                  className="flex-shrink-0 px-3 py-1.5 rounded-full border text-[13px] font-mono uppercase tracking-[0.08em] transition-colors whitespace-nowrap flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                  style={{
+                    borderColor: isActive ? color : 'var(--color-border)',
+                    backgroundColor: isActive ? `${color}1f` : 'transparent',
+                    // Marks keep the sector hex (dot, border); the label is text.
+                    color: isActive ? getSectorTextColor(s.value) : 'var(--color-text-muted)',
+                  }}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: color }}
+                  />
+                  {getSectorName(s.value, lang === 'es' ? 'es' : 'en')}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Table */}
+        <section aria-labelledby="league-table-heading" className="space-y-3 pt-2">
+          <div>
+            <p className="text-[12px] font-mono font-bold tracking-[0.15em] uppercase text-text-muted mb-1">
+              {t('tableKicker')}
+            </p>
+            <h2 id="league-table-heading" tabIndex={-1} className="text-lg font-serif font-bold text-text-primary leading-tight scroll-mt-24 focus:outline-none">
+              {isLoading ? t('tableKicker') : t('tableHeadline', { total: formatNumber(total) })}
+            </h2>
+          </div>
+
+          {/* One polite status line for every list change (count, page, sort). */}
+          <p role="status" aria-live="polite" className="sr-only">
+            {listData && !isLoading
+              ? t('listStatus', { num: formatNumber(total), page, total: totalPages, label: sortLabel })
+              : ''}
+          </p>
+
+          {isError && (
+            <div role="alert" className="flex items-center gap-3 p-4 rounded-sm bg-risk-critical/10 border border-risk-critical/40 text-sm" style={{ color: RISK_TEXT_COLORS.critical }}>
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+              {t('error')}
+            </div>
+          )}
+
+          {isLoading && !items.length && (
+            <div className="space-y-2">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-12 bg-background-elevated rounded animate-pulse"
+                  aria-hidden="true"
+                />
+              ))}
+            </div>
+          )}
+
+          {!isLoading && !isError && items.length === 0 && (
+            <div className="rounded-sm border border-border bg-background/50 p-8 text-center" role="status" aria-live="polite">
+              <p className="text-text-secondary text-sm">{t('empty')}</p>
+              <p className="text-text-muted text-xs mt-1">
+                {t('filters.adjustFilters')}
+              </p>
+            </div>
+          )}
+
+          {items.length > 0 && cardRows && (
+            // Phones and tablets (< lg): one card per institution — the same
+            // fields from the same rowModel as the table, no inner scroller.
+            <ol className="rounded-sm border border-border divide-y divide-border" aria-label={t('tableAriaLabel')}>
+              {items.map((item, idx) => {
+                const m = rowModel(item, idx)
+                return (
+                  <li
+                    key={item.institution_id}
+                    data-wf-row={item.institution_id}
+                    data-league-card
+                    className={`px-3 py-3 ${m.tint}`}
+                    style={{ maxWidth: 'none', borderLeft: `${m.isCritico ? '4px' : '3px'} solid ${m.tier.color}` }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 flex-shrink-0 pt-1 text-right">{renderRank(m)}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-x-2">
+                          <span
+                            aria-hidden="true"
+                            className="h-2 w-2 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: getSectorColorFromName(item.sector_name) }}
+                          />
+                          <EntityIdentityChip
+                            type="institution"
+                            id={item.institution_id}
+                            name={item.institution_name}
+                            variant="name"
+                            fullName
+                            size="sm"
+                            className="flex-[1_1_10rem] min-w-0 py-1 text-[14px] text-text-primary hover:underline underline-offset-2 font-medium whitespace-normal break-words leading-snug"
+                          />
+                          {renderThin(item)}
+                          {item.sector_name && (
+                            <span className="text-text-muted text-[12px] font-mono uppercase tracking-[0.1em] flex-shrink-0">
+                              · {localizedSectorName(item.sector_name, lang)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 font-mono text-[13px] tabular-nums">
+                          {renderTierTile(m)}
+                          <span>
+                            <span style={{ color: m.tier.ink, fontWeight: m.isCritico ? 700 : 600 }}>{item.total_score.toFixed(1)}</span>
+                            <span className="text-text-muted"> /100</span>
+                          </span>
+                          <WeakPillarCell item={item} long />
+                          {item.money_at_risk_mxn === 0 ? (
+                            <span className="text-text-muted">0 · {t('zeroMoneyAtRisk')}</span>
+                          ) : (
+                            <span className="text-text-secondary">{renderMoney(item)} <span className="text-text-muted">{t('columns.moneyAtRisk').toLowerCase()}</span></span>
+                          )}
+                          {item.trend_direction && item.trend_direction !== 'stable' && <TrendIcon direction={item.trend_direction} />}
+                        </div>
+                      </div>
+                      {renderExpand(m)}
+                    </div>
+                    {m.isExpanded && (
+                      <div id={m.panelId} className="mt-3">
+                        <PillarBoleta item={item} />
+                      </div>
+                    )}
+                  </li>
+                )
+              })}
+            </ol>
+          )}
+
+          {items.length > 0 && !cardRows && (
+            <div className="rounded-sm border border-border">
+              <table className="w-full text-sm" aria-label={t('tableAriaLabel')}>
+                <thead>
+                  <tr className="border-b border-border bg-background/80">
+                    <th scope="col" className="px-2 py-2 text-left w-12">
+                      <span className="text-[12px] font-mono font-bold text-text-muted uppercase tracking-[0.06em]">
+                        #
+                      </span>
+                    </th>
+                    <SortTh
+                      label={t('columns.institution')}
+                      sortKey="institution_name"
+                      currentKey={sortBy}
+                      currentDir={sortOrder}
+                      onSort={handleSort}
+                      thClassName="text-left"
+                    />
+                    <SortTh
+                      label={t('columns.score')}
+                      sortKey="total_score"
+                      currentKey={sortBy}
+                      currentDir={sortOrder}
+                      onSort={handleSort}
+                      thClassName="text-left w-24"
+                    />
+                    <th scope="col" className="px-2 py-2 text-center w-24">
+                      <span className="text-[12px] font-mono font-bold text-text-muted uppercase tracking-[0.06em]">
+                        {t('columns.grade')}
+                      </span>
+                    </th>
+                    <th scope="col" className="px-2 py-2 text-left w-28" title={pillarLegendTitle}>
+                      <span className="text-[12px] font-mono font-bold text-text-muted uppercase tracking-[0.06em]">
+                        {t('columns.weakPillar')}
+                      </span>
+                    </th>
+                    {/* Trend from xl: at lg the 1,010 frame is 880px wide. */}
+                    <th scope="col" className="px-2 py-2 text-center w-12 hidden xl:table-cell">
+                      <span className="text-[12px] font-mono font-bold text-text-muted uppercase tracking-[0.06em]">
+                        {t('columns.trend')}
+                      </span>
+                    </th>
+                    <SortTh
+                      label={t('columns.percentile')}
+                      sortKey="national_percentile"
+                      currentKey={sortBy}
+                      currentDir={sortOrder}
+                      onSort={handleSort}
+                      thClassName="text-left w-28"
+                    />
+                    <SortTh
+                      label={t('columns.moneyAtRisk')}
+                      sortKey="money_at_risk"
+                      currentKey={sortBy}
+                      currentDir={sortOrder}
+                      onSort={handleSort}
+                      thClassName="text-right w-28" className="justify-end"
+                    />
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item, idx) => {
+                    const m = rowModel(item, idx)
+                    return (
+                      <React.Fragment key={item.institution_id}>
+                      <tr
+                        data-wf-row={item.institution_id}
+                        className={`border-b border-border hover:bg-background-elevated transition-colors group ${m.tint}`}
+                        style={{
+                          borderLeft: `${m.isCritico ? '4px' : '3px'} solid ${m.tier.color}`,
+                          height: '44px',
+                        }}
+                      >
+                        <td className="px-2 py-0 font-mono tabular-nums text-right w-12 align-middle">
+                          {renderRank(m)}
+                        </td>
+
+                        {/* flex-wrap: the sector label and the n-marker drop under the
+                            name instead of summing into the column's min-content. */}
+                        <td className="px-2 py-0 align-middle">
+                          <div className="flex flex-wrap items-center gap-x-2 min-w-0">
+                            <span
+                              aria-hidden="true"
+                              className="h-2 w-2 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: getSectorColorFromName(item.sector_name) }}
+                              title={localizedSectorName(item.sector_name, lang)}
+                            />
+                            <EntityIdentityChip
+                              type="institution"
+                              id={item.institution_id}
+                              name={item.institution_name}
+                              variant="name"
+                              fullName
+                              size="sm"
+                              className="flex-[1_1_8rem] min-w-0 py-1 text-[13px] text-text-secondary hover:text-text-primary hover:underline underline-offset-2 transition-colors font-medium whitespace-normal break-words leading-tight"
+                            />
+                            {/* After the name: the name is the row's first stop, the
+                                breakdown button its second (never 50 identical names first). */}
+                            {renderExpand(m)}
+                            {renderThin(item)}
+                            {item.sector_name && (
+                              <span className="text-text-muted text-[13px] font-mono uppercase tracking-[0.1em] flex-shrink-0">
+                                · {localizedSectorName(item.sector_name, lang)}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="px-2 py-0 align-middle">
+                          <div className="flex items-baseline gap-1">
+                            <span
+                              className="text-[14px] font-mono tabular-nums leading-none"
+                              style={{ color: m.tier.ink, fontWeight: m.isCritico ? 700 : 600 }}
+                            >
+                              {item.total_score.toFixed(1)}
+                            </span>
+                            <span className="text-text-muted text-[13px] font-mono">/100</span>
+                          </div>
+                        </td>
+
+                        {/* Tier — the editorial verdict */}
+                        <td className="px-2 py-0 text-center align-middle">{renderTierTile(m)}</td>
+
+                        <td className="px-2 py-0 align-middle">
+                          <WeakPillarCell item={item} />
+                        </td>
+
+                        <td className="px-2 py-0 text-center hidden xl:table-cell align-middle">
+                          <TrendIcon direction={item.trend_direction} />
+                        </td>
+
+                        <td className="px-2 py-0 align-middle">
+                          <span className="text-text-secondary text-[13px] font-mono tabular-nums whitespace-nowrap">
+                            {item.total_contracts != null && item.total_contracts < RELIABLE_MIN && item.confidence_band
+                              // Thin sample: the percentile is noise; print how sure the score is.
+                              ? t('confidenceLine', { band: t(`confidenceBands.${item.confidence_band}`, { defaultValue: item.confidence_band }) })
+                              : item.national_percentile != null
+                                ? t('percentileLabel', { n: displayPercentile(item.national_percentile) })
+                                : '—'}
+                          </span>
+                        </td>
+
+                        {/* Money at risk — the exposure the integrity score can't see */}
+                        <td className="px-2 py-0 text-right align-middle">
+                          <span className="text-text-secondary text-[13px] font-mono tabular-nums whitespace-nowrap">{renderMoney(item)}</span>
+                        </td>
+                      </tr>
+                      {m.isExpanded && (
+                        <tr
+                          id={m.panelId}
+                          className="border-b border-border bg-background/60"
+                          style={{ borderLeft: `3px solid ${m.tier.color}` }}
+                        >
+                          <td colSpan={8} className="px-5 py-4">
+                            <PillarBoleta item={item} />
+                          </td>
+                        </tr>
+                      )}
+                      </React.Fragment>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <nav
+              className="flex items-center justify-between mt-4"
+              aria-label={t('pagination.ariaLabel')}
+            >
+              <button
+                type="button"
+                disabled={page <= 1}
+                onClick={() => updateAndFocus({ page: String(page - 1) })}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-background border border-border text-text-secondary text-sm hover:bg-background-elevated disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                aria-label={t('pagination.previousAriaLabel')}
+              >
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+                {t('pagination.previous')}
+              </button>
+              <span className="text-text-muted text-sm font-mono tabular-nums">
+                {t('pagination.pageOf', { page, total: totalPages })}
+              </span>
+              <button
+                type="button"
+                disabled={page >= totalPages}
+                onClick={() => updateAndFocus({ page: String(page + 1) })}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-background border border-border text-text-secondary text-sm hover:bg-background-elevated disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                aria-label={t('pagination.nextAriaLabel')}
+              >
+                {t('pagination.next')}
+                <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </nav>
+          )}
+        </section>
+
+      </div>
+      </Act>
+
+      {/* One footer (PARALLAX D9 § Change 6): the methodology footnote that
+          ACT III used to hide is the page's colophon paragraph inside main;
+          the shell colophon is the page's only <footer>. */}
+      <p className="mt-6 pt-8 pb-8 border-t border-border text-[12px] font-mono uppercase tracking-[0.15em] text-text-muted leading-relaxed">
+        {t('methodologyFootnote')}
+        <span aria-hidden="true"> · </span>
+        <Link
+          to="/methodology"
+          className="text-text-secondary underline underline-offset-2 hover:text-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 rounded-sm"
+        >
+          {t('methodologyLink')}
+        </Link>
+      </p>
+      </div>
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Tab bar — shared between ranking/reporte views
+// ---------------------------------------------------------------------------
+
+// URL tabs are links (history, Cmd-click); the active one carries aria-current.
+function TabBar({ activeTab, hrefFor }: { activeTab: string; hrefFor: (tab: string) => string }) {
+  const { t } = useTranslation('institutionleague')
+  const tabs = [
+    { id: 'ranking', label: t('tabs.ranking') },
+    { id: 'reporte', label: t('tabs.reporte') },
+  ]
+  return (
+    <nav aria-label={t('tabs.ariaLabel')} className="border-b border-border bg-background/50 px-4 sm:px-6">
+      <div className="max-w-[1010px] mx-auto flex items-center gap-0">
+        {tabs.map((tab) => (
+          <Link
+            key={tab.id}
+            to={hrefFor(tab.id)}
+            aria-current={activeTab === tab.id ? 'page' : undefined}
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 ${
+              activeTab === tab.id
+                ? 'border-accent text-accent-hover'
+                : 'border-transparent text-text-secondary hover:text-text-primary'
+            }`}
+          >
+            {tab.label}
+          </Link>
+        ))}
+      </div>
+    </nav>
+  )
+}

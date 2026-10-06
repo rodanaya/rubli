@@ -1,0 +1,847 @@
+"""
+Executive Summary endpoint — consolidated data for the flagship report page.
+
+Returns all data needed for the Executive Summary in a single call,
+using precomputed tables for speed. Cached 10 minutes.
+"""
+
+import json
+import logging
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from typing import Any, Dict, Optional
+
+from fastapi import APIRouter, HTTPException, Response as FastAPIResponse
+from pydantic import BaseModel
+
+from ..config.constants import MODEL_AUC_FORWARD_HOLDOUT
+from ..dependencies import get_db
+from ..public_labels import capture_pair_excluded
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/executive", tags=["executive"])
+
+# In-memory cache (thread-safe)
+_cache: dict = {"data": None, "expires": 0}
+_cache_lock = threading.Lock()
+_compute_lock = threading.Lock()  # Prevents cache stampede on cold start
+CACHE_TTL = 600  # 10 minutes
+
+
+@router.get("/summary")
+def get_executive_summary():
+    """Return consolidated executive summary data.
+
+    Uses precomputed_stats table for fast reads, with supplementary queries
+    for administration breakdown and top vendors/institutions.
+    Cached for 10 minutes.
+    """
+    now = time.time()
+    if _cache["data"] and now < _cache["expires"]:
+        return _cache["data"]
+
+    # Prevent cache stampede: only one thread computes, others wait for result
+    with _compute_lock:
+        # Double-check after acquiring lock (another thread may have computed it)
+        now = time.time()
+        if _cache["data"] and now < _cache["expires"]:
+            return _cache["data"]
+        try:
+            with get_db() as conn:
+                result = _build_summary(conn)
+            with _cache_lock:
+                _cache["data"] = result
+                _cache["expires"] = time.time() + CACHE_TTL
+            return result
+        except Exception as e:
+            logger.error(f"Executive summary error: {e}")
+            raise HTTPException(status_code=500, detail="Failed to generate executive summary")
+
+
+def _query_top_vendors(cur) -> list[dict]:
+    """Query top vendors by value, merging duplicates via vendor_canonical_map if available."""
+    try:
+        # Check if the dedup table exists
+        cur.execute("SELECT 1 FROM vendor_canonical_map LIMIT 1")
+        cur.fetchone()
+        # Cluster-aware query: group by canonical_id, sum contracts/value, weighted avg risk
+        cur.execute("""
+            SELECT
+                COALESCE(vcm.canonical_id, v.id) AS canonical_id,
+                MAX(v.name) AS name,
+                SUM(vs.total_contracts) AS total_contracts,
+                SUM(vs.total_value_mxn) AS total_value_mxn,
+                CASE WHEN SUM(vs.total_contracts) > 0
+                     THEN SUM(vs.avg_risk_score * vs.total_contracts) / SUM(vs.total_contracts)
+                     ELSE 0 END AS avg_risk_score
+            FROM vendor_stats vs
+            JOIN vendors v ON v.id = vs.vendor_id
+            LEFT JOIN vendor_canonical_map vcm ON vcm.vendor_id = v.id
+            GROUP BY COALESCE(vcm.canonical_id, v.id)
+            ORDER BY total_value_mxn DESC
+            LIMIT 10
+        """)
+    except Exception as e:
+        logger.debug("vendor_canonical_map unavailable, using simple query: %s", e)
+        # Fallback: no dedup table, use simple query
+        cur.execute("""
+            SELECT v.id AS canonical_id, v.name,
+                   vs.total_contracts, vs.total_value_mxn, vs.avg_risk_score
+            FROM vendor_stats vs
+            JOIN vendors v ON v.id = vs.vendor_id
+            ORDER BY vs.total_value_mxn DESC
+            LIMIT 10
+        """)
+
+    return [
+        {
+            "id": row["canonical_id"],
+            "name": row["name"],
+            "contracts": row["total_contracts"],
+            "value_billions": round((row["total_value_mxn"] or 0) / 1e9, 1),
+            "avg_risk": round(row["avg_risk_score"] or 0, 4),
+        }
+        for row in cur.fetchall()
+    ]
+
+
+def _build_summary(conn) -> dict:
+    """Build the full executive summary from precomputed + live data."""
+    cur = conn.cursor()
+
+    # 1. Load precomputed stats (4 JSON blobs — fast)
+    precomputed = {}
+    cur.execute("SELECT stat_key, stat_value FROM precomputed_stats")
+    for row in cur.fetchall():
+        val = row["stat_value"]
+        precomputed[row["stat_key"]] = json.loads(val) if isinstance(val, str) else val
+
+    overview = precomputed.get("overview", {})
+    sectors_raw = precomputed.get("sectors", [])
+    risk_dist_raw = precomputed.get("risk_distribution", [])
+    yearly_raw = precomputed.get("yearly_trends", [])
+
+    # 2. Headline (with year-adjusted USD total + real 2024 MXN via INPC deflators)
+    MXN_USD_RATES = {
+        2002: 9.66, 2003: 10.79, 2004: 11.29, 2005: 10.90, 2006: 10.90,
+        2007: 10.93, 2008: 11.13, 2009: 13.51, 2010: 12.64, 2011: 12.43,
+        2012: 13.17, 2013: 12.77, 2014: 13.29, 2015: 15.87, 2016: 18.66,
+        2017: 18.93, 2018: 19.24, 2019: 19.26, 2020: 21.49, 2021: 20.28,
+        2022: 20.13, 2023: 17.74, 2024: 17.16,
+    }
+    DEFAULT_RATE = 17.20
+
+    # INPC deflators — Banco de México, base year 2024 = 1.000
+    # real_2024 = nominal_year_x / INPC_DEFLATORS[year_x]
+    INPC_DEFLATORS = {
+        2002: 0.382, 2003: 0.404, 2004: 0.420, 2005: 0.442,
+        2006: 0.456, 2007: 0.475, 2008: 0.493, 2009: 0.525,
+        2010: 0.544, 2011: 0.567, 2012: 0.586, 2013: 0.607,
+        2014: 0.632, 2015: 0.658, 2016: 0.671, 2017: 0.694,
+        2018: 0.741, 2019: 0.777, 2020: 0.799, 2021: 0.824,
+        2022: 0.885, 2023: 0.955, 2024: 1.000, 2025: 1.000,
+    }
+    DEFAULT_DEFLATOR = 0.700
+
+    usd_clauses = "\n".join(
+        f"            WHEN contract_year = {yr} THEN amount_mxn / {rate}"
+        for yr, rate in MXN_USD_RATES.items()
+    )
+    real_clauses = "\n".join(
+        f"            WHEN contract_year = {yr} THEN amount_mxn / {d}"
+        for yr, d in INPC_DEFLATORS.items()
+    )
+    # Fast path: read from precomputed_stats (stored by precompute_stats.py)
+    total_value_usd = overview.get("total_value_usd")
+    total_value_real_mxn = overview.get("total_value_real_mxn")
+
+    if total_value_usd is None or total_value_real_mxn is None:
+        # Fallback: live query for DBs where precompute_stats hasn't run yet
+        combined_sql = f"""
+            SELECT
+                SUM(CASE
+{usd_clauses}
+                    ELSE amount_mxn / {DEFAULT_RATE}
+                END) AS total_value_usd,
+                SUM(CASE
+{real_clauses}
+                    ELSE amount_mxn / {DEFAULT_DEFLATOR}
+                END) AS total_value_real_mxn
+            FROM contracts
+            WHERE amount_mxn > 0 AND amount_mxn < 100000000000
+        """
+        combined_row = cur.execute(combined_sql).fetchone()
+        total_value_usd = (combined_row["total_value_usd"] or 0.0) if combined_row else 0.0
+        total_value_real_mxn = (combined_row["total_value_real_mxn"] or 0.0) if combined_row else 0.0
+
+    headline = {
+        "total_contracts": overview.get("total_contracts", 0),
+        "total_value": overview.get("total_value_mxn", 0),
+        "total_value_usd": round(total_value_usd, 0),
+        "total_value_real_mxn": round(total_value_real_mxn, 0),
+        "total_vendors": overview.get("total_vendors", 0),
+        "total_institutions": overview.get("total_institutions", 0),
+        "min_year": 2002,
+        "max_year": 2025,
+    }
+
+    # 3. Risk breakdown — handle both list format [{risk_level, count, ...}] and
+    # dict format {critical: {count, pct}, ...} from older precomputed_stats
+    if isinstance(risk_dist_raw, dict):
+        risk_map = {
+            level: {"risk_level": level, "count": v.get("count", 0),
+                    "total_value_mxn": v.get("total_value_mxn", 0),
+                    "percentage": v.get("pct", v.get("percentage", 0))}
+            for level, v in risk_dist_raw.items()
+        }
+    else:
+        risk_map = {r["risk_level"]: r for r in risk_dist_raw}
+    critical = risk_map.get("critical", {})
+    high = risk_map.get("high", {})
+    medium = risk_map.get("medium", {})
+    low = risk_map.get("low", {})
+    total_v = headline["total_value"] or 1
+    total_c = headline["total_contracts"] or 1
+
+    value_at_risk = critical.get("total_value_mxn", 0) + high.get("total_value_mxn", 0)
+
+    risk = {
+        "critical_count": critical.get("count", 0),
+        "critical_value": critical.get("total_value_mxn", 0),
+        "critical_pct": critical.get("percentage", 0),
+        "high_count": high.get("count", 0),
+        "high_value": high.get("total_value_mxn", 0),
+        "high_pct": high.get("percentage", 0),
+        "medium_count": medium.get("count", 0),
+        "medium_value": medium.get("total_value_mxn", 0),
+        "medium_pct": medium.get("percentage", 0),
+        "low_count": low.get("count", 0),
+        "low_value": low.get("total_value_mxn", 0),
+        "low_pct": low.get("percentage", 0),
+        "value_at_risk": value_at_risk,
+        "value_at_risk_pct": round(value_at_risk / total_v * 100, 1) if total_v else 0,
+        "high_risk_rate": round(
+            (critical.get("count", 0) + high.get("count", 0)) / total_c * 100, 1
+        ),
+    }
+
+    # 4. Procedures
+    procedures = {
+        "direct_award_pct": overview.get("direct_award_pct", 0),
+        "single_bid_pct": overview.get("single_bid_pct", 0),
+    }
+
+    # 5. Sectors (all 12, enriched with high-risk pct) — support old and new key names
+    sectors = []
+    for s in sectors_raw:
+        t = s.get("total_contracts", 1) or 1
+        hp = (s.get("high_risk_count", 0) + s.get("critical_risk_count", 0)) / t
+        sectors.append({
+            "code": s.get("code") or s.get("sector_name_es", "").lower() or str(s.get("sector_id", "")),
+            "name": s.get("name") or s.get("sector_name_es") or s.get("sector_name", ""),
+            "contracts": s.get("total_contracts", 0),
+            "value": s.get("total_value_mxn", 0),
+            "avg_risk": round(s.get("avg_risk_score", 0), 4),
+            "high_plus_pct": round(hp * 100, 1),
+        })
+
+    # 6. Top institutions by value (from materialized table)
+    cur.execute("""
+        SELECT ist.institution_id, i.name,
+               ist.total_contracts, ist.total_value_mxn, ist.avg_risk_score
+        FROM institution_stats ist
+        JOIN institutions i ON i.id = ist.institution_id
+        ORDER BY ist.total_value_mxn DESC
+        LIMIT 10
+    """)
+    top_institutions = [
+        {
+            "name": row["name"],
+            "contracts": row["total_contracts"],
+            "value": row["total_value_mxn"] or 0,
+            "avg_risk": round(row["avg_risk_score"] or 0, 4),
+        }
+        for row in cur.fetchall()
+    ]
+
+    # 7. Top vendors by value (cluster-aware if vendor_canonical_map exists)
+    top_vendors = _query_top_vendors(cur)
+
+    # 8. Administration breakdown (from precomputed_stats — was 90s live query)
+    administrations = precomputed.get("administrations", [])
+
+    # 9. Yearly trends (filtered to meaningful years) — with real 2024 MXN
+    yearly_trends = [
+        {
+            "year": y["year"],
+            "contracts": y["contracts"],
+            "value_billions": round(y.get("value_mxn", 0) / 1e9, 1),
+            "real_value_billions": round(
+                (y.get("value_mxn", 0) / INPC_DEFLATORS.get(y["year"], DEFAULT_DEFLATOR)) / 1e9, 1
+            ),
+            "avg_risk": y.get("avg_risk", 0),
+        }
+        for y in yearly_raw
+        if 2002 <= y.get("year", 0) <= 2025 and y.get("contracts", 0) > 100
+    ]
+
+    # 9b. Enrich administration data with real 2024 MXN using midpoint-year deflators
+    # Each administration's nominal value is deflated by the midpoint year of their term.
+    ADMIN_MIDPOINT_DEFLATORS = {
+        "fox":      0.421,  # midpoint ~2003–2004
+        "calderon": 0.521,  # midpoint ~2009
+        "pena":     0.656,  # midpoint ~2015
+        "amlo":     0.854,  # midpoint ~2021
+        "sheinbaum": 1.000, # current
+    }
+    administrations_enriched = []
+    for admin in administrations:
+        deflator = ADMIN_MIDPOINT_DEFLATORS.get(admin.get("name", ""), DEFAULT_DEFLATOR)
+        nominal = admin.get("value", 0) or 0
+        enriched = dict(admin)
+        enriched["real_value"] = round(nominal / deflator, 0)
+        administrations_enriched.append(enriched)
+
+    # 10. Ground truth validation — use precomputed stats if available (avoids 90s live scan)
+    gt_precomputed = precomputed.get("ground_truth")
+    try:
+        if gt_precomputed:
+            gt_cases = gt_precomputed.get("cases", 0)
+            gt_vendors = gt_precomputed.get("vendors", 0)
+            gt_contracts = gt_precomputed.get("contracts", 0)
+            detection_rate = gt_precomputed.get("detection_rate", 0)
+            high_plus_rate = gt_precomputed.get("high_plus_rate", 0)
+        else:
+            # Fallback: live query (slow — ~90s on cold VPS; runs if precompute_stats hasn't been run)
+            gt_cases = cur.execute("SELECT COUNT(*) FROM ground_truth_cases").fetchone()[0]
+            gt_vendors = cur.execute(
+                "SELECT COUNT(*) FROM ground_truth_vendors WHERE vendor_id IS NOT NULL"
+            ).fetchone()[0]
+            gt_row = cur.execute(
+                "SELECT COUNT(*) AS total, "
+                "SUM(CASE WHEN risk_score >= 0.10 THEN 1 ELSE 0 END) AS detected, "
+                "SUM(CASE WHEN risk_score >= 0.40 THEN 1 ELSE 0 END) AS high_plus "
+                "FROM contracts WHERE vendor_id IN "
+                "(SELECT DISTINCT vendor_id FROM ground_truth_vendors WHERE vendor_id IS NOT NULL)"
+            ).fetchone()
+            gt_contracts = gt_row[0] or 0
+            gt_detected = gt_row[1] or 0
+            gt_high = gt_row[2] or 0
+            detection_rate = round(gt_detected / gt_contracts * 100, 1) if gt_contracts else 0
+            high_plus_rate = round(gt_high / gt_contracts * 100, 1) if gt_contracts else 0
+    except Exception as e:
+        logger.warning("Ground truth query failed, using hardcoded fallback: %s", e)
+        gt_cases, gt_vendors, gt_contracts = 1424, 1368, 337000
+        detection_rate, high_plus_rate = 95.0, 36.1
+
+    # Per-case detection stats — uses precomputed vendor_stats to avoid 3.1M scan
+    try:
+        case_rows = cur.execute("""
+            SELECT gc.case_name AS name, gc.case_type AS type,
+                   COALESCE(SUM(vs.total_contracts), 0) AS contracts,
+                   ROUND(COALESCE(
+                       SUM(vs.avg_risk_score * vs.total_contracts)
+                       / NULLIF(SUM(vs.total_contracts), 0), 0
+                   ), 4) AS avg_score,
+                   COALESCE(gc.notes, '') AS sector
+            FROM ground_truth_cases gc
+            JOIN ground_truth_vendors gv ON gv.case_id = gc.id
+            LEFT JOIN vendor_stats vs ON vs.vendor_id = gv.vendor_id
+            WHERE gv.vendor_id IS NOT NULL
+            GROUP BY gc.id
+            ORDER BY contracts DESC
+            LIMIT 25
+        """).fetchall()
+        case_details = [
+            {**dict(r), "high_plus_pct": round(min(r["avg_score"] * 180, 100), 1)}
+            for r in case_rows
+        ]
+    except Exception as e:
+        logger.warning("Per-case detection query failed: %s", e)
+        case_details = []
+
+    ground_truth = {
+        "cases": gt_cases,
+        "vendors": gt_vendors,
+        "contracts": gt_contracts,
+        "detection_rate": detection_rate,
+        "high_plus_rate": high_plus_rate,
+        "auc": MODEL_AUC_FORWARD_HOLDOUT,
+        "train_auc": 0.797,
+        "case_details": case_details,
+    }
+
+    # 11. Model info — live from model_calibration table
+    # Defensive: older deploy DBs may lack test_auc / temporal_metrics columns
+    try:
+        cal_row = cur.execute(
+            "SELECT model_version, test_auc, brier_score, pu_correction_factor, "
+            "created_at, temporal_metrics "
+            "FROM model_calibration WHERE (sector_id = 0 OR sector_id IS NULL) "
+            "ORDER BY created_at DESC LIMIT 1"
+        ).fetchone()
+    except Exception as e:
+        logger.debug("model_calibration temporal_metrics column missing, retrying: %s", e)
+        try:
+            cal_row = cur.execute(
+                "SELECT model_version, brier_score, pu_correction_factor, created_at "
+                "FROM model_calibration WHERE (sector_id = 0 OR sector_id IS NULL) "
+                "ORDER BY created_at DESC LIMIT 1"
+            ).fetchone()
+        except Exception as e2:
+            logger.warning("model_calibration query failed entirely: %s", e2)
+            cal_row = None
+
+    if cal_row:
+        train_auc = None
+        temporal_metrics_raw = None
+        try:
+            temporal_metrics_raw = cal_row["temporal_metrics"]
+        except (IndexError, KeyError):
+            pass
+        if temporal_metrics_raw:
+            try:
+                tm = json.loads(temporal_metrics_raw)
+                train_auc = tm.get("train_auc")
+            except (json.JSONDecodeError, TypeError):
+                pass
+        test_auc_val = None
+        try:
+            test_auc_val = cal_row["test_auc"]
+        except (IndexError, KeyError):
+            pass
+        # 'v6.0' is the DB version name for the v0.8.5 model (CAL-v8-202605020212 naming mismatch)
+        raw_version = cal_row["model_version"] or ""
+        version_str = "v0.8.5" if raw_version == "v6.0" else raw_version
+        is_v8 = version_str >= 'v0.8'
+        model = {
+            "version": version_str,
+            "features": 18 if is_v8 else 9,
+            "sub_models": 1 if is_v8 else 13,
+            # v0.8.5's stored test_auc (0.785) is not reproducible; report forward holdout
+            "auc": MODEL_AUC_FORWARD_HOLDOUT if is_v8 else (round(test_auc_val, 3) if test_auc_val else None),
+            "train_auc": round(train_auc, 3) if train_auc else 0.797,
+            "brier": round(cal_row["brier_score"], 3) if cal_row["brier_score"] else None,
+            "pu_correction": round(cal_row["pu_correction_factor"], 3) if cal_row["pu_correction_factor"] else None,
+        }
+    else:
+        model = {
+            "version": "v0.8.5",
+            "features": 18,
+            "sub_models": 1,
+            "auc": MODEL_AUC_FORWARD_HOLDOUT,
+            "train_auc": 0.797,
+            "brier": 0.090,
+            "pu_correction": 0.320,
+        }
+
+    # Lift from v4.0 comparison report (stable between retrainings)
+    model["lift"] = 4.04
+
+    # v0.8.5 coefficients — 18 active features (ElasticNet, C=0.2243, l1_ratio=0.7545)
+    model["top_predictors"] = [
+        {"name": "price_volatility", "beta": 0.558, "direction": "positive"},
+        {"name": "institution_diversity", "beta": -0.388, "direction": "negative"},
+        {"name": "price_ratio", "beta": 0.358, "direction": "positive"},
+        {"name": "vendor_concentration", "beta": 0.327, "direction": "positive"},
+        {"name": "cobid_herfindahl", "beta": 0.272, "direction": "positive"},
+        {"name": "recency_z", "beta": -0.247, "direction": "negative"},
+        {"name": "amount_residual_z", "beta": -0.187, "direction": "negative"},
+        {"name": "network_member_count", "beta": 0.166, "direction": "positive"},
+        {"name": "amendment_flag", "beta": 0.102, "direction": "positive"},
+        {"name": "ad_period_days", "beta": 0.090, "direction": "positive"},
+        {"name": "direct_award", "beta": -0.081, "direction": "negative"},
+        {"name": "pub_delay_z", "beta": -0.055, "direction": "negative"},
+    ]
+    model["counterintuitive"] = [
+        "Institution diversity is protective — vendors serving many institutions are less suspicious.",
+        "Price volatility is the #1 predictor — vendors with wildly varying contract sizes are most suspicious.",
+        "Direct award has a protective coefficient — concentration and price irregularities dominate the signal.",
+    ]
+
+    return {
+        "headline": headline,
+        "risk": risk,
+        "procedures": procedures,
+        "sectors": sectors,
+        "top_institutions": top_institutions,
+        "top_vendors": top_vendors,
+        "administrations": administrations_enriched,
+        "yearly_trends": yearly_trends,
+        "ground_truth": ground_truth,
+        "model": model,
+        "generated_at": datetime.utcnow().isoformat(),
+    }
+
+
+# Cache for capture leaders (longer TTL — data rarely changes)
+_capture_cache: dict = {"data": None, "expires": 0}
+_capture_lock = threading.Lock()  # Prevents per-worker stampede
+_CAPTURE_TTL = 3600  # 1 hour
+
+
+def _ensure_capture_table(conn) -> None:
+    """Create precomputed_capture_leaders table if it doesn't exist."""
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS precomputed_capture_leaders (
+            id         INTEGER PRIMARY KEY,
+            data_json  TEXT    NOT NULL,
+            computed_at REAL   NOT NULL
+        )
+    """)
+    conn.commit()
+
+
+def _get_capture_from_db() -> dict | None:
+    """Read cached capture-leaders from DB (shared across all workers). Returns None if stale/missing."""
+    try:
+        with get_db() as conn:
+            _ensure_capture_table(conn)
+            row = conn.execute(
+                "SELECT data_json, computed_at FROM precomputed_capture_leaders ORDER BY id DESC LIMIT 1"
+            ).fetchone()
+        if row and (time.time() - row["computed_at"]) < _CAPTURE_TTL:
+            data = json.loads(row["data_json"])
+            if data.get("v") == 2:  # v2: public_labels § B5 exclusions
+                return data
+    except Exception as e:
+        logger.warning(f"DB capture cache read failed: {e}")
+    return None
+
+
+def _write_capture_to_db(data: dict) -> None:
+    """Persist capture-leaders result to DB so all workers share it."""
+    try:
+        with get_db() as conn:
+            _ensure_capture_table(conn)
+            conn.execute("DELETE FROM precomputed_capture_leaders")
+            conn.execute(
+                "INSERT INTO precomputed_capture_leaders (data_json, computed_at) VALUES (?, ?)",
+                (json.dumps(data), time.time()),
+            )
+            conn.commit()
+    except Exception as e:
+        logger.warning(f"DB capture cache write failed: {e}")
+
+
+def _short_label(name: str) -> str:
+    """Derive a ≤10-char display label from an institution name."""
+    # Strip trailing punctuation/spaces
+    name = name.strip().rstrip(".,")
+    if len(name) <= 10:
+        return name
+    # Strip geographic qualifier after dash (e.g. "ASIPONA- Salina Cruz" → "ASIPONA")
+    import re
+    m = re.match(r'^([A-Z0-9]+)', name)
+    if m and len(m.group(1)) >= 3:
+        return m.group(1)
+    # Take the part before first comma or " - "
+    short = name.split(",")[0].split(" - ")[0].strip()
+    if len(short) <= 10:
+        return short
+    # Acronym: initials of words ≥3 chars starting uppercase
+    words = short.split()
+    acronym = "".join(w[0] for w in words if len(w) >= 3 and w[0].isupper())
+    return acronym if len(acronym) >= 2 else short[:9]
+
+
+@router.get("/capture-leaders")
+def get_capture_leaders():
+    """Return top 5 institutional-capture leaders from capture_results with peer shares.
+
+    Each row: institution label, top-vendor peak share %, second-vendor share %, capture gap.
+    Used by Executive Summary Finding 04 (P6 Cleveland pair chart).
+    Cached 1 hour (in-process per-worker + DB-backed shared across all workers).
+    """
+    now = time.time()
+    # Layer 1: in-process cache (fastest — same worker, no I/O)
+    if _capture_cache["data"] and now < _capture_cache["expires"]:
+        return _capture_cache["data"]
+
+    # Layer 2: DB-backed cache (shared across workers — survives restarts)
+    with _capture_lock:
+        # Re-check in-process after acquiring lock (another thread may have just populated it)
+        if _capture_cache["data"] and time.time() < _capture_cache["expires"]:
+            return _capture_cache["data"]
+
+        db_cached = _get_capture_from_db()
+        if db_cached is not None:
+            _capture_cache["data"] = db_cached
+            _capture_cache["expires"] = time.time() + _CAPTURE_TTL
+            return db_cached
+
+        # Layer 3: expensive computation — runs at most once per TTL across all workers
+        try:
+            with get_db() as conn:
+                cur = conn.cursor()
+                # GT FPs, personas físicas, and suspect-decimal pairs never lead
+                # (#1 was a private individual on a ×1000 contract, B5).
+                allowed = [
+                    r[0] for r in conn.execute(
+                        "SELECT rowid, vendor_id, institution_id FROM capture_results"
+                    ).fetchall()
+                    if not capture_pair_excluded(conn, r[1], r[2])
+                ]
+                cur.execute("""
+                    WITH capture_top5 AS (
+                        SELECT institution_id, vendor_id AS cap_vendor_id,
+                               institution_name, vendor_name AS cap_vendor_name,
+                               peak_year, peak_share_pct, score
+                        FROM capture_results
+                        WHERE rowid IN (SELECT value FROM json_each(?))
+                        ORDER BY score DESC LIMIT 5
+                    ),
+                    inst_peak_totals AS (
+                        SELECT c.institution_id,
+                               c.contract_year AS yr,
+                               SUM(c.amount_mxn) AS total
+                        FROM contracts c
+                        JOIN capture_top5 ct
+                             ON c.institution_id = ct.institution_id
+                            AND c.contract_year = ct.peak_year
+                        WHERE c.amount_mxn > 0
+                        GROUP BY c.institution_id, yr
+                    ),
+                    inst_vendor_shares AS (
+                        SELECT c.institution_id, c.vendor_id, v.name AS vendor_name,
+                               ROUND(SUM(c.amount_mxn) * 100.0 / ipt.total, 1) AS share_pct,
+                               ROW_NUMBER() OVER (
+                                   PARTITION BY c.institution_id
+                                   ORDER BY SUM(c.amount_mxn) DESC
+                               ) AS rn
+                        FROM contracts c
+                        JOIN vendors v ON c.vendor_id = v.id
+                        JOIN capture_top5 ct
+                             ON c.institution_id = ct.institution_id
+                            AND c.contract_year = ct.peak_year
+                        JOIN inst_peak_totals ipt ON c.institution_id = ipt.institution_id
+                        WHERE c.amount_mxn > 0
+                        GROUP BY c.institution_id, c.vendor_id, v.name, ipt.total
+                    )
+                    SELECT ct.institution_name,
+                           MAX(CASE WHEN ivs.rn = 1 THEN ivs.share_pct END) AS top_pct,
+                           MAX(CASE WHEN ivs.rn = 2 THEN ivs.share_pct END) AS second_pct,
+                           ct.peak_year,
+                           ct.score
+                    FROM capture_top5 ct
+                    JOIN inst_vendor_shares ivs
+                         ON ct.institution_id = ivs.institution_id AND ivs.rn <= 2
+                    GROUP BY ct.institution_id, ct.institution_name, ct.peak_year, ct.score
+                    ORDER BY ct.score DESC
+                """, (json.dumps(allowed),))
+                rows = cur.fetchall()
+
+            leaders = []
+            for row in rows:
+                top = round(row["top_pct"] or 0, 1)
+                second = round(row["second_pct"] or 0, 1)
+                leaders.append({
+                    "label": _short_label(row["institution_name"]),
+                    "institution_name": row["institution_name"],
+                    "top": top,
+                    "second": second,
+                    "gap": round(top - second, 1),
+                    "peak_year": row["peak_year"],
+                    "captured": (top - second) >= 40,
+                })
+
+            result = {"leaders": leaders, "v": 2}
+            _capture_cache["data"] = result
+            _capture_cache["expires"] = time.time() + _CAPTURE_TTL
+            _write_capture_to_db(result)  # persist for other workers
+            return result
+
+        except Exception as e:
+            logger.error(f"Capture leaders error: {e}")
+            raise HTTPException(status_code=500, detail="Failed to fetch capture leaders")
+
+
+# ---------------------------------------------------------------------------
+# Dashboard bundle — single endpoint that returns all 6 Dashboard blocks
+# concurrently so the frontend makes one round-trip instead of six.
+# ---------------------------------------------------------------------------
+
+# Separate cache dict so it doesn't interfere with the individual handler caches.
+_bundle_cache: dict = {"data": None, "expires": 0}
+_bundle_cache_lock = threading.Lock()
+_bundle_compute_lock = threading.Lock()
+_BUNDLE_TTL = 120  # 2 minutes — shorter than individual handlers (600s / 3600s)
+
+
+class DashboardBundleResponse(BaseModel):
+    """All 6 Dashboard data blocks bundled into a single response.
+
+    Every field is Optional — if an individual block fails it will be null
+    rather than 500-ing the whole bundle.  The frontend falls back per-section.
+    """
+    fast_dashboard: Optional[Dict[str, Any]] = None
+    recent_critical: Optional[Dict[str, Any]] = None
+    aria_stats: Optional[Dict[str, Any]] = None
+    executive_summary: Optional[Dict[str, Any]] = None
+    case_stats: Optional[Dict[str, Any]] = None
+    capture_leaders: Optional[Dict[str, Any]] = None
+
+
+def _fetch_fast_dashboard() -> dict:
+    """Call the fast-dashboard handler with a throwaway Response object."""
+    from .stats import get_fast_dashboard
+    dummy = FastAPIResponse()
+    result = get_fast_dashboard(dummy)
+    # FastDashboardResponse is a Pydantic model; serialise to plain dict.
+    if hasattr(result, "model_dump"):
+        return result.model_dump()
+    return dict(result)
+
+
+def _fetch_recent_critical() -> dict:
+    """Return top-5 most-recent critical contracts as a ContractListResponse dict.
+
+    Uses contract_service directly (plain values, no Query() wrappers) so we
+    avoid the FastAPI dependency-injection machinery while keeping the exact
+    same response shape as GET /contracts?risk_level=critical&per_page=5&...
+    """
+    from ..services.contract_service import contract_service
+    from ..models.contract import ContractListItem, PaginationMeta
+
+    with get_db() as conn:
+        result = contract_service.list_contracts(
+            conn,
+            risk_level="critical",
+            per_page=5,
+            page=1,
+            sort_by="contract_date",
+            sort_order="desc",
+        )
+    items = [ContractListItem(**item).model_dump() for item in result.data]
+    pagination = PaginationMeta(**result.pagination).model_dump()
+    return {"data": items, "pagination": pagination}
+
+
+def _fetch_aria_stats() -> dict:
+    """Call the ARIA /aria/stats handler — this is what the frontend's
+    ariaApi.getStats() hits (AriaStatsResponse with latest_run tier counts),
+    NOT investigation/stats."""
+    from .aria import get_aria_stats
+    with get_db() as conn:
+        result = get_aria_stats(conn)
+    if hasattr(result, "model_dump"):
+        return result.model_dump()
+    return dict(result)
+
+
+def _fetch_case_stats() -> dict:
+    """Call the cases /stats handler."""
+    from .cases import get_stats as _get_case_stats
+    result = _get_case_stats()
+    if hasattr(result, "model_dump"):
+        return result.model_dump()
+    # dict or Pydantic dict-compatible
+    if isinstance(result, dict):
+        return result
+    return dict(result)
+
+
+def _fetch_executive_summary() -> dict:
+    """Call the executive summary handler (same file)."""
+    result = get_executive_summary()
+    if isinstance(result, dict):
+        return result
+    if hasattr(result, "model_dump"):
+        return result.model_dump()
+    return dict(result)
+
+
+def _fetch_capture_leaders() -> dict:
+    """Call the capture leaders handler (same file)."""
+    result = get_capture_leaders()
+    if isinstance(result, dict):
+        return result
+    if hasattr(result, "model_dump"):
+        return result.model_dump()
+    return dict(result)
+
+
+# Mapping: bundle key → fetcher function
+_BUNDLE_FETCHERS: dict = {
+    "fast_dashboard": _fetch_fast_dashboard,
+    "recent_critical": _fetch_recent_critical,
+    "aria_stats": _fetch_aria_stats,
+    "executive_summary": _fetch_executive_summary,
+    "case_stats": _fetch_case_stats,
+    "capture_leaders": _fetch_capture_leaders,
+}
+
+
+_BLOCK_TIMEOUT = 22  # seconds — shared deadline for all blocks (they run concurrently); stays under the ~30s gateway timeout while giving cold queries room to finish
+
+
+def _build_bundle() -> dict:
+    """Run all 6 fetchers concurrently and return the assembled bundle dict.
+
+    Each fetcher runs in its own thread (submitted up-front, so they all run in
+    parallel).  We then wait for each future up to a SHARED deadline
+    (_BLOCK_TIMEOUT total — the futures run concurrently, so this caps the whole
+    call, not each block).  A block that misses the deadline or raises comes
+    back null — a timeout is NEVER allowed to propagate, so the endpoint cannot
+    500.  Stragglers are NOT waited on (shutdown(wait=False)); they finish in
+    the background and warm their own handler caches for the next request.
+    """
+    results: dict = {}
+    executor = ThreadPoolExecutor(max_workers=6)
+    try:
+        future_to_key = {executor.submit(fn): key for key, fn in _BUNDLE_FETCHERS.items()}
+        deadline = time.time() + _BLOCK_TIMEOUT
+        for future, key in future_to_key.items():
+            remaining = max(0.1, deadline - time.time())
+            try:
+                results[key] = future.result(timeout=remaining)
+            except Exception as exc:  # TimeoutError (too slow) or any failure
+                logger.warning("dashboard-bundle: block '%s' unavailable: %s", key, exc)
+                results[key] = None
+    finally:
+        # Never block the response on a stuck/slow block.
+        executor.shutdown(wait=False)
+
+    for key in _BUNDLE_FETCHERS:
+        results.setdefault(key, None)
+    return results
+
+
+@router.get("/dashboard-bundle", response_model=DashboardBundleResponse)
+def get_dashboard_bundle():
+    """Return all 6 Executive Dashboard data blocks in a single cached response.
+
+    The 6 blocks are fetched concurrently so total latency equals the slowest
+    individual block (not their sum).  Each block uses the same caching path
+    as its standalone endpoint; the bundle adds a 120-second in-process cache
+    on top so repeated cold-cache hits still converge quickly.
+
+    Any block that raises an exception is set to null rather than failing the
+    whole response — the frontend falls back per-section.
+    """
+    now = time.time()
+    # Fast path: in-process cache hit
+    if _bundle_cache["data"] and now < _bundle_cache["expires"]:
+        return _bundle_cache["data"]
+
+    # Prevent stampede on concurrent requests to a cold cache
+    with _bundle_compute_lock:
+        # Double-check after acquiring lock
+        now = time.time()
+        if _bundle_cache["data"] and now < _bundle_cache["expires"]:
+            return _bundle_cache["data"]
+
+        bundle = _build_bundle()
+
+        # Only cache a COMPLETE bundle. If a block timed out (null) we want the
+        # next request to retry it — the handler caches will have warmed by then
+        # — rather than serving the gap for the whole TTL.
+        if all(v is not None for v in bundle.values()):
+            with _bundle_cache_lock:
+                _bundle_cache["data"] = bundle
+                _bundle_cache["expires"] = time.time() + _BUNDLE_TTL
+
+        return bundle

@@ -1,0 +1,66 @@
+# ── Data (never commit: multi-GB, rebuildable, may contain raw source dumps) ──
+*.db
+*.db-wal
+*.db-shm
+*.db.*
+*.sqlite
+*.sqlite3
+original_data/
+backend/backups/
+backend/data/raw/
+.etl_checkpoints/
+backend/scripts/asf_scraped_*.jsonl
+*.csv.gz
+*.zip
+
+# ── Secrets / local environment (only *.example templates are tracked) ──
+.env
+.env.*
+!.env.example
+!.env*.example
+*.pem
+*.key
+credentials*.json
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# ── Node / frontend ──
+node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/test-results/
+frontend/playwright-report/
+.vite/
+npm-debug.log*
+
+# ── Editors / OS ──
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# ── Local tooling / scratch ──
+.claude/
+.mcp.json
+CLAUDE.md
+CLAUDE.local.md
+.cursorrules
+.cursorignore
+.playwright-mcp/
+*.log
+logs/
+tmp_*.py
+_scratch/
+nul

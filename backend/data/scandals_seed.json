@@ -1,0 +1,109 @@
+{
+  "_meta": {
+    "version": "2.0",
+    "cases_count": 3,
+    "generated": "2026-10-03",
+    "note": "Minimal example seed for the procurement_scandals table (Case Library). Each case is reduced to neutral, publicly reported facts with checkable sources (an official record or a named outlet, with URL). Key actors are institutions only: no private individuals and no characterisation of named firms. is_verified = 1 means 'facts cross-checked against the cited sources', NOT a judicial finding. Add cases here only with a cited official record or named publication. Load with: python -m scripts.load_scandals"
+  },
+  "cases": [
+    {
+      "name_en": "The Master Scam (La Estafa Maestra)",
+      "name_es": "La Estafa Maestra",
+      "slug": "estafa-maestra",
+      "fraud_type": "ghost_company",
+      "administration": "epn",
+      "sector_id": null,
+      "sector_ids": [8, 3, 2, 9, 11],
+      "contract_year_start": 2013,
+      "contract_year_end": 2014,
+      "discovery_year": 2017,
+      "amount_mxn_low": 7670000000,
+      "amount_mxn_high": null,
+      "amount_note": "MXN 7,670 million transferred by 11 federal agencies through 8 public universities (2013-2014), as reported by Animal Político / MCCI on the basis of ASF audits.",
+      "severity": 4,
+      "legal_status": "acquitted",
+      "legal_status_note": "FGR charged the former SEDESOL/SEDATU secretary in 2019; a judge closed the case in 2022 and the SCJN confirmed it on 30 Oct 2024. Proceedings against other officials are reported separately.",
+      "compranet_visibility": "partial",
+      "compranet_note": "Agency-to-university agreements appear in CompraNet; university-to-company subcontracts do not.",
+      "summary_en": "A 2017 investigation by Animal Político and Mexicanos contra la Corrupción y la Impunidad (MCCI), built on Auditoría Superior de la Federación (ASF) audits, reported that 11 federal agencies channelled MXN 7,670 million through agreements with 8 public universities in 2013-2014, which subcontracted companies for services the ASF could not verify as delivered.",
+      "summary_es": "Una investigación de 2017 de Animal Político y Mexicanos contra la Corrupción y la Impunidad (MCCI), basada en auditorías de la ASF, reportó que 11 dependencias federales canalizaron 7,670 millones de pesos mediante convenios con 8 universidades públicas en 2013-2014, que a su vez subcontrataron empresas por servicios cuya entrega la ASF no pudo verificar.",
+      "key_actors": [
+        {"name": "ASF", "role": "institution", "title": "Auditoría Superior de la Federación", "note": "Audits of the 2013-2014 Cuenta Pública"}
+      ],
+      "sources": [
+        {"title": "La Estafa Maestra", "outlet": "Animal Político / MCCI", "date": "2017-09-05", "type": "journalism", "url": "https://www.animalpolitico.com/estafa-maestra/"},
+        {"title": "Así inició la investigación de #LaEstafaMaestra", "outlet": "Animal Político", "date": "2017-09-05", "type": "journalism", "url": "https://animalpolitico.com/2017/09/asi-inicio-la-investigacion-laestafamaestra"},
+        {"title": "SCJN confirma absolución de Rosario Robles por la Estafa Maestra", "outlet": "Proceso", "date": "2024-10-30", "type": "journalism", "url": "https://www.proceso.com.mx/nacional/2024/10/30/scjn-confirma-absolucion-de-rosario-robles-por-la-estafa-maestra-337986.html"}
+      ],
+      "ground_truth_case_id": 6,
+      "investigation_case_ids": [],
+      "is_verified": 1
+    },
+    {
+      "name_en": "Odebrecht bribery in Mexico",
+      "name_es": "Sobornos de Odebrecht en México",
+      "slug": "odebrecht-pemex-bribery",
+      "fraud_type": "bribery",
+      "administration": "epn",
+      "sector_id": 4,
+      "sector_ids": [4],
+      "contract_year_start": 2010,
+      "contract_year_end": 2014,
+      "discovery_year": 2016,
+      "amount_mxn_low": null,
+      "amount_mxn_high": null,
+      "amount_note": "In its December 2016 plea agreement with the US Department of Justice, Odebrecht S.A. admitted paying about USD 10.5 million in bribes to Mexican government officials between 2010 and 2014, including USD 6 million to a high-level official of a Mexican state-owned company.",
+      "severity": 3,
+      "legal_status": "settled",
+      "legal_status_note": "Odebrecht S.A. pleaded guilty in the United States (21 Dec 2016). Mexican proceedings are reported separately; see sources.",
+      "compranet_visibility": "partial",
+      "compranet_note": "PEMEX subsidiary contracts are only partially visible in CompraNet.",
+      "summary_en": "Odebrecht S.A. admitted in a 2016 US plea agreement that it paid about USD 10.5 million in bribes to Mexican officials between 2010 and 2014, part of a scheme the US Department of Justice described across 12 countries.",
+      "summary_es": "Odebrecht S.A. admitió en un acuerdo de culpabilidad de 2016 en Estados Unidos haber pagado cerca de 10.5 millones de dólares en sobornos a funcionarios mexicanos entre 2010 y 2014, como parte de un esquema que el Departamento de Justicia describió en 12 países.",
+      "key_actors": [
+        {"name": "US Department of Justice", "role": "institution", "title": "Fraud Section", "note": "Plea agreement, December 2016"},
+        {"name": "PEMEX", "role": "institution", "title": "Petróleos Mexicanos", "note": "State-owned company"}
+      ],
+      "sources": [
+        {"title": "Odebrecht and Braskem Plead Guilty and Agree to Pay at Least $3.5 Billion in Global Penalties", "outlet": "US Department of Justice", "date": "2016-12-21", "type": "legal", "url": "https://www.justice.gov/archives/opa/pr/odebrecht-and-braskem-plead-guilty-and-agree-pay-least-35-billion-global-penalties-resolve"},
+        {"title": "Investigation into PEMEX's Involvement with Odebrecht", "outlet": "Stanford FCPA Clearinghouse", "type": "academic", "url": "https://fcpa.stanford.edu/investigation.htm?id=369"}
+      ],
+      "ground_truth_case_id": 5,
+      "investigation_case_ids": [],
+      "is_verified": 1
+    },
+    {
+      "name_en": "Segalmex audit findings",
+      "name_es": "Observaciones de auditoría en Segalmex",
+      "slug": "segalmex-food-distribution",
+      "fraud_type": "procurement_fraud",
+      "administration": "amlo",
+      "sector_id": 9,
+      "sector_ids": [9],
+      "contract_year_start": 2019,
+      "contract_year_end": 2021,
+      "discovery_year": 2020,
+      "amount_mxn_low": null,
+      "amount_mxn_high": null,
+      "amount_note": "The SFP reports MXN 2,700 million diverted from Seguridad Alimentaria Mexicana (Segalmex) and 156 criminal complaints filed with the FGR; the ASF observed MXN 8,636 million in its audit of the 2020 Cuenta Pública (Expansión, 2024). Audit observations are not final determinations of damage.",
+      "severity": 4,
+      "legal_status": "prosecuted",
+      "legal_status_note": "156 complaints filed with the FGR (SFP, Sept 2024); a former director of administration and finance was ordered to stand trial in 2022. No final verdict reported in the cited sources.",
+      "compranet_visibility": "high",
+      "compranet_note": "LICONSA and DICONSA procurement contracts are visible in CompraNet.",
+      "summary_en": "The Auditoría Superior de la Federación reported repeated irregularities in the accounts of Segalmex and its subsidiaries, including payments for services without evidence that they met contract terms and inventory discrepancies, and filed criminal complaints.",
+      "summary_es": "La Auditoría Superior de la Federación reportó irregularidades recurrentes en las cuentas de Segalmex y sus filiales, incluidos pagos por servicios sin evidencia de cumplimiento de lo contratado y diferencias de inventario, y presentó denuncias penales.",
+      "key_actors": [
+        {"name": "ASF", "role": "institution", "title": "Auditoría Superior de la Federación", "note": "Audits of Cuenta Pública 2019-2021"},
+        {"name": "Segalmex", "role": "institution", "title": "Seguridad Alimentaria Mexicana", "note": "Audited entity"}
+      ],
+      "sources": [
+        {"title": "Las claves del caso Segalmex: montos, desfalcos, denuncias y actores", "outlet": "Expansión Política", "date": "2024-09-17", "type": "journalism", "url": "https://politica.expansion.mx/mexico/2024/09/17/segalmex-que-es-claves-desfalco"},
+        {"title": "Informe ASF: más de 840 millones de pesos en irregularidades y 12 denuncias para la Segalmex", "outlet": "Infobae", "date": "2023-02-21", "type": "journalism", "url": "https://www.infobae.com/mexico/2023/02/21/informe-asf-mas-de-840-millones-de-pesos-en-irregularidades-y-12-denuncias-para-la-segalmex/"}
+      ],
+      "ground_truth_case_id": 2,
+      "investigation_case_ids": [],
+      "is_verified": 1
+    }
+  ]
+}

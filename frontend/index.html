@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,600&family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,600;1,700&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <!-- 2026-05-11 Phase 8: pre-warm the spatial-map's first paint.
+         The Z0 sector grid needs /api/v1/sectors and the spatial Z1
+         endpoint for any sector hovered before drill. Browser can pull
+         these in parallel with the JS bundle so the canvas is interactive
+         within ~500ms of page load instead of waiting for a serial
+         JS → fetch chain. dns-prefetch + preconnect cover the API host. -->
+    <link rel="preconnect" href="https://rubli.xyz" crossorigin />
+    <link rel="prefetch" href="/api/v1/sectors" as="fetch" crossorigin />
+    <link rel="prefetch" href="/api/v1/atlas/sector-institutions?sector_id=1&limit=60" as="fetch" crossorigin />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="RUBLI" />
+    <meta name="theme-color" content="#0d1117" />
+    <title>RUBLI — Mexican Government Procurement Intelligence</title>
+    <meta name="description" content="Open-source corruption-risk indicators for 3.06 million Mexican federal contracts (2002–2025). Investigate vendors, institutions and procurement patterns across 9.9 trillion MXN in public spending." />
+    <meta name="keywords" content="Mexico procurement, COMPRANET, contratos gobierno, transparencia, riesgo contrataciones, licitaciones, análisis" />
+    <meta name="author" content="RUBLI" />
+    <meta name="robots" content="index, follow" />
+    <!-- OpenGraph / Social sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="RUBLI — Procurement Intelligence" />
+    <meta property="og:title" content="RUBLI — Mexican Government Procurement Analysis" />
+    <meta property="og:description" content="Open-source procurement risk analysis for 3.06M Mexican federal contracts. Explore risk indicators, vendor networks, and labelled cases." />
+    <meta property="og:image" content="/favicon.svg" />
+    <meta property="og:url" content="https://rubli.xyz" />
+    <meta property="og:locale" content="es_MX" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="RUBLI — Mexican Government Procurement Analysis" />
+    <meta name="twitter:description" content="Open-source procurement risk analysis for 3.06M Mexican federal contracts. Risk indicators, vendor networks, labelled cases." />
+    <meta name="twitter:image" content="/favicon.svg" />
+  </head>
+  <body>
+    <!-- __RUBLI_RUNTIME_CONFIG__ -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

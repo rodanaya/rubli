@@ -1,0 +1,27 @@
+name: Bug report
+description: Something in the site, API or code does not work as expected.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      description: URL on rubli.xyz, API endpoint, or file/command.
+      placeholder: https://rubli.xyz/vendors/12345 · GET /api/v1/contracts · make test
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      render: text
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: browser, OS, Python/Node version, commit

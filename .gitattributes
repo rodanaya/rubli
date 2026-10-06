@@ -1,0 +1,3 @@
+# Normalize line endings: LF in the repo for every text file (shell scripts,
+# Makefile and Docker entrypoints break on CRLF). Binary files are auto-detected.
+* text=auto eol=lf
