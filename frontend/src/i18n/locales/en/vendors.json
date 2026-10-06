@@ -50,7 +50,6 @@
   },
   "flags": {
     "highDirectAward": "{{pct}}% of contracts were direct awards (bypassed competitive tendering)",
-    "highSingleBid": "{{pct}}% of competitive procedures had only this vendor bidding",
     "suspiciousCoBidding": "Notable co-bidding patterns detected (heuristic analysis — cobid_herfindahl concentration included in v0.8.5 risk model with coefficient +0.272)",
     "highClustering": "High network clustering ({{pct}}%) — bidding partners form a tightly-knit group",
     "primaryDriver": "Primary driver: {{factor}} (z={{z}} — {{z}} SDs above sector average)",
@@ -98,9 +97,6 @@
     },
     "highDirectAward": {
       "headline": "{{pct}}% direct awards — bypasses competitive tendering"
-    },
-    "highSingleBid": {
-      "headline": "{{pct}}% single-award in competitive procedures"
     },
     "highClustering": {
       "headline": "High network clustering ({{pct}}%) — bidding partners form a tightly-knit group"

@@ -49,7 +49,7 @@ import { DotBar } from '@/components/ui/DotBar'
 // Column and Preset Configuration
 // =============================================================================
 
-type SortField = 'name' | 'total_contracts' | 'total_value_mxn' | 'avg_risk_score' | 'direct_award_pct' | 'high_risk_pct' | 'single_bid_pct' | 'pct_anomalous'
+type SortField = 'name' | 'total_contracts' | 'total_value_mxn' | 'avg_risk_score' | 'direct_award_pct' | 'high_risk_pct' | 'single_award_pct' | 'pct_anomalous'
 
 const VENDOR_COLUMNS: { key: SortField; label: string; shortLabel: string; align: 'left' | 'right'; hideBelow?: string }[] = [
   { key: 'name', label: 'Vendor', shortLabel: 'Vendor', align: 'left' },
@@ -57,7 +57,7 @@ const VENDOR_COLUMNS: { key: SortField; label: string; shortLabel: string; align
   { key: 'total_value_mxn', label: 'Total Value', shortLabel: 'Value', align: 'right' },
   { key: 'avg_risk_score', label: 'Risk Score', shortLabel: 'Risk', align: 'right' },
   { key: 'direct_award_pct', label: 'Direct %', shortLabel: 'DA%', align: 'right', hideBelow: 'lg' },
-  { key: 'single_bid_pct', label: 'Single award %', shortLabel: 'SB%', align: 'right', hideBelow: 'xl' },
+  { key: 'single_award_pct', label: 'Single award %', shortLabel: 'SB%', align: 'right', hideBelow: 'xl' },
   { key: 'high_risk_pct', label: 'Flagged %', shortLabel: 'Flag%', align: 'right', hideBelow: 'lg' },
   { key: 'pct_anomalous', label: 'Anomaly %', shortLabel: 'Anom%', align: 'right', hideBelow: 'xl' },
 ]
@@ -88,7 +88,7 @@ export default function VendorsTab() {
     total_value_mxn: t('vendors.columns.totalValue'),
     avg_risk_score: t('vendors.columns.avgRisk'),
     direct_award_pct: t('vendors.columns.directAwardPct'),
-    single_bid_pct: t('vendors.columns.singleBidPct'),
+    single_award_pct: t('vendors.columns.singleBidPct'),
     high_risk_pct: t('vendors.columns.highRiskPct'),
     pct_anomalous: t('vendors.columns.anomalyPct'),
   })[key] ?? key
@@ -759,8 +759,9 @@ function VendorRow({ vendor, rank }: { vendor: VendorListItem; rank: number }) {
                   vendor.direct_award_pct >= 50 ? 'var(--risk-medium)' : 'var(--color-text-muted)'
 
   // Color for single award %
-  const sbColor = vendor.single_bid_pct >= 50 ? 'var(--risk-high)' :
-                  vendor.single_bid_pct >= 20 ? 'var(--risk-medium)' : 'var(--color-text-muted)'
+  // Single award of competitive procedures (D20) — not colour-flagged.
+  const sbPct = vendor.single_award_pct
+  const sbColor = 'var(--color-text-muted)'
 
   // Color for high risk %
   const hrColor = vendor.high_risk_pct >= 50 ? 'var(--risk-critical)' :
@@ -871,9 +872,11 @@ function VendorRow({ vendor, rank }: { vendor: VendorListItem; rank: number }) {
       {/* Single award % */}
       <td className="px-3 py-2 text-right hidden xl:table-cell">
         <span className="text-xs font-mono tabular-nums" style={{ color: sbColor }}>
-          {vendor.single_bid_pct < 1 && vendor.single_bid_pct > 0
-            ? `${vendor.single_bid_pct.toFixed(1)}%`
-            : `${vendor.single_bid_pct.toFixed(0)}%`}
+          {sbPct == null
+            ? '—'
+            : sbPct < 1 && sbPct > 0
+              ? `${sbPct.toFixed(1)}%`
+              : `${sbPct.toFixed(0)}%`}
         </span>
       </td>
 

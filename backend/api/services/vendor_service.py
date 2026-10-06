@@ -17,6 +17,7 @@ from .query_builder import QueryBuilder
 from .pagination import paginate_query, PaginatedResult
 from .vendor_canonical import not_absorbed
 from ..config.constants import RISK_THRESHOLDS_V4 as THRESHOLDS
+from ..helpers.analysis_helpers import single_award_of_competitive
 
 logger = structlog.get_logger("rubli.services.vendor")
 
@@ -30,6 +31,7 @@ VENDOR_SORT_WHITELIST = {
     "direct_award_pct": "s.direct_award_pct",
     "high_risk_pct": "s.high_risk_pct",
     "single_bid_pct": "s.single_bid_pct",
+    "single_award_pct": "MIN(100.0, s.single_bid_pct * 100.0 / NULLIF(100.0 - s.direct_award_pct, 0))",
     "pct_anomalous": "s.anomalous_pct",
     "name": "v.name",
 }
@@ -160,6 +162,7 @@ class VendorService(BaseService):
             "high_risk_pct": round(row["high_risk_pct"], 2),
             "direct_award_pct": round(row["direct_award_pct"], 2),
             "single_bid_pct": round(row["single_bid_pct"], 2) if row["single_bid_pct"] else 0,
+            "single_award_pct": single_award_of_competitive(row["single_bid_pct"] or 0, row["direct_award_pct"] or 0),
             "first_contract_year": row["first_contract_year"],
             "last_contract_year": row["last_contract_year"],
             "primary_sector_id": row["primary_sector_id"],

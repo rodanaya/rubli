@@ -7,7 +7,6 @@
   "oecdDABenchmark": "Tablero UE: ≥10% de adjudicación directa = insatisfactorio",
   "oecdMexicoDA": "México: {{pct}}% por valor",
   "oecdSBLabel": "Tasa de un solo adjudicado",
-  "oecdSBBenchmark": "Tablero UE: >20% de licitantes únicos = insatisfactorio",
   "oecdMexicoSB": "México: {{pct}}%",
   "heroBadgeLabel": "Basado en {{count}} indicadores internacionales · Tablero UE, FMI, Banco Mundial",
   "metricRiskTitle": "1 de cada {{n}} contratos muestra señales de riesgo",

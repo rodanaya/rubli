@@ -7,7 +7,6 @@
   "oecdDABenchmark": "EU scoreboard: ≥10% direct award = unsatisfactory",
   "oecdMexicoDA": "Mexico: {{pct}}% by value",
   "oecdSBLabel": "Single-award rate",
-  "oecdSBBenchmark": "EU scoreboard: >20% single award = unsatisfactory",
   "oecdMexicoSB": "Mexico: {{pct}}%",
   "heroBadgeLabel": "Based on {{count}} international indicators · EU scoreboard, IMF, World Bank",
   "metricRiskTitle": "1 in {{n}} contracts shows risk signals",

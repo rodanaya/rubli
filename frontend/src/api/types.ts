@@ -376,6 +376,8 @@ export interface VendorListItem {
   high_risk_pct: number
   direct_award_pct: number
   single_bid_pct: number
+  /** Single-award share of competitive procedures (D20) — the displayed rate. */
+  single_award_pct?: number | null
   first_contract_year?: number
   last_contract_year?: number
   years_active?: number
@@ -415,6 +417,8 @@ export interface VendorDetailResponse {
   direct_award_pct: number
   single_bid_count: number
   single_bid_pct: number
+  /** Single-award share of competitive procedures (D20) — the displayed rate. */
+  single_award_pct?: number | null
   first_contract_year?: number
   last_contract_year?: number
   years_active: number
@@ -706,6 +710,8 @@ export interface OfficialMover {
   total_value_mxn: number
   direct_award_pct: number
   single_bid_pct: number
+  /** Single-award share of competitive procedures (D20) — the displayed rate. */
+  single_award_pct?: number | null
   avg_risk_score: number
   first_contract_year: number | null
   last_contract_year: number | null
@@ -724,6 +730,8 @@ export interface OfficialInstitutionRow {
   total_value_mxn: number
   direct_award_pct: number
   single_bid_pct: number
+  /** Single-award share of competitive procedures (D20) — the displayed rate. */
+  single_award_pct?: number | null
   avg_risk_score: number
   vendor_diversity: number
   hhi_vendors: number
@@ -739,6 +747,8 @@ export interface OfficialProfileResponse {
     institution_count: number
     direct_award_pct: number
     single_bid_pct: number
+    /** Single-award share of competitive procedures (D20) — the displayed rate. */
+    single_award_pct?: number | null
     avg_risk_score: number
     first_contract_year: number | null
     last_contract_year: number | null

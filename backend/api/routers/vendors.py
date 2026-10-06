@@ -27,6 +27,7 @@ from ..config.constants import MAX_CONTRACT_VALUE
 # Whitelist: only a well-formed company RFC is ever returned (see api/pii.py).
 from ..pii import public_rfc
 from ..public_labels import DOCUMENTED_LINK_SQL, PUBLIC_LINK_SQL
+from ..helpers.analysis_helpers import single_award_of_competitive
 from ..sanctions import match_asf, match_sfp, summarize_basis
 _mask_personal_rfc = public_rfc
 from ..models.vendor import (
@@ -160,7 +161,7 @@ def list_vendors(
     min_contracts: Optional[int] = Query(None, ge=0, description="Minimum contract count"),
     min_value: Optional[float] = Query(None, ge=0, description="Minimum total contract value"),
     has_rfc: Optional[bool] = Query(None, description="Filter vendors with RFC"),
-    sort_by: str = Query("total_contracts", pattern="^(total_contracts|total_value|total_value_mxn|avg_risk|avg_risk_score|name|direct_award_pct|high_risk_pct|single_bid_pct|pct_anomalous)$", description="Sort field"),
+    sort_by: str = Query("total_contracts", pattern="^(total_contracts|total_value|total_value_mxn|avg_risk|avg_risk_score|name|direct_award_pct|high_risk_pct|single_bid_pct|single_award_pct|pct_anomalous)$", description="Sort field"),
     sort_order: str = Query("desc", pattern="^(asc|desc)$", description="Sort order"),
 ):
     """
@@ -958,6 +959,7 @@ def get_vendor(
             direct_award_pct=round(direct_award_pct, 2),
             single_bid_count=round(single_bid_pct * total_contracts / 100) if total_contracts > 0 else 0,
             single_bid_pct=round(single_bid_pct, 2),
+            single_award_pct=single_award_of_competitive(single_bid_pct, direct_award_pct),
             first_contract_year=first_year,
             last_contract_year=last_year,
             years_active=(last_year - first_year + 1) if first_year and last_year else 0,

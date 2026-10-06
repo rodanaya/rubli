@@ -24,3 +24,19 @@ def test_institution_detail_single_award(client):
     if d.get("single_bid_pct") is None:
         return
     assert d["single_award_pct"] >= d["single_bid_pct"]
+
+
+def test_vendor_detail_and_list_single_award(client):
+    d = client.get("/api/v1/vendors/2873").json()
+    if "single_bid_pct" in d and d.get("direct_award_pct", 100) < 100:
+        assert d["single_award_pct"] >= d["single_bid_pct"]
+    r = client.get("/api/v1/vendors", params={"sort_by": "single_award_pct", "per_page": 3})
+    assert r.status_code == 200
+    assert all("single_award_pct" in v for v in r.json()["data"])
+
+
+def test_officials_single_award(client):
+    r = client.get("/api/v1/officials/movers", params={"limit": 3})
+    if r.status_code != 200 or not r.json().get("movers"):
+        return  # officials tables absent in this snapshot
+    assert all("single_award_pct" in m for m in r.json()["movers"])

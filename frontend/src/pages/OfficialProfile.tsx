@@ -131,7 +131,7 @@ export default function OfficialProfile() {
                 <th className="text-left font-medium py-2 pr-3">{isEs ? 'Institución' : 'Institution'}</th>
                 <th className="text-right font-medium py-2 px-3">{isEs ? 'Contratos' : 'Contracts'}</th>
                 <th className="text-right font-medium py-2 px-3">{isEs ? 'Adj. directa' : 'Direct award'}</th>
-                <th className="text-right font-medium py-2 px-3">{isEs ? 'Un solo adjudicado' : 'Single award'}</th>
+                <th className="text-right font-medium py-2 px-3">{isEs ? 'Un solo adj. (competitivos)' : 'Single award (competitive)'}</th>
                 <th className="text-right font-medium py-2 px-3">{isEs ? 'Proveedores' : 'Vendors'}</th>
                 <th className="text-right font-medium py-2 pl-3">{isEs ? 'Indicador' : 'Risk ind.'}</th>
               </tr>
@@ -155,7 +155,7 @@ export default function OfficialProfile() {
                     </td>
                     <td className="py-2 px-3 text-right tabular-nums text-text-secondary">{row.total_contracts.toLocaleString(locale)}</td>
                     <td className="py-2 px-3 text-right tabular-nums text-text-secondary">{row.direct_award_pct.toFixed(0)}%</td>
-                    <td className="py-2 px-3 text-right tabular-nums text-text-secondary">{row.single_bid_pct.toFixed(0)}%</td>
+                    <td className="py-2 px-3 text-right tabular-nums text-text-secondary">{row.single_award_pct != null ? `${row.single_award_pct.toFixed(0)}%` : '—'}</td>
                     <td className="py-2 px-3 text-right tabular-nums text-text-secondary">{row.vendor_diversity.toLocaleString(locale)}</td>
                     <td className="py-2 pl-3 text-right tabular-nums">
                       <span className="inline-flex items-center gap-1.5 justify-end">

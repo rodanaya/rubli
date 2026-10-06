@@ -14,6 +14,7 @@ from urllib.parse import unquote
 from fastapi import APIRouter, HTTPException, Path, Query
 
 from ..dependencies import get_db
+from ..helpers.analysis_helpers import single_award_of_competitive
 
 router = APIRouter(prefix="/officials", tags=["officials"])
 
@@ -70,6 +71,7 @@ def get_official_movers(
                 "total_value_mxn": r["total_value_mxn"],
                 "direct_award_pct": round(r["direct_award_pct"] or 0, 1),
                 "single_bid_pct": round(r["single_bid_pct"] or 0, 1),
+                "single_award_pct": single_award_of_competitive(r["single_bid_pct"] or 0, r["direct_award_pct"] or 0),
                 "avg_risk_score": round(r["avg_risk_score"] or 0, 4),
                 "first_contract_year": r["first_contract_year"],
                 "last_contract_year": r["last_contract_year"],
@@ -119,6 +121,7 @@ def get_official_profile(
                 "total_value_mxn": r["total_value_mxn"],
                 "direct_award_pct": round(r["direct_award_pct"] or 0, 1),
                 "single_bid_pct": round(r["single_bid_pct"] or 0, 1),
+                "single_award_pct": single_award_of_competitive(r["single_bid_pct"] or 0, r["direct_award_pct"] or 0),
                 "avg_risk_score": round(r["avg_risk_score"] or 0, 4),
                 "vendor_diversity": r["vendor_diversity"],
                 "hhi_vendors": round(r["hhi_vendors"] or 0, 1),
@@ -144,6 +147,7 @@ def get_official_profile(
             "institution_count": len(institutions),
             "direct_award_pct": round(_weighted("direct_award_pct"), 1),
             "single_bid_pct": round(_weighted("single_bid_pct"), 1),
+            "single_award_pct": single_award_of_competitive(_weighted("single_bid_pct"), _weighted("direct_award_pct")),
             "avg_risk_score": round(_weighted("avg_risk_score"), 4),
             "first_contract_year": min(first_years) if first_years else None,
             "last_contract_year": max(last_years) if last_years else None,

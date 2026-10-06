@@ -198,14 +198,8 @@ export function buildVendorFlags(input: BuildFlagsInput): PriorityFlag[] {
       headline: t('vendorFlags.highDirectAward.headline', { pct: daPct.toFixed(0) }),
     })
   }
-  const sbPct = vendor.single_bid_pct ?? 0
-  if (sbPct > 40) {
-    flags.push({
-      key: 'single-bid',
-      severity: 'medium',
-      headline: t('vendorFlags.highSingleBid.headline', { pct: sbPct.toFixed(0) }),
-    })
-  }
+  // No single-award flag: CompraNet records winners, not bidders, so a high
+  // single-award rate is not a red flag (D20, chair-plan C7).
 
   // ─── Co-bidding clustering ─────────────────────────────────────────────
   const clustering = vendor.cobid_clustering_coeff ?? 0

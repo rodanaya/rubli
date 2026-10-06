@@ -298,8 +298,8 @@ export function OfficialTenureBands({ movers, isEs }: OfficialTenureBandsProps) 
                       />
                     </div>
                     <div className="font-mono text-[12px] text-text-muted">
-                      <div className="mb-0.5 uppercase tracking-[0.1em]">{isEs ? 'Un solo adjudicado' : 'Single award'}</div>
-                      <div className="text-[13px] tabular-nums text-text-primary">{m.single_bid_pct.toFixed(0)}%</div>
+                      <div className="mb-0.5 uppercase tracking-[0.1em]">{isEs ? 'Un solo adj. (competitivos)' : 'Single award (competitive)'}</div>
+                      <div className="text-[13px] tabular-nums text-text-primary">{m.single_award_pct != null ? `${m.single_award_pct.toFixed(0)}%` : '—'}</div>
                     </div>
                     <div className="font-mono text-[12px] text-text-muted">
                       <div className="mb-0.5 uppercase tracking-[0.1em]">{isEs ? 'Indicador de riesgo' : 'Risk indicator'}</div>

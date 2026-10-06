@@ -50,7 +50,6 @@
   },
   "flags": {
     "highDirectAward": "{{pct}}% de contratos fueron adjudicaciones directas (sin licitación competitiva)",
-    "highSingleBid": "{{pct}}% de los procedimientos competitivos tuvieron solo este proveedor licitando",
     "suspiciousCoBidding": "Patrones sospechosos de co-licitación detectados (análisis heurístico — concentración cobid_herfindahl incluida en modelo v0.8.5 con coeficiente +0.272)",
     "highClustering": "Alta concentración de red ({{pct}}%) — los socios licitadores forman un grupo muy unido",
     "primaryDriver": "Factor principal: {{factor}} (z={{z}} — {{z}} desviaciones estándar sobre el promedio sectorial)",
@@ -98,9 +97,6 @@
     },
     "highDirectAward": {
       "headline": "{{pct}}% adjudicaciones directas — evita la licitación competitiva"
-    },
-    "highSingleBid": {
-      "headline": "{{pct}}% licitador único en procedimientos competitivos"
     },
     "highClustering": {
       "headline": "Alta concentración de red ({{pct}}%) — los socios licitadores forman un grupo muy unido"

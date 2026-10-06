@@ -43,6 +43,7 @@ class VendorListItem(BaseModel):
     high_risk_pct: float = Field(0, description="Percentage of high/critical risk contracts")
     direct_award_pct: float = Field(0, description="Percentage of direct awards")
     single_bid_pct: float = Field(0, description="Percentage of single-bid contracts")
+    single_award_pct: Optional[float] = Field(None, description="Single-award procedures as a percentage of COMPETITIVE procedures (0-100); the user-facing rate (D20)")
     first_contract_year: Optional[int] = Field(None, description="Year of first contract")
     last_contract_year: Optional[int] = Field(None, description="Year of most recent contract")
     primary_sector_id: Optional[int] = Field(None, description="Primary sector ID (1-12)")
@@ -98,6 +99,7 @@ class VendorDetailResponse(BaseModel):
     direct_award_pct: float = Field(0, description="Direct award percentage")
     single_bid_count: int = Field(0, description="Single bid count")
     single_bid_pct: float = Field(0, description="Single bid percentage")
+    single_award_pct: Optional[float] = Field(None, description="Single-award procedures as a percentage of COMPETITIVE procedures (0-100); the user-facing rate (D20)")
 
     # Timeline
     first_contract_year: Optional[int] = Field(None, description="Year of first contract")

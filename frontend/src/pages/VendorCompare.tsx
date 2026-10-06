@@ -87,7 +87,7 @@ const METRICS: MetricDef[] = [
   },
   {
     tKey: 'metrics.singleBidPct',
-    getValue: (v) => v.single_bid_pct,
+    getValue: (v) => v.single_award_pct ?? null, // competitive base (D20)
     format: (n) => formatPercentSafe(n, false),
     higherIsBad: true,
   },
