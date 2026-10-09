@@ -11,7 +11,7 @@ slowapi>=0.1.9              # Rate limiting for FastAPI
 httpx>=0.25.0               # HTTP client (healthcheck + TestClient)
 
 # Observability & Caching
-structlog>=24.0.0          # Structured JSON logging
+structlog>=26.1.0          # Structured JSON logging
 cachetools>=5.3.0          # Thread-safe TTL caches
 
 # Scientific (used lazily by analysis endpoints)
